@@ -1,9 +1,6 @@
 class Timer {
     constructor() {
-        this.startTime = 0;
-        this.elapsedTime = 0;
-        this.running = false;
-        this.interval = null;
+        this.reset();
     }
 
     start() {
@@ -26,7 +23,10 @@ class Timer {
     }
 
     reset() {
-        this.stop();
+        this.running = false;
+        clearInterval(this.interval);
+        this.interval = null;
+        this.startTime = 0;
         this.elapsedTime = 0;
     }
 
