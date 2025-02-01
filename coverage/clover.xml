@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1738255385011" clover="3.2.0">
-  <project timestamp="1738255385011" name="All files">
-    <metrics statements="0" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0" elements="0" coveredelements="0" complexity="0" loc="0" ncloc="0" packages="0" files="0" classes="0"/>
+<coverage generated="1738333976072" clover="3.2.0">
+  <project timestamp="1738333976072" name="All files">
+    <metrics statements="0" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0" elements="0" coveredelements="0" complexity="0" loc="0" ncloc="0" packages="1" files="1" classes="1"/>
+    <file name="timer.js" path="/home/alessandro/Universita/Tesi/TaskFlow/renderer/models/timer.js">
+      <metrics statements="0" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+    </file>
   </project>
 </coverage>
