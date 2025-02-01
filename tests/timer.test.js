@@ -70,3 +70,8 @@ describe('Timer', () => {
     });
 
 });
+
+afterEach(() => {
+    jest.useRealTimers(); // Assicura che Jest non stia simulando timers
+    jest.clearAllTimers(); // Elimina eventuali timer lasciati aperti
+});
