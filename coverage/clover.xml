@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1738435127768" clover="3.2.0">
-  <project timestamp="1738435127768" name="All files">
+<coverage generated="1738436103818" clover="3.2.0">
+  <project timestamp="1738436103818" name="All files">
     <metrics statements="20" coveredstatements="18" conditionals="8" coveredconditionals="6" methods="6" coveredmethods="6" elements="34" coveredelements="30" complexity="0" loc="20" ncloc="20" packages="1" files="1" classes="1"/>
     <file name="timer.js" path="/home/alessandro/Universita/Tesi/TaskFlow/renderer/models/timer.js">
       <metrics statements="20" coveredstatements="18" conditionals="8" coveredconditionals="6" methods="6" coveredmethods="6"/>
@@ -9,7 +9,7 @@
       <line num="8" count="7" type="stmt"/>
       <line num="9" count="7" type="stmt"/>
       <line num="10" count="7" type="stmt"/>
-      <line num="11" count="13" type="stmt"/>
+      <line num="11" count="14" type="stmt"/>
       <line num="17" count="6" type="cond" truecount="2" falsecount="0"/>
       <line num="18" count="5" type="stmt"/>
       <line num="19" count="5" type="cond" truecount="1" falsecount="1"/>
