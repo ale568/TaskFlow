@@ -16,16 +16,20 @@ class Timer {
     stop() {
         if (this.running) {
             this.running = false;
-            clearInterval(this.interval);
-            this.interval = null;
+            if (this.interval) {
+                clearInterval(this.interval);
+                this.interval = null;
+            }
             this.elapsedTime = Date.now() - this.startTime;
         }
     }
 
     reset() {
         this.running = false;
-        clearInterval(this.interval);
-        this.interval = null;
+        if (this.interval) {
+            clearInterval(this.interval);
+            this.interval = null;
+        }
         this.startTime = 0;
         this.elapsedTime = 0;
     }
