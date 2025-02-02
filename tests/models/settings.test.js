@@ -1,4 +1,4 @@
-const Settings = require('../renderer/models/settings');
+const Settings = require('../../renderer/models/settings');
 
 describe('Settings', () => {
 

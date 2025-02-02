@@ -1,4 +1,4 @@
-const Tag = require('../renderer/models/tag');
+const Tag = require('../../renderer/models/tag');
 
 describe('Tag', () => {
 

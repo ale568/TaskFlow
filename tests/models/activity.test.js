@@ -1,4 +1,4 @@
-const Activity = require('../renderer/models/activity');
+const Activity = require('../../renderer/models/activity');
 
 describe('Activity', () => {
 

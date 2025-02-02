@@ -1,5 +1,5 @@
-const Project = require('../renderer/models/project');
-const Activity = require('../renderer/models/activity');
+const Project = require('../../renderer/models/project');
+const Activity = require('../../renderer/models/activity');
 
 describe('Project', () => {
 

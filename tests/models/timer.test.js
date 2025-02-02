@@ -1,4 +1,4 @@
-const Timer = require('../renderer/models/timer');
+const Timer = require('../../renderer/models/timer');
 
 describe('Timer', () => {
     afterEach(() => {
