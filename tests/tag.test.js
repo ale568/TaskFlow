@@ -17,14 +17,14 @@ describe('Tag', () => {
     });
 
     test('It should allow to change tag\'s name', () => {
-        const tag = new Tag('Job', '#00F00');
+        const tag = new Tag('Job', '#00FF00');
         tag.setName('Research');
         expect(tag.name).toBe('Research');
     });
 
     test('It should allow to change tag\'s color', () => {
-        const tag = new Tag('Job', '#00F00');
+        const tag = new Tag('Job', '#00FF00');
         tag.setColor('#0000FF');
-        expect(tag.color).toBe('0000FF');
+        expect(tag.color).toBe('#0000FF');
     });
 });
