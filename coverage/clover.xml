@@ -1,15 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1738509337381" clover="3.2.0">
-  <project timestamp="1738509337382" name="All files">
-    <metrics statements="6" coveredstatements="6" conditionals="1" coveredconditionals="1" methods="1" coveredmethods="1" elements="8" coveredelements="8" complexity="0" loc="6" ncloc="6" packages="1" files="1" classes="1"/>
+<coverage generated="1738510411790" clover="3.2.0">
+  <project timestamp="1738510411790" name="All files">
+    <metrics statements="14" coveredstatements="10" conditionals="18" coveredconditionals="14" methods="1" coveredmethods="1" elements="33" coveredelements="25" complexity="0" loc="14" ncloc="14" packages="1" files="1" classes="1"/>
     <file name="activity.js" path="/home/alessandro/Universita/Tesi/TaskFlow/renderer/models/activity.js">
-      <metrics statements="6" coveredstatements="6" conditionals="1" coveredconditionals="1" methods="1" coveredmethods="1"/>
-      <line num="3" count="4" type="stmt"/>
-      <line num="4" count="4" type="stmt"/>
-      <line num="5" count="4" type="stmt"/>
-      <line num="6" count="4" type="stmt"/>
-      <line num="7" count="4" type="stmt"/>
-      <line num="11" count="1" type="stmt"/>
+      <metrics statements="14" coveredstatements="10" conditionals="18" coveredconditionals="14" methods="1" coveredmethods="1"/>
+      <line num="3" count="4" type="cond" truecount="3" falsecount="1"/>
+      <line num="4" count="0" type="stmt"/>
+      <line num="6" count="4" type="cond" truecount="3" falsecount="1"/>
+      <line num="7" count="0" type="stmt"/>
+      <line num="9" count="4" type="cond" truecount="3" falsecount="1"/>
+      <line num="10" count="0" type="stmt"/>
+      <line num="12" count="4" type="cond" truecount="3" falsecount="1"/>
+      <line num="13" count="0" type="stmt"/>
+      <line num="16" count="4" type="stmt"/>
+      <line num="17" count="4" type="stmt"/>
+      <line num="18" count="4" type="stmt"/>
+      <line num="19" count="4" type="stmt"/>
+      <line num="20" count="4" type="stmt"/>
+      <line num="24" count="1" type="stmt"/>
     </file>
   </project>
 </coverage>
