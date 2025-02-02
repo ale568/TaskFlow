@@ -2,29 +2,29 @@ const Timer = require('../renderer/models/timer');
 
 describe('Timer', () => {
     afterEach(() => {
-        jest.useRealTimers(); // Usa i timer reali per evitare interferenze con Jest
-        jest.clearAllTimers(); // Rimuove eventuali timer lasciati attivi
+        jest.useRealTimers(); // Real timer used for avoid interference with Jest
+        jest.clearAllTimers(); // Removes any leftover active timers
     });
 
-    test('Il timer dovrebbe poter essere avviato e fermato, registrando il tempo trascorso', (done) => {
+    test('The timer should be able to start and stop, recording the elapsed time.', (done) => {
         const timer = new Timer();
         timer.start();
         
         setTimeout(() => {
-            timer.stop(); // Ora il timer viene fermato sempre
+            timer.stop(); // Timer is always stopped
             expect(timer.getTime()).toBeGreaterThan(0);
             done();
         }, 500);
     });
 
-    test('Il timer dovrebbe impostare un intervallo quando parte', () => {
+    test('The timer should set an interval when it starts.', () => {
         const timer = new Timer();
         timer.start();
         expect(timer.interval).not.toBeNull();
-        timer.stop(); // Fermo sempre il timer dopo il test
+        timer.stop(); // I always stop the timer after the test.
     });
 
-    test('Il timer dovrebbe poter essere resettato a zero', () => {
+    test('The timer should be able to reset to zero.', () => {
         const timer = new Timer();
         timer.start();
         timer.stop();
@@ -32,16 +32,16 @@ describe('Timer', () => {
         expect(timer.getTime()).toBe(0);
     });
 
-    test('Il timer non dovrebbe aumentare il tempo se start() viene chiamato più volte senza stop()', () => {
+    test('The timer should not increase time if start() is called multiple times without stop().', () => {
         const timer = new Timer();
         timer.start();
         const initialTime = timer.getTime();
         timer.start();
         expect(timer.getTime()).toBe(initialTime);
-        timer.stop(); // Assicura che il timer venga fermato
+        timer.stop(); // Ensures the timer is stopped
     });
 
-    test('Il timer dovrebbe fermarsi correttamente se stop() viene chiamato più volte', () => {
+    test('The timer should stop correctly if stop() is called multiple times.', () => {
         const timer = new Timer();
         timer.start();
         timer.stop();
@@ -50,7 +50,7 @@ describe('Timer', () => {
         expect(timer.getTime()).toBe(stoppedTime);
     });
 
-    test('Il timer dovrebbe resettarsi correttamente se reset() viene chiamato più volte', () => {
+    test('The timer should reset correctly if reset() is called multiple times.', () => {
         const timer = new Timer();
         timer.start();
         timer.stop();
