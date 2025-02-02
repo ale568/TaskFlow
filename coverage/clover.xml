@@ -1,32 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1738516081671" clover="3.2.0">
-  <project timestamp="1738516081672" name="All files">
-    <metrics statements="20" coveredstatements="16" conditionals="19" coveredconditionals="14" methods="5" coveredmethods="5" elements="44" coveredelements="35" complexity="0" loc="20" ncloc="20" packages="1" files="2" classes="2"/>
-    <file name="activity.js" path="/home/alessandro/Universita/Tesi/TaskFlow/renderer/models/activity.js">
-      <metrics statements="14" coveredstatements="10" conditionals="18" coveredconditionals="13" methods="1" coveredmethods="1"/>
-      <line num="3" count="3" type="cond" truecount="3" falsecount="1"/>
-      <line num="4" count="0" type="stmt"/>
-      <line num="6" count="3" type="cond" truecount="3" falsecount="1"/>
-      <line num="7" count="0" type="stmt"/>
-      <line num="9" count="3" type="cond" truecount="2" falsecount="2"/>
-      <line num="10" count="0" type="stmt"/>
-      <line num="12" count="3" type="cond" truecount="3" falsecount="1"/>
-      <line num="13" count="0" type="stmt"/>
-      <line num="16" count="3" type="stmt"/>
-      <line num="17" count="3" type="stmt"/>
-      <line num="18" count="3" type="stmt"/>
-      <line num="19" count="3" type="stmt"/>
-      <line num="20" count="3" type="stmt"/>
-      <line num="24" count="1" type="stmt"/>
-    </file>
-    <file name="project.js" path="/home/alessandro/Universita/Tesi/TaskFlow/renderer/models/project.js">
-      <metrics statements="6" coveredstatements="6" conditionals="1" coveredconditionals="1" methods="4" coveredmethods="4"/>
-      <line num="3" count="5" type="stmt"/>
-      <line num="4" count="5" type="stmt"/>
-      <line num="5" count="5" type="stmt"/>
-      <line num="9" count="3" type="stmt"/>
-      <line num="13" count="2" type="stmt"/>
-      <line num="17" count="1" type="stmt"/>
+<coverage generated="1738517925651" clover="3.2.0">
+  <project timestamp="1738517925651" name="All files">
+    <metrics statements="0" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0" elements="0" coveredelements="0" complexity="0" loc="0" ncloc="0" packages="1" files="1" classes="1"/>
+    <file name="tag.js" path="/home/alessandro/Universita/Tesi/TaskFlow/renderer/models/tag.js">
+      <metrics statements="0" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
     </file>
   </project>
 </coverage>
