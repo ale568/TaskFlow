@@ -18,6 +18,7 @@ class Activity {
         this.project = project;
         this.startTime = startTime;
         this.endTime = new Date(this.startTime.getTime() + duration * 1000);
+        this.createdAt = new Date(); 
     }
 }
 

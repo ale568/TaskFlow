@@ -18,15 +18,24 @@ describe('Home Controller', () => {
         project1.addActivity(activity1);
         project1.addActivity(activity2);
         project2.addActivity(activity3);
+
     });
 
     test('It should load recent activities', () => {
         const recentactivities = homeController.getRecentActivities([project1, project2]);
-        expect(recentactivities.legth).toBe(3);
+        expect(recentactivities.length).toBe(3);
         expect(recentactivities).toContain(activity1);
         expect(recentactivities).toContain(activity2);
         expect(recentactivities).toContain(activity3);
     });
+
+    test('It should return a void array if there are not activities', () => {
+        const emptyProjects = [];
+        const recentActivities = homeController.getRecentActivities(emptyProjects);
+        expect(Array.isArray(recentActivities)).toBe(true);
+        expect(recentActivities.length).toBe(0);
+    });
+    
 
     test('It should get recent projects', () => {
         const activeProjects = homeController.getActiveProjects([project1, project2]);
