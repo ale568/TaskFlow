@@ -1,56 +1,138 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1738591442597" clover="3.2.0">
-  <project timestamp="1738591442597" name="All files">
-    <metrics statements="33" coveredstatements="24" conditionals="27" coveredconditionals="16" methods="8" coveredmethods="6" elements="68" coveredelements="46" complexity="0" loc="33" ncloc="33" packages="2" files="4" classes="4"/>
+<coverage generated="1738592401114" clover="3.2.0">
+  <project timestamp="1738592401114" name="All files">
+    <metrics statements="103" coveredstatements="98" conditionals="47" coveredconditionals="38" methods="40" coveredmethods="40" elements="190" coveredelements="176" complexity="0" loc="103" ncloc="103" packages="2" files="8" classes="8"/>
     <package name="controllers">
-      <metrics statements="0" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+      <metrics statements="43" coveredstatements="42" conditionals="16" coveredconditionals="11" methods="21" coveredmethods="21"/>
+      <file name="projectsController.js" path="/home/alessandro/Universita/Tesi/TaskFlow/renderer/controllers/projectsController.js">
+        <metrics statements="11" coveredstatements="11" conditionals="2" coveredconditionals="1" methods="4" coveredmethods="4"/>
+        <line num="1" count="1" type="stmt"/>
+        <line num="2" count="1" type="stmt"/>
+        <line num="4" count="1" type="stmt"/>
+        <line num="5" count="1" type="stmt"/>
+        <line num="8" count="1" type="stmt"/>
+        <line num="9" count="3" type="stmt"/>
+        <line num="12" count="1" type="stmt"/>
+        <line num="13" count="1" type="stmt"/>
+        <line num="14" count="2" type="stmt"/>
+        <line num="15" count="2" type="cond" truecount="1" falsecount="1"/>
+        <line num="19" count="1" type="stmt"/>
+      </file>
       <file name="reportsController.js" path="/home/alessandro/Universita/Tesi/TaskFlow/renderer/controllers/reportsController.js">
-        <metrics statements="0" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+        <metrics statements="17" coveredstatements="16" conditionals="10" coveredconditionals="8" methods="8" coveredmethods="8"/>
+        <line num="3" count="1" type="stmt"/>
+        <line num="4" count="1" type="stmt"/>
+        <line num="5" count="2" type="stmt"/>
+        <line num="6" count="3" type="cond" truecount="3" falsecount="1"/>
+        <line num="7" count="3" type="stmt"/>
+        <line num="9" count="0" type="stmt"/>
+        <line num="11" count="2" type="stmt"/>
+        <line num="13" count="1" type="stmt"/>
+        <line num="17" count="1" type="stmt"/>
+        <line num="18" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="22" count="1" type="stmt"/>
+        <line num="23" count="1" type="stmt"/>
+        <line num="24" count="2" type="stmt"/>
+        <line num="25" count="3" type="cond" truecount="4" falsecount="0"/>
+        <line num="26" count="2" type="stmt"/>
+        <line num="30" count="1" type="stmt"/>
+        <line num="34" count="1" type="stmt"/>
+      </file>
+      <file name="tagsController.js" path="/home/alessandro/Universita/Tesi/TaskFlow/renderer/controllers/tagsController.js">
+        <metrics statements="15" coveredstatements="15" conditionals="4" coveredconditionals="2" methods="9" coveredmethods="9"/>
+        <line num="1" count="1" type="stmt"/>
+        <line num="5" count="1" type="stmt"/>
+        <line num="6" count="1" type="stmt"/>
+        <line num="10" count="6" type="stmt"/>
+        <line num="11" count="6" type="stmt"/>
+        <line num="12" count="6" type="stmt"/>
+        <line num="16" count="2" type="stmt"/>
+        <line num="20" count="1" type="stmt"/>
+        <line num="21" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="22" count="1" type="stmt"/>
+        <line num="27" count="1" type="stmt"/>
+        <line num="28" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="29" count="1" type="stmt"/>
+        <line num="34" count="1" type="stmt"/>
+        <line num="38" count="1" type="stmt"/>
       </file>
     </package>
     <package name="models">
-      <metrics statements="33" coveredstatements="24" conditionals="27" coveredconditionals="16" methods="8" coveredmethods="6"/>
+      <metrics statements="60" coveredstatements="56" conditionals="31" coveredconditionals="27" methods="19" coveredmethods="19"/>
       <file name="activity.js" path="/home/alessandro/Universita/Tesi/TaskFlow/renderer/models/activity.js">
-        <metrics statements="14" coveredstatements="10" conditionals="18" coveredconditionals="13" methods="1" coveredmethods="1"/>
-        <line num="3" count="9" type="cond" truecount="3" falsecount="1"/>
+        <metrics statements="14" coveredstatements="10" conditionals="18" coveredconditionals="14" methods="1" coveredmethods="1"/>
+        <line num="3" count="22" type="cond" truecount="3" falsecount="1"/>
         <line num="4" count="0" type="stmt"/>
-        <line num="6" count="9" type="cond" truecount="3" falsecount="1"/>
+        <line num="6" count="22" type="cond" truecount="3" falsecount="1"/>
         <line num="7" count="0" type="stmt"/>
-        <line num="9" count="9" type="cond" truecount="3" falsecount="1"/>
+        <line num="9" count="22" type="cond" truecount="3" falsecount="1"/>
         <line num="10" count="0" type="stmt"/>
-        <line num="12" count="9" type="cond" truecount="3" falsecount="1"/>
+        <line num="12" count="22" type="cond" truecount="3" falsecount="1"/>
         <line num="13" count="0" type="stmt"/>
-        <line num="16" count="9" type="stmt"/>
-        <line num="17" count="9" type="stmt"/>
-        <line num="18" count="9" type="stmt"/>
-        <line num="19" count="9" type="stmt"/>
-        <line num="20" count="9" type="stmt"/>
-        <line num="24" count="1" type="stmt"/>
+        <line num="16" count="22" type="stmt"/>
+        <line num="17" count="22" type="stmt"/>
+        <line num="18" count="22" type="stmt"/>
+        <line num="19" count="22" type="stmt"/>
+        <line num="20" count="22" type="stmt"/>
+        <line num="24" count="4" type="stmt"/>
       </file>
       <file name="project.js" path="/home/alessandro/Universita/Tesi/TaskFlow/renderer/models/project.js">
-        <metrics statements="8" coveredstatements="5" conditionals="5" coveredconditionals="1" methods="4" coveredmethods="2"/>
-        <line num="3" count="6" type="stmt"/>
-        <line num="4" count="6" type="stmt"/>
-        <line num="5" count="6" type="stmt"/>
-        <line num="9" count="9" type="stmt"/>
-        <line num="13" count="0" type="stmt"/>
-        <line num="14" count="0" type="stmt"/>
-        <line num="15" count="0" type="cond" truecount="0" falsecount="4"/>
-        <line num="20" count="1" type="stmt"/>
+        <metrics statements="8" coveredstatements="8" conditionals="5" coveredconditionals="5" methods="4" coveredmethods="4"/>
+        <line num="3" count="17" type="stmt"/>
+        <line num="4" count="17" type="stmt"/>
+        <line num="5" count="17" type="stmt"/>
+        <line num="9" count="15" type="stmt"/>
+        <line num="13" count="3" type="stmt"/>
+        <line num="14" count="3" type="stmt"/>
+        <line num="15" count="3" type="cond" truecount="4" falsecount="0"/>
+        <line num="20" count="3" type="stmt"/>
+      </file>
+      <file name="settings.js" path="/home/alessandro/Universita/Tesi/TaskFlow/renderer/models/settings.js">
+        <metrics statements="9" coveredstatements="9" conditionals="0" coveredconditionals="0" methods="5" coveredmethods="5"/>
+        <line num="3" count="5" type="stmt"/>
+        <line num="4" count="5" type="stmt"/>
+        <line num="5" count="5" type="stmt"/>
+        <line num="6" count="5" type="stmt"/>
+        <line num="10" count="1" type="stmt"/>
+        <line num="14" count="1" type="stmt"/>
+        <line num="18" count="1" type="stmt"/>
+        <line num="22" count="2" type="stmt"/>
+        <line num="26" count="1" type="stmt"/>
       </file>
       <file name="tag.js" path="/home/alessandro/Universita/Tesi/TaskFlow/renderer/models/tag.js">
-        <metrics statements="11" coveredstatements="9" conditionals="4" coveredconditionals="2" methods="3" coveredmethods="3"/>
-        <line num="3" count="1" type="stmt"/>
-        <line num="4" count="1" type="stmt"/>
-        <line num="5" count="1" type="stmt"/>
-        <line num="9" count="1" type="cond" truecount="1" falsecount="1"/>
-        <line num="10" count="0" type="stmt"/>
-        <line num="12" count="1" type="stmt"/>
-        <line num="16" count="1" type="stmt"/>
-        <line num="17" count="1" type="cond" truecount="1" falsecount="1"/>
-        <line num="18" count="0" type="stmt"/>
-        <line num="20" count="1" type="stmt"/>
-        <line num="24" count="1" type="stmt"/>
+        <metrics statements="11" coveredstatements="11" conditionals="4" coveredconditionals="4" methods="3" coveredmethods="3"/>
+        <line num="3" count="12" type="stmt"/>
+        <line num="4" count="12" type="stmt"/>
+        <line num="5" count="11" type="stmt"/>
+        <line num="9" count="13" type="cond" truecount="2" falsecount="0"/>
+        <line num="10" count="1" type="stmt"/>
+        <line num="12" count="12" type="stmt"/>
+        <line num="16" count="12" type="stmt"/>
+        <line num="17" count="12" type="cond" truecount="2" falsecount="0"/>
+        <line num="18" count="1" type="stmt"/>
+        <line num="20" count="11" type="stmt"/>
+        <line num="24" count="3" type="stmt"/>
+      </file>
+      <file name="timer.js" path="/home/alessandro/Universita/Tesi/TaskFlow/renderer/models/timer.js">
+        <metrics statements="18" coveredstatements="18" conditionals="4" coveredconditionals="4" methods="6" coveredmethods="6"/>
+        <line num="3" count="6" type="stmt"/>
+        <line num="7" count="7" type="cond" truecount="2" falsecount="0"/>
+        <line num="8" count="6" type="stmt"/>
+        <line num="9" count="6" type="stmt"/>
+        <line num="10" count="6" type="stmt"/>
+        <line num="11" count="4" type="stmt"/>
+        <line num="17" count="7" type="cond" truecount="2" falsecount="0"/>
+        <line num="18" count="6" type="stmt"/>
+        <line num="19" count="6" type="stmt"/>
+        <line num="20" count="6" type="stmt"/>
+        <line num="21" count="6" type="stmt"/>
+        <line num="26" count="9" type="stmt"/>
+        <line num="27" count="9" type="stmt"/>
+        <line num="28" count="9" type="stmt"/>
+        <line num="29" count="9" type="stmt"/>
+        <line num="30" count="9" type="stmt"/>
+        <line num="34" count="7" type="stmt"/>
+        <line num="38" count="1" type="stmt"/>
       </file>
     </package>
   </project>
