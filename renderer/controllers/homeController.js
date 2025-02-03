@@ -4,25 +4,15 @@ class HomeController {
             return [];
         }
 
-        let activities = [];
-        projects.forEach(project => {
-            if (Array.isArray(project.activities)) {
-                activities = activities.concat(project.activities);
-            }
-        });
+        const activities = projects.flatMap(project => project.activities || []);
 
         // Sort activities by createdAt, handling cases where createdAt might not exist
-        activities.sort((a, b) => {
-            const dateA = a.createdAt ? new Date(a.createdAt) : new Date(0);
-            const dateB = b.createdAt ? new Date(b.createdAt) : new Date(0);
-            return dateB - dateA;
-        });
+        activities.sort((a, b) => (new Date(b.createdAt || 0)) - (new Date(a.createdAt || 0)));
 
         return activities.slice(0, 3);
     }
 
     getActiveProjects(projects) {
-        // Assuming active projects are those that have activities
         return projects.filter(project => Array.isArray(project.activities) && project.activities.length > 0);
     }
 }

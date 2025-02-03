@@ -1,24 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1738596843062" clover="3.2.0">
-  <project timestamp="1738596843062" name="All files">
-    <metrics statements="111" coveredstatements="107" conditionals="55" coveredconditionals="44" methods="46" coveredmethods="46" elements="212" coveredelements="197" complexity="0" loc="111" ncloc="111" packages="2" files="9" classes="9"/>
+<coverage generated="1738596879642" clover="3.2.0">
+  <project timestamp="1738596879642" name="All files">
+    <metrics statements="105" coveredstatements="101" conditionals="55" coveredconditionals="44" methods="46" coveredmethods="46" elements="206" coveredelements="191" complexity="0" loc="105" ncloc="105" packages="2" files="9" classes="9"/>
     <package name="controllers">
-      <metrics statements="50" coveredstatements="50" conditionals="24" coveredconditionals="17" methods="27" coveredmethods="27"/>
+      <metrics statements="44" coveredstatements="44" conditionals="24" coveredconditionals="17" methods="27" coveredmethods="27"/>
       <file name="homeController.js" path="/home/alessandro/Universita/Tesi/TaskFlow/renderer/controllers/homeController.js">
-        <metrics statements="13" coveredstatements="13" conditionals="12" coveredconditionals="9" methods="5" coveredmethods="5"/>
+        <metrics statements="7" coveredstatements="7" conditionals="12" coveredconditionals="9" methods="5" coveredmethods="5"/>
         <line num="3" count="2" type="cond" truecount="4" falsecount="0"/>
         <line num="4" count="1" type="stmt"/>
-        <line num="7" count="1" type="stmt"/>
-        <line num="8" count="1" type="stmt"/>
-        <line num="9" count="2" type="cond" truecount="1" falsecount="1"/>
-        <line num="10" count="2" type="stmt"/>
-        <line num="15" count="1" type="stmt"/>
-        <line num="16" count="2" type="cond" truecount="1" falsecount="1"/>
-        <line num="17" count="2" type="cond" truecount="1" falsecount="1"/>
-        <line num="18" count="2" type="stmt"/>
-        <line num="21" count="1" type="stmt"/>
-        <line num="26" count="2" type="cond" truecount="2" falsecount="0"/>
-        <line num="30" count="1" type="stmt"/>
+        <line num="7" count="2" type="cond" truecount="1" falsecount="1"/>
+        <line num="10" count="2" type="cond" truecount="2" falsecount="2"/>
+        <line num="12" count="1" type="stmt"/>
+        <line num="16" count="2" type="cond" truecount="2" falsecount="0"/>
+        <line num="20" count="1" type="stmt"/>
       </file>
       <file name="projectsController.js" path="/home/alessandro/Universita/Tesi/TaskFlow/renderer/controllers/projectsController.js">
         <metrics statements="11" coveredstatements="11" conditionals="2" coveredconditionals="1" methods="4" coveredmethods="4"/>
