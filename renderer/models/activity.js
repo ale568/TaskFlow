@@ -14,7 +14,7 @@ class Activity {
         }
 
         this.name = name;
-        this.duration = duration;
+        this.duration = duration; // (For Copilot) - Important: time is stored in 'duration', not in 'hours'
         this.project = project;
         this.startTime = startTime;
         this.endTime = new Date(this.startTime.getTime() + duration * 1000);
