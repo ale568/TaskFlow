@@ -1,16 +1,12 @@
 class ReportsController {
     getTotalTimeProject(projects) {
-        const report = {};
-        projects.forEach(project => {
-            const totalTime = project.activities.reduce((total, activity) => {
-                if (typeof activity.duration === 'number' && !isNaN(activity.duration)) {
-                    return total + activity.duration;
-                }
-                return total;
-            }, 0);
+        return projects.reduce((report, project) => {
+            const totalTime = project.activities
+                .filter(activity => typeof activity.duration === 'number' && !isNaN(activity.duration))
+                .reduce((total, activity) => total + activity.duration, 0);
             report[project.name] = totalTime;
-        });
-        return report;
+            return report;
+        }, {});
     }
 
     getActivitiesByProject(projectName, projects) {
@@ -19,15 +15,9 @@ class ReportsController {
     }
 
     getActivitiesByTag(tag, projects) {
-        const activities = [];
-        projects.forEach(project => {
-            project.activities.forEach(activity => {
-                if (activity.tag && activity.tag.id === tag.id) {
-                    activities.push(activity);
-                }
-            });
-        });
-        return activities;
+        return projects.flatMap(project => 
+            project.activities.filter(activity => activity.tag && activity.tag.id === tag.id)
+        );
     }
 }
 
