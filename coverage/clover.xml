@@ -1,44 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1738580872427" clover="3.2.0">
-  <project timestamp="1738580872427" name="All files">
-    <metrics statements="26" coveredstatements="24" conditionals="8" coveredconditionals="4" methods="12" coveredmethods="12" elements="46" coveredelements="40" complexity="0" loc="26" ncloc="26" packages="2" files="2" classes="2"/>
-    <package name="controllers">
-      <metrics statements="15" coveredstatements="15" conditionals="4" coveredconditionals="2" methods="9" coveredmethods="9"/>
-      <file name="tagsController.js" path="/home/alessandro/Universita/Tesi/TaskFlow/renderer/controllers/tagsController.js">
-        <metrics statements="15" coveredstatements="15" conditionals="4" coveredconditionals="2" methods="9" coveredmethods="9"/>
-        <line num="1" count="1" type="stmt"/>
-        <line num="5" count="1" type="stmt"/>
-        <line num="6" count="1" type="stmt"/>
-        <line num="10" count="6" type="stmt"/>
-        <line num="11" count="6" type="stmt"/>
-        <line num="12" count="6" type="stmt"/>
-        <line num="16" count="2" type="stmt"/>
-        <line num="20" count="1" type="stmt"/>
-        <line num="21" count="1" type="cond" truecount="1" falsecount="1"/>
-        <line num="22" count="1" type="stmt"/>
-        <line num="27" count="1" type="stmt"/>
-        <line num="28" count="1" type="cond" truecount="1" falsecount="1"/>
-        <line num="29" count="1" type="stmt"/>
-        <line num="34" count="1" type="stmt"/>
-        <line num="38" count="1" type="stmt"/>
-      </file>
-    </package>
-    <package name="models">
-      <metrics statements="11" coveredstatements="9" conditionals="4" coveredconditionals="2" methods="3" coveredmethods="3"/>
-      <file name="tag.js" path="/home/alessandro/Universita/Tesi/TaskFlow/renderer/models/tag.js">
-        <metrics statements="11" coveredstatements="9" conditionals="4" coveredconditionals="2" methods="3" coveredmethods="3"/>
-        <line num="3" count="6" type="stmt"/>
-        <line num="4" count="6" type="stmt"/>
-        <line num="5" count="6" type="stmt"/>
-        <line num="9" count="6" type="cond" truecount="1" falsecount="1"/>
-        <line num="10" count="0" type="stmt"/>
-        <line num="12" count="6" type="stmt"/>
-        <line num="16" count="6" type="stmt"/>
-        <line num="17" count="6" type="cond" truecount="1" falsecount="1"/>
-        <line num="18" count="0" type="stmt"/>
-        <line num="20" count="6" type="stmt"/>
-        <line num="24" count="1" type="stmt"/>
-      </file>
-    </package>
+<coverage generated="1738582932682" clover="3.2.0">
+  <project timestamp="1738582932682" name="All files">
+    <metrics statements="11" coveredstatements="11" conditionals="4" coveredconditionals="4" methods="3" coveredmethods="3" elements="18" coveredelements="18" complexity="0" loc="11" ncloc="11" packages="1" files="1" classes="1"/>
+    <file name="tag.js" path="/home/alessandro/Universita/Tesi/TaskFlow/renderer/models/tag.js">
+      <metrics statements="11" coveredstatements="11" conditionals="4" coveredconditionals="4" methods="3" coveredmethods="3"/>
+      <line num="3" count="5" type="stmt"/>
+      <line num="4" count="5" type="stmt"/>
+      <line num="5" count="4" type="stmt"/>
+      <line num="9" count="6" type="cond" truecount="2" falsecount="0"/>
+      <line num="10" count="1" type="stmt"/>
+      <line num="12" count="5" type="stmt"/>
+      <line num="16" count="5" type="stmt"/>
+      <line num="17" count="5" type="cond" truecount="2" falsecount="0"/>
+      <line num="18" count="1" type="stmt"/>
+      <line num="20" count="4" type="stmt"/>
+      <line num="24" count="1" type="stmt"/>
+    </file>
   </project>
 </coverage>
