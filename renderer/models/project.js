@@ -10,7 +10,10 @@ class Project {
     }
 
     getTotalTime() {
-        return this.activities.reduce((total, activity) => total + activity.duration, 0);
+        return this.activities.reduce((total, activity) => {
+            const duration = activity.duration;
+            return total + (isNaN(duration) || duration === undefined ? 0 : duration);
+        }, 0);
     }
 }
 
