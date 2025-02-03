@@ -1,5 +1,6 @@
 class Tag {
-    constructor(name, color) {
+    constructor(id, name, color) {
+        this.id = id;
         this.setName(name);
         this.setColor(color);
     }

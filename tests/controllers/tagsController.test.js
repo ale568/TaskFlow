@@ -3,6 +3,11 @@ const Tag = require('../../renderer/models/tag');
 
 describe('Tags Controller', () => {
 
+    beforeEach(() => {
+        tagsController.tags = [];  // Resetta l'array dei tag prima di ogni test
+    });
+    
+
     test('It should create a new tag and return it', () => {
         const tag = tagsController.createTag('Urgent', '#FF0000');
         expect(tag).toBeInstanceOf(Tag);
