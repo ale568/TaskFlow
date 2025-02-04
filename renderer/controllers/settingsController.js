@@ -1,26 +1,25 @@
-let defaultSettings = {
-    timeFormat: '24h',
-    dateFormat: 'YYYY-MM-DD',
-    language: 'en',
-    notificationsEnabled: true
-};
+class SettingsController {
+    constructor() {
+        this.defaultSettings = {
+            timeFormat: '24h',
+            dateFormat: 'YYYY-MM-DD',
+            language: 'en',
+            notificationsEnabled: true
+        };
+        this.settings = { ...this.defaultSettings };
+    }
 
-let settings = { ...defaultSettings };
+    getSettings() {
+        return { ...this.settings };
+    }
 
-const getSettings = () => {
-    return settings;
-};
+    updateSettings(newSettings) {
+        this.settings = { ...this.settings, ...newSettings };
+    }
 
-const updateSettings = (newSettings) => {
-    settings = { ...settings, ...newSettings };
-};
+    resetSettings() {
+        this.settings = { ...this.defaultSettings };
+    }
+}
 
-const resetSettings = () => {
-    settings = { ...defaultSettings };
-};
-
-module.exports = {
-    getSettings,
-    updateSettings,
-    resetSettings
-};
+module.exports = new SettingsController();
