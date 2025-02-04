@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1738684726387" clover="3.2.0">
-  <project timestamp="1738684726387" name="All files">
+<coverage generated="1738684943227" clover="3.2.0">
+  <project timestamp="1738684943228" name="All files">
     <metrics statements="18" coveredstatements="15" conditionals="6" coveredconditionals="2" methods="7" coveredmethods="6" elements="31" coveredelements="23" complexity="0" loc="18" ncloc="18" packages="1" files="1" classes="1"/>
     <file name="timerUtils.js" path="/home/alessandro/Universita/Tesi/TaskFlow/renderer/utils/timerUtils.js">
       <metrics statements="18" coveredstatements="15" conditionals="6" coveredconditionals="2" methods="7" coveredmethods="6"/>
