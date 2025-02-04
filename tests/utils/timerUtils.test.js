@@ -5,7 +5,7 @@ describe('Timer Utils', () => {
     test('It should convert seconds into the hh:mm:ss format', () => {
         expect(timerUtils.formatTime(3661)).toBe('01:01:01');
         expect(timerUtils.formatTime(59)).toBe('00:00:59');
-        expect(timerUtils.formatTIme(0)).toBe('00:00:00');
+        expect(timerUtils.formatTime(0)).toBe('00:00:00');
     });
 
     test('It should calculate the total time from multiple intervals', () => {
@@ -14,7 +14,7 @@ describe('Timer Utils', () => {
             {start: 120, end: 300},   // 3 min
             {start: 600, end: 1200}   // 10 min
         ];
-        expect(timerUtils.getTotalTIme(intervals)).toBe(14 * 60);
+        expect(timerUtils.getTotalTime(intervals)).toBe(14 * 60);
     });
 
     test('It should manage starting and pausing a timer', () => {
