@@ -1,6 +1,10 @@
 const settingsController = require('../../renderer/controllers/settingsController');
 
-descibe('Settings Controller', () => {
+describe('Settings Controller', () => {
+
+    beforeEach(() => {
+        settingsController.resetSettings(); // Reset settings before each test
+    });
 
     test('It should retrieve the current settings', () => {
         const settings = settingsController.getSettings();
@@ -11,16 +15,16 @@ descibe('Settings Controller', () => {
     });
 
     test('It should modify settings', () => {
-        settingsController.updateSettings({timeFormat: '12h', langauge: 'it' });
+        settingsController.updateSettings({timeFormat: '12h', language: 'it' });
         const updateSettings = settingsController.getSettings();
         expect(updateSettings.timeFormat).toBe('12h');
         expect(updateSettings.language).toBe('it');
     });
 
     test('It should preserve unchanged settings', () => {
-        settingsController.updateSettings({langauge: 'es'});
+        settingsController.updateSettings({language: 'es'});
         const updateSettings = settingsController.getSettings();
-        expect(updateSettings.timeFormat).toBe('12h');
-        expect(updateSettings.langauge).toBe('es');
+        expect(updateSettings.timeFormat).toBe('24h');
+        expect(updateSettings.language).toBe('es');
     });
 });
