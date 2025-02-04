@@ -1,17 +1,22 @@
-// Funzione che converte i secondi in formato hh:mm:ss
 function formatTime(seconds) {
+    if (seconds == null || seconds < 0) {
+        return '00:00:00';
+    }
     const hours = String(Math.floor(seconds / 3600)).padStart(2, '0');
     const minutes = String(Math.floor((seconds % 3600) / 60)).padStart(2, '0');
     const secs = String(seconds % 60).padStart(2, '0');
     return `${hours}:${minutes}:${secs}`;
 }
 
-// Funzione che calcola il tempo totale da più intervalli di tempo
 function getTotalTime(intervals) {
-    return intervals.reduce((total, interval) => total + (interval.end - interval.start), 0);
+    return intervals.reduce((total, interval) => {
+        if (interval.start == null || interval.end == null) {
+            return total;
+        }
+        return total + (interval.end - interval.start);
+    }, 0);
 }
 
-// Classe Timer con metodi start e pause
 class Timer {
     constructor() {
         this.isRunning = false;
@@ -31,6 +36,12 @@ class Timer {
             this.isRunning = false;
             this.elapsedTime = Date.now() - this.startTime;
         }
+    }
+
+    reset() {
+        this.isRunning = false;
+        this.startTime = 0;
+        this.elapsedTime = 0;
     }
 
     getTime() {
