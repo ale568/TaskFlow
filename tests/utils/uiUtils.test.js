@@ -9,7 +9,7 @@ describe('UI Utils', () => {
     beforeEach(() => {
         document.body.innerHTML = `
             <div id = "testElement">Old Text</div>
-            <button id = "testbutton">Click Me!</button>
+            <button id = "testButton">Click Me!</button>
         `;
     });
 
@@ -37,6 +37,6 @@ describe('UI Utils', () => {
         const mockCallback = jest.fn();
         uiUtils.bindClickEvent('testButton', mockCallback);
         document.getElementById('testButton').click();
-        expect(mockCallback).toHaveBeenCalledTimes(1);
+        expect(mockCallback).toHaveBeenCalledTimes(1);  
     });
 });
