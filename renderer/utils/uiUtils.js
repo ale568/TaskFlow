@@ -5,21 +5,29 @@
  */
 function updateElementText(id, text) {
     const element = document.getElementById(id);
-    if (element) {
-        element.textContent = text;
+    if (!element) {
+        console.error(`Element with id "${id}" not found.`);
+        return;
     }
+    if (text === null || text === undefined) {
+        console.error('Text cannot be null or undefined.');
+        return;
+    }
+    element.textContent = text;
 }
 
 /**
  * Aggiunge o rimuove una classe CSS da un elemento dato il suo id.
  * @param {string} id - L'id dell'elemento.
  * @param {string} className - Il nome della classe CSS da aggiungere o rimuovere.
+ * @throws {Error} Se l'elemento non esiste.
  */
 function toggleClass(id, className) {
     const element = document.getElementById(id);
-    if (element) {
-        element.classList.toggle(className);
+    if (!element) {
+        throw new Error(`Element with id "${id}" not found.`);
     }
+    element.classList.toggle(className);
 }
 
 /**
@@ -27,10 +35,18 @@ function toggleClass(id, className) {
  * @param {string} message - Il messaggio della notifica.
  */
 function showNotification(message) {
+    if (!message) {
+        console.error('Message cannot be empty or null.');
+        return;
+    }
     const notification = document.createElement('div');
     notification.className = 'notification';
     notification.textContent = message;
     document.body.appendChild(notification);
+
+    setTimeout(() => {
+        document.body.removeChild(notification);
+    }, 3000); // Rimuove la notifica dopo 3 secondi
 }
 
 /**
@@ -40,9 +56,15 @@ function showNotification(message) {
  */
 function bindClickEvent(id, callback) {
     const element = document.getElementById(id);
-    if (element) {
-        element.addEventListener('click', callback);
+    if (!element) {
+        console.error(`Element with id "${id}" not found.`);
+        return;
     }
+    if (typeof callback !== 'function') {
+        console.error('Callback must be a function.');
+        return;
+    }
+    element.addEventListener('click', callback);
 }
 
 module.exports = {
