@@ -1,6 +1,6 @@
 function formatDate(date, format) {
     if (!(date instanceof Date) || isNaN(date)) {
-        throw new Error('Data non valida');
+        return null;
     }
 
     const year = date.getFullYear();
@@ -18,27 +18,27 @@ function formatDate(date, format) {
 
 function dateInDays(start, end) {
     if (!(start instanceof Date) || isNaN(start) || !(end instanceof Date) || isNaN(end)) {
-        throw new Error('Date non valide');
+        return 0;
     }
 
-    const oneDay = 24 * 60 * 60 * 1000; // hours * minutes * seconds * milliseconds
-    const diffDays = Math.round(Math.abs((end - start) / oneDay));
+    const oneDay = 24 * 60 * 60 * 1000; // ore * minuti * secondi * millisecondi
+    const diffDays = Math.round((end - start) / oneDay);
     return diffDays;
 }
 
 function isFutureDate(date) {
     if (!(date instanceof Date) || isNaN(date)) {
-        throw new Error('Data non valida');
+        return false;
     }
     return date > new Date();
 }
 
 function addDays(date, days) {
     if (!(date instanceof Date) || isNaN(date)) {
-        throw new Error('Data non valida');
+        return null;
     }
     if (typeof days !== 'number' || !Number.isInteger(days)) {
-        throw new Error('Numero di giorni non valido');
+        return null;
     }
 
     const result = new Date(date);

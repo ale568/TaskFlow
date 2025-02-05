@@ -23,16 +23,16 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">76.92% </span>
+                <span class="strong">96.15% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>20/26</span>
+                <span class='fraction'>25/26</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">76.92% </span>
+                <span class="strong">96.15% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>20/26</span>
+                <span class='fraction'>25/26</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">76.92% </span>
+                <span class="strong">96.15% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>20/26</span>
+                <span class='fraction'>25/26</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line medium'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -117,8 +117,8 @@
 <a name='L52'></a><a href='#L52'>52</a>
 <a name='L53'></a><a href='#L53'>53</a>
 <a name='L54'></a><a href='#L54'>54</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
@@ -135,28 +135,28 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
@@ -170,8 +170,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">function formatDate(date, format) {
-    <span class="missing-if-branch" title="if path not taken" >I</span>if (!(date instanceof Date) || isNaN(date)) {
-<span class="cstat-no" title="statement not covered" >        throw new Error('Data non valida');</span>
+    if (!(date instanceof Date) || isNaN(date)) {
+        return null;
     }
 &nbsp;
     const year = date.getFullYear();
@@ -188,28 +188,28 @@
 }
 &nbsp;
 function dateInDays(start, end) {
-    <span class="missing-if-branch" title="if path not taken" >I</span>if (!(start instanceof Date) || isNaN(start) || !(end instanceof Date) || isNaN(end)) {
-<span class="cstat-no" title="statement not covered" >        throw new Error('Date non valide');</span>
+    if (!(start instanceof Date) || isNaN(start) || !(end instanceof Date) || isNaN(end)) {
+        return 0;
     }
 &nbsp;
-    const oneDay = 24 * 60 * 60 * 1000; // hours * minutes * seconds * milliseconds
-    const diffDays = Math.round(Math.abs((end - start) / oneDay));
+    const oneDay = 24 * 60 * 60 * 1000; // ore * minuti * secondi * millisecondi
+    const diffDays = Math.round((end - start) / oneDay);
     return diffDays;
 }
 &nbsp;
 function isFutureDate(date) {
-    <span class="missing-if-branch" title="if path not taken" >I</span>if (!(date instanceof Date) || isNaN(date)) {
-<span class="cstat-no" title="statement not covered" >        throw new Error('Data non valida');</span>
+    if (!(date instanceof Date) || isNaN(date)) {
+        return false;
     }
     return date &gt; new Date();
 }
 &nbsp;
 function addDays(date, days) {
-    <span class="missing-if-branch" title="if path not taken" >I</span>if (!(date instanceof Date) || isNaN(date)) {
-<span class="cstat-no" title="statement not covered" >        throw new Error('Data non valida');</span>
+    if (!(date instanceof Date) || isNaN(date)) {
+        return null;
     }
-    <span class="missing-if-branch" title="if path not taken" >I</span>if (typeof days !== 'number' || !Number.isInteger(days)) {
-<span class="cstat-no" title="statement not covered" >        throw new Error('Numero di giorni non valido');</span>
+    if (typeof days !== 'number' || !Number.isInteger(days)) {
+        return null;
     }
 &nbsp;
     const result = new Date(date);
@@ -229,7 +229,7 @@ module.exports = {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-02-05T08:34:39.183Z
+                at 2025-02-05T09:32:01.998Z
             </div>
         <script src="prettify.js"></script>
         <script>

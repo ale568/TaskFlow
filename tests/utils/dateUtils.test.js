@@ -24,4 +24,28 @@ describe('Date Utils', () => {
         expect(dateUtils.addDays(initialDate, 5).toISOString().slice(0, 10)).toBe('2025-01-20');
         expect(dateUtils.addDays(initialDate, -4).toISOString().slice(0, 10)).toBe('2025-01-11');
     });
+
+    test('formatDate should manage invalid input', () => {
+        expect(dateUtils.formatDate(null, 'YYYY-MM-DD')).toBe(null);
+        expect(dateUtils.formatDate(undefined, 'YYYY-MM-DD')).toBe(null);
+        expect(dateUtils.formatDate('invalid date', 'YYYY-MM-DD')).toBe(null);
+    });
+
+    test('dateInDays should manage invalid input', () => {
+        expect(dateUtils.dateInDays(null, new Date())).toBe(0);
+        expect(dateUtils.dateInDays(new Date(), null)).toBe(0);
+        expect(dateUtils.dateInDays(new Date('2025-02-10'), new Date('2025-02-01'))).toBe(-9);
+    });
+
+    test('isFutureDate should return false for an invalid input', () => {
+        expect(dateUtils.isFutureDate(null)).toBe(false);
+        expect(dateUtils.isFutureDate(new Date(Date.now() - 10000))).toBe(false); // Past date
+        expect(dateUtils.isFutureDate('invalid date')).toBe(false);
+    });
+
+    test('addDays should manage invalid input', () => {
+        const intialDate = new Date('2025-02-10');
+        expect(dateUtils.addDays(intialDate, '5')).toBe(null); // The number of days should be an integer
+        expect(dateUtils.addDays(null, 5)).toBe(null);  // The date should should be valid  
+    });
 });
