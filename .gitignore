@@ -1,1 +1,25 @@
+# Deve dependencies
 node_modules/
+
+# Build/output directory
+dist/
+out/
+
+# Log and Debug files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+jest-debug.log
+
+# Coverage files of jest test
+coverage/
+jest-cache/
+
+# Tmp files
+.DS_Store
+
+# Electron package
+*.asar
+
+# System temp files
+temp/
