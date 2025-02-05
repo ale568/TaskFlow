@@ -25,7 +25,7 @@ describe('Date Utils', () => {
         expect(dateUtils.addDays(initialDate, -4).toISOString().slice(0, 10)).toBe('2025-01-11');
     });
 
-    test('formatDate should manage invalid input', () => {
+    test('formatDate should manage invalid input', () => {              // Edge cases
         expect(dateUtils.formatDate(null, 'YYYY-MM-DD')).toBe(null);
         expect(dateUtils.formatDate(undefined, 'YYYY-MM-DD')).toBe(null);
         expect(dateUtils.formatDate('invalid date', 'YYYY-MM-DD')).toBe(null);
