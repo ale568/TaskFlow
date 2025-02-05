@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1738744120853" clover="3.2.0">
-  <project timestamp="1738744120853" name="All files">
+<coverage generated="1738744360296" clover="3.2.0">
+  <project timestamp="1738744360296" name="All files">
     <metrics statements="16" coveredstatements="15" conditionals="4" coveredconditionals="3" methods="4" coveredmethods="4" elements="24" coveredelements="22" complexity="0" loc="16" ncloc="16" packages="1" files="1" classes="1"/>
     <file name="dateUtils.js" path="/home/alessandro/Universita/Tesi/TaskFlow/renderer/utils/dateUtils.js">
       <metrics statements="16" coveredstatements="15" conditionals="4" coveredconditionals="3" methods="4" coveredmethods="4"/>
