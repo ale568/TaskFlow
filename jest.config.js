@@ -14,7 +14,11 @@ module.exports = {
         {
             displayName: "node-tests",
             testEnvironment: "node",
-            testMatch: ["<rootDir>/tests/controllers/**/*.test.js", "<rootDir>/tests/utils/!(uiUtils).test.js"]
+            testMatch: [
+                "<rootDir>/tests/controllers/**/*.test.js",
+                "<rootDir>/tests/utils/!(uiUtils).test.js",
+                "<rootDir>/tests/main.test.js"
+            ]
     },
     {
 
