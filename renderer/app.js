@@ -3,12 +3,18 @@ function initApp(startCallback, stopCallback) {
     const stopButton = document.getElementById('stopTimer');
     const timerDisplay = document.getElementById('timerDisplay');
 
-    startButton.addEventListener('click', startCallback);
-    stopButton.addEventListener('click', stopCallback);
+    if (startButton) {
+        startButton.addEventListener('click', startCallback);
+    }
 
-    // Function for update timer display
+    if (stopButton) {
+        stopButton.addEventListener('click', stopCallback);
+    }
+
     function updateTimerDisplay(time) {
-        timerDisplay.textContent = time;
+        if (timerDisplay) {
+            timerDisplay.textContent = time;
+        }
     }
 
 }

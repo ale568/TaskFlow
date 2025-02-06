@@ -36,4 +36,18 @@ describe('App initialization', () => {
         timerDisplay.textContent = '00:05:45';
         expect(timerDisplay.textContent).toBe('00:05:45');
     });
+
+    test('It should handle the case where the buttons do not exist in the DOM', () => {     // Edge cases
+        document.body.innerHTML = '';   // Page without buttons
+        expect(() => initApp(() => {}, () => {})).not.toThrow();
+    });
+    
+    test('It should handle the case where the timer display does not exist', () => {
+        document.body.innerHTML = `
+            <button id = "startTimer">Start</button>
+            <button id = "stopTimer">Stop</button>
+        `;  // No timerDisplay
+
+        expect(() => initApp(() => {}, () => {})).not.toThrow();
+    });
 });
