@@ -1,31 +1,22 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
 jest.mock('electron', () => ({
-    contextBridge: { exposeInMainWorld: jest.fn() },
+    contextBridge: { exposeInMainWorld: jest.fn((key, value) => { global[key] = value; }) },
     ipcRenderer: { send: jest.fn(), on: jest.fn() },
 }));
 
-const preload = require('../preload');
+require('../preload');
 
 describe('Preload Script', () => {
 
-    beforeAll(() => {
-        window.electronAPI = {
-            sendNotification: ipcRenderer.send,
-            onReceiveData: (callback) => ipcRenderer.on('receive-data', (event, data) => callback(data)),
-        };
-    });
-
     test('It should expose the API electronAPI into Renderer Process', () => {
         expect(contextBridge.exposeInMainWorld).toHaveBeenCalledWith('electronAPI', expect.any(Object));
+        expect(global.electronAPI).toBeDefined();
     });
 
     test('It should send a notification request to the Main Process', () => {
-        const mockSend = jest.fn();
-        ipcRenderer.send = mockSend;
-
-        window.electronAPI.sendNotification('Task Expired!');
-        expect(mockSend).toHaveBeenCalledwith('notify', 'Task Expired!');
+        global.electronAPI.sendNotification('Task Expired!');
+        expect(ipcRenderer.send).toHaveBeenCalledWith('notify', 'Task Expired!');
     });
 
     test('It should receive a response event from the Main Process', () => {
@@ -34,7 +25,7 @@ describe('Preload Script', () => {
 
         ipcRenderer.on = mockOn;
 
-        window.electronAPI.onReceiveData(mockCallback);
-        expect(mockCallback).toHaveBeenCalledwith('Data Test');
+        global.electronAPI.onReceiveData(mockCallback);
+        expect(mockCallback).toHaveBeenCalledWith('Data Test');
     });
 });
