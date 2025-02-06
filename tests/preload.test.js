@@ -2,7 +2,12 @@ const { contextBridge, ipcRenderer } = require('electron');
 
 jest.mock('electron', () => ({
     contextBridge: { exposeInMainWorld: jest.fn((key, value) => { global[key] = value; }) },
-    ipcRenderer: { send: jest.fn(), on: jest.fn() },
+    ipcRenderer: { 
+        send: jest.fn(),
+        on: jest.fn(),
+        removeListener: jest.fn(),
+        removeAllListeners: jest.fn() 
+    },
 }));
 
 require('../preload');
