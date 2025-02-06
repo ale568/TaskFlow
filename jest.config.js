@@ -1,15 +1,15 @@
 module.exports = {
-    testEnvironment: 'node',                                // Ambiente di test (per Node.js o jsdom)
-    verbose: true,                                          // Mostra output dettagliato dei test
-    testMatch: ['<rootDir>/tests/**/*.test.js'],            // Percorso dei test
-    collectCoverage: true,                                  // Abilita la raccolta di copertura
-    coverageDirectory: 'coverage',                          // Directory per salvare i report di copertura
+    testEnvironment: 'node',                                // Test environment for Node.js o jsdom
+    verbose: true,                                          // Show detailed test output
+    testMatch: ['<rootDir>/tests/**/*.test.js'],            // Path for test
+    collectCoverage: true,                                  // Enable coverage collection
+    coverageDirectory: 'coverage',                          // Directory to save coverage reports
 
     transform: {
-        "^.+\\.js$": "babel-jest"                           // Applica Babel solo ai file che ne hanno bisogno
+        "^.+\\.js$": "babel-jest"                           // Apply Babel only to files that need it
     },
 
-    // Permette ai test UI di sovrascrivere l'environment
+    // Allow UI tests to overwrite test environment
     projects: [
         {
             displayName: "node-tests",
@@ -20,7 +20,10 @@ module.exports = {
 
         displayName: "ui-tests",
         testEnvironment: "jsdom",
-        testMatch: ["<rootDir>/tests/utils/uiUtils.test.js"]
+        testMatch: [
+            "<rootDir>/tests/utils/uiUtils.test.js",
+            "<rootDir>/tests/app.test.js"
+        ]
     }
   ]
 };
