@@ -2,7 +2,7 @@
  * @jest-environment jsdom
  */
 
-const { initApp } = require('../renderer/app');
+const { initApp, updateTimerDisplay } = require('../renderer/app');
 
 describe('App initialization', () => {
 
@@ -49,5 +49,51 @@ describe('App initialization', () => {
         `;  // No timerDisplay
 
         expect(() => initApp(() => {}, () => {})).not.toThrow();
+    });
+
+    test('It should handle multiple consecutive calls to initApp without duplicating events', () => {
+        document.body.innerHTML = `
+            <button id="startTimer">Start</button>
+            <button id="stopTimer">Stop</button>
+            <div id="timerDisplay">00:00:00</div>
+        `;
+
+        const mockStart = jest.fn();
+        const mockStop = jest.fn();
+
+        initApp(mockStart, mockStop);
+        initApp(mockStart, mockStop);   // The second call should not create duplicate events
+
+        document.getElementById('startTimer').click();
+        document.getElementById('stopTimer').click();
+
+        expect(mockStart).toHaveBeenCalledTimes(1);
+        expect(mockStop).toHaveBeenCalledTimes(1);
+    });
+
+    test('It should throw a warning if initApp is called without a callback', () => {
+        console.warn = jest.fn();
+
+        document.body.innerHTML = `
+            <button id="startTimer">Start</button>
+            <button id="stopTimer">Stop</button>
+            <div id="timerDisplay">00:00:00</div>
+        `;
+
+        initApp(null, null);
+
+        expect(console.warn).toHaveBeenCalled();
+    });
+
+    test('It should show a warning if the display timer does not exist', () => {
+        console.warn = jest.fn();   // Mock for console.warn
+
+        document.body.innerHTML = `
+            <button id="startTimer">Start</button>
+            <button id="stopTimer">Stop</button>
+        `;                                          // No element with id "timerDisplay"
+
+        updateTimerDisplay('00:05:00');
+        expect(console.warn).toHaveBeenCalledWith('Timer display not found in the DOM');
     });
 });
