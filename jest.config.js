@@ -26,7 +26,8 @@ module.exports = {
         testEnvironment: "jsdom",
         testMatch: [
             "<rootDir>/tests/utils/uiUtils.test.js",
-            "<rootDir>/tests/app.test.js"
+            "<rootDir>/tests/app.test.js",
+            "<rootDir>/tests/preload.test.js"
         ]
     }
   ]
