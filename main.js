@@ -1,36 +1,31 @@
 const { app, BrowserWindow, ipcMain, Notification } = require('electron');
 
-let mainWindow;
-
 function createWindow() {
-    mainWindow = new BrowserWindow({
+    const win = new BrowserWindow({
         width: 800,
         height: 600,
         webPreferences: {
             nodeIntegration: true,
-            contextIsolation: false,
-        },
+            contextIsolation: false
+        }
     });
 
-    mainWindow.loadFile('renderer/index.html');
+    win.loadFile('renderer/index.html');
+}
+
+function handleWindowClose() {
+    if (process.platform !== 'darwin') {
+        app.quit();
+    }
 }
 
 app.whenReady().then(createWindow);
 
-app.on('window-all-closed', () => {
-    if (process.platform !== 'darwin') {
-        app.quit();
-    }
-});
+app.on('window-all-closed', handleWindowClose);
 
 ipcMain.on('notify', (event, message) => {
-    new Notification({ title: 'Notification', body: message }).show();
+    const notification = new Notification({ title: 'Notification', body: message });
+    notification.show();
 });
 
-app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) {
-        createWindow();
-    }
-});
-
-module.exports = { createWindow };
+module.exports = { createWindow, handleWindowClose };
