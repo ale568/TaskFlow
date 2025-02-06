@@ -70,4 +70,16 @@ describe('Main Process', () => {
 
         expect(mockNotificationInstance.show).not.toThrow(); 
     });
+
+    test('It should quit the applicayion on window-all-closed if not on MacOs', () => {
+        Object.defineProperty(process, 'platform', {value: 'win32'});   // Simulate windows
+        listeners.appListeners['window-all-closed']();
+        expect(app.quit).toHaveBeenCalledTimes(1);
+    });
+
+    test('It should quit the application on macOS', () => {
+        Object.defineProperty(process, 'platform', {value: 'darwin'});  // simulate MacOS
+        listeners.appListeners['window-all-closed']();
+        expect(app.quit).not.toHaveBeenCalled();
+    });
 });
