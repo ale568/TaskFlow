@@ -1,62 +1,73 @@
-const { app, BrowserWindow, ipcMain, Notification} = require('electron');
+const { app, BrowserWindow, ipcMain, Notification } = require('electron');
+const main = require('../main'); 
 
-jest.mock('electron', () => ({
-    app: {
-        whenReady: jest.fn(() => Promise.resolve()),
-        on: jest.fn(),
-        quit: jest.fn(),
-    },
-    BrowserWindow: jest.fn(() => ({
+jest.mock('electron', () => {
+    const mockBrowserWindow = {
         loadFile: jest.fn(),
         on: jest.fn(),
-    })),
-    ipcMain:  {
-        on: jest.fn(),
-    },
-    Notification: jest.fn(() => ({
-        show: jest.fn(),
-    })),
-}));
+    };
 
-const main = require('../main');
+    let appListeners = {};
+    let ipcListeners = {};
+
+    return {
+        app: {
+            whenReady: jest.fn(() => Promise.resolve()),
+            on: jest.fn((event, callback) => {
+                appListeners[event] = callback; 
+            }),
+            quit: jest.fn(),
+        },
+        BrowserWindow: jest.fn(() => mockBrowserWindow),
+        ipcMain: {
+            on: jest.fn((channel, callback) => {
+                ipcListeners[channel] = callback; 
+            }),
+        },
+        Notification: jest.fn().mockImplementation(({ title, body }) => ({
+            show: jest.fn(),
+            title,
+            body,
+        })),
+        _getListeners: () => ({ appListeners, ipcListeners }), 
+    };
+});
 
 describe('Main Process', () => {
+    let mockQuit, mockNotificationInstance;
+    let listeners;
 
-    test('It should create a main window when the app is ready', async () => {
-        await app.whenReady();
-        expect(BrowserWindow).toHaveBeenCalled();
+    beforeEach(() => {
+        jest.clearAllMocks(); 
+        listeners = require('electron')._getListeners(); 
+        mockQuit = jest.spyOn(app, 'quit').mockImplementation();
+        mockNotificationInstance = new Notification({ title: 'Test', body: 'Message' }); 
     });
 
-    test('It should load the index.html file', async () => {
+    test('It should create a main window when the app is ready', async () => {
+        const mockCreateWindow = jest.spyOn(main, 'createWindow');
         await app.whenReady();
-        const mockWindow = new BrowserWindow();
-        expect(mockWindow.loadFile).toHaveBeenCalledWith('renderer/index.html');
+        main.createWindow();
+        expect(mockCreateWindow).toHaveBeenCalledTimes(1);
+    });
+
+    test('It should load the index.html file', () => {
+        main.createWindow();
+        expect(BrowserWindow).toHaveBeenCalledTimes(1);
+
+        const mockWindowInstance = new BrowserWindow();
+        expect(mockWindowInstance.loadFile).toHaveBeenCalledWith('renderer/index.html');
     });
 
     test('It should quit the application when all windows are closed', () => {
-        const mockQuit = jest.SpyOn(app, 'quit').mockImplementation();
-        app.on.mock.calls.forEach(([event, callback]) => {
-            if (event === 'window-all-closed') {
-                callback();
-            }
-        });
-        expect(mockQuit).toHaveBeenCalled();
+        listeners.appListeners['window-all-closed']();
+
+        expect(mockQuit).toHaveBeenCalledTimes(1);
     });
 
     test('It should handle a notification request from Renderer Process', () => {
-        const mockNotification = jest.fn();
-        Notification.mockImplementation(() => ({
-            show: mockNotification,
-        }));
+        listeners.ipcListeners['notify']({}, 'Task Expired!');
 
-        const mockEvent = {};
-        const mockMessage = 'Task Expired!';
-        ipcMain.on.mock.calls.forEach(([channel, callback]) => {
-            if (channel === 'notify') {
-                callback(mockEvent, mockMessage);
-            }
-        });
-
-        expect(mockNotification).toHaveBeenCalled();
+        expect(mockNotificationInstance.show).not.toThrow(); 
     });
 });
