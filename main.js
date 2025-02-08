@@ -1,5 +1,4 @@
-const { app, BrowserWindow, ipcMain, Notification } = require('electron');
-const path = require('path');
+const { app, BrowserWindow, ipcMain } = require('electron');
 
 let mainWindow;
 
@@ -8,54 +7,42 @@ function createWindow() {
         width: 800,
         height: 600,
         webPreferences: {
-            contextIsolation: true,
-            enableRemoteModule: false,
-            preload: path.join(__dirname, 'preload.js')
+            nodeIntegration: true
         }
     });
 
     mainWindow.loadFile('renderer/index.html');
 
-    mainWindow.on('closed', () => {
+    mainWindow.on('closed', function () {
         mainWindow = null;
     });
 }
 
 function handleWindowClose() {
-    if (global.mainWindow) {
-        global.mainWindow.close();
+    if (mainWindow && typeof mainWindow.close === 'function') {
+        mainWindow.close();
     }
 }
 
-app.whenReady().then(createWindow);
+app.on('ready', createWindow);
 
-app.on('window-all-closed', () => {
+app.on('window-all-closed', function () {
     if (process.platform !== 'darwin') {
         app.quit();
     }
 });
 
-app.on('activate', () => {
-    if (!global.mainWindow) {
+app.on('activate', function () {
+    if (!mainWindow || mainWindow === null) {
         createWindow();
     }
 });
 
-ipcMain.on('notify', (event, message) => {
-    if (!message || typeof message !== 'string' || message.trim() === '') {
-        console.warn('Notification message is empty, undefined, or not a valid string');
-        return;
+ipcMain.on('notify', (event, arg) => {
+    console.log(arg);
+    if (event?.sender) {
+        event.sender.send('notify-reply', 'pong');
     }
-
-    const notification = new Notification({
-        title: 'Notification',
-        body: message
-    });
-
-    notification.show();
 });
 
-module.exports = {
-    createWindow,
-    handleWindowClose
-};
+module.exports = { createWindow, handleWindowClose };
