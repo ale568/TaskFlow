@@ -23,3 +23,14 @@ jest-cache/
 
 # System temp files
 temp/
+
+# Database SQLite
+*.sqlite
+*.db
+*.sqlite3
+*.db-wal
+*.db-shm
+
+# SQLite Cache Directory
+sqlite/
+

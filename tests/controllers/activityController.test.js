@@ -1,9 +1,9 @@
-const summaryController = require('../../renderer/controllers/summaryController');
+const activityController = require('../../renderer/controllers/activityController');
 const Project = require('../../renderer/models/project');
 const Activity = require('../../renderer/models/activity');
 const Tag = require('../../renderer/models/tag');
 
-describe('Summary Controller', () => {
+describe('Activity Controller', () => {
 
     let project1, project2, activity1, activity2, activity3, tag1, tag2;
 
@@ -26,20 +26,20 @@ describe('Summary Controller', () => {
         project2.addActivity(activity3);
     });
 
-    test('It should calculate the total hours worked', () => {
-        const totalTime = summaryController.getTotalWorkedHours([project1, project2]);
+    test('It should calculate the total time spent on all projects', () => {
+        const totalTime = activityController.calculateTotalTimeSpent([project1, project2]);
         expect(totalTime).toBe(900);
     });
 
-    test('It should return the activities summary per projects', () => {
-        const summary = summaryController.getActivitySummaryByProject([project1, project2]);
-        expect(summary['Project1']).toBe(550);
-        expect(summary['Project2']).toBe(350);
+    test('It should return the time spent per project', () => {
+        const projectTime = activityController.calculateProjectTime([project1, project2]);
+        expect(projectTime['Project1']).toBe(550);
+        expect(projectTime['Project2']).toBe(350);
     });
 
-    test('It should return a summary of the most used tags', () => {
-        const tagSummary = summaryController.getTagUsageSummary([project1, project2]);
-        expect(tagSummary['Urgent']).toBe(2);
-        expect(tagSummary['Important']).toBe(1);
+    test('It should return a summary of tag usage', () => {
+        const tagUsage = activityController.calculateTagUsage([project1, project2]);
+        expect(tagUsage['Urgent']).toBe(2);
+        expect(tagUsage['Important']).toBe(1);
     });
 });
