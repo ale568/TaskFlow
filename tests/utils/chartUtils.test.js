@@ -1,4 +1,4 @@
-const { generateBarChart, generatePiechart} = require('../../renderer/utils/chartUtils');
+const { generateBarChart, generatePieChart} = require('../../renderer/utils/chartUtils');
 
 describe('ChartUtils', () => {
 
@@ -12,11 +12,11 @@ describe('ChartUtils', () => {
     });
 
     test('It should generate a pie chart with correct structure', () => {
-        const data = { 'Tag1': 5, 'Tag2': 15};
-        const chart = generatePiechart(data);
+        const data = { 'Tag1': 5, 'Tag2': 15 };
+        const chart = generatePieChart(data);
 
         expect(chart).toHaveProperty('type', 'pie');
         expect(chart.data.labels).toEqual(Object.keys(data));
-        expect(chart.data.datasets[0].data).toEqual(Object.values(data)); 
+        expect(chart.data.datasets[0].data).toEqual(Object.values(data));
     });
 });
