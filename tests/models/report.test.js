@@ -13,10 +13,10 @@ describe('Report Model', () => {
         expect(report.id).toBe(1);
         expect(report.project).toBe('Project1');
         expect(report.task).toBe('Task1');
-        expect(report.task).toBe('Description');
-        expect(report.description).toBe('Tag1');
-        expect(report.tag).toBe(120);
-        expect(report.duration).toBe('2025-02-10 13:30');
+        expect(report.description).toBe('Description');
+        expect(report.tag).toBe('Tag1');
+        expect(report.duration).toBe(120);
+        expect(report.date).toBe('2025-02-10 13:30');
     });
 
     test('It should update report details', () => {
