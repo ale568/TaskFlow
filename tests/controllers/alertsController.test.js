@@ -49,4 +49,11 @@ describe('AlertsController', () => {
 
         expect(controller.getAlertById(2)).toEqual(mockAlerts[1]);
     });
+
+    test('It should not update an alert if ID does not exist', () => {
+        controller.setAlerts(mockAlerts);
+
+        controller.updateAlert(999, {title: 'NonExistent'});
+        expect(controller.getAlerts()).toEqual(mockAlerts);
+    });
 });
