@@ -24,10 +24,10 @@ describe('AlertsController', () => {
 
     test('It should remove an alert by ID', () => {
         controller.setAlerts(mockAlerts);
-        controller.remove(1);
+        controller.removeAlert(1);
 
         expect(controller.getAlerts().length).toBe(1);
-        expect(controller.getAlerts()[0],id).toBe(2);
+        expect(controller.getAlerts()[0].id).toBe(2);
     });
 
     test('It should update an existing alert', () => {
