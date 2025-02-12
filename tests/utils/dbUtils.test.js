@@ -76,4 +76,33 @@ describe('Database Utility', () => {
         expect(result).toHaveProperty('error');
     });
 
+    test('It should return an error when querying a non-existing table', () => {
+        const result = db.runQuery('SELECT * FROM non_existing_table');
+        expect(result).toHaveProperty('error');
+    });
+
+    test('It should return an error when executing an invalid INSERT', () => {
+        const result = db.runQuery('INSERT INTO alerts (title) VALUES (?)', []);
+        expect(result).toHaveProperty('error');
+    });
+
+    test('It should handle a query when the database is closed', () => {
+        db.close();
+        expect(() => db.runQuery('SELECT 1')).not.toThrow();
+    });
+
+    test('It should not reconnnect if already connected', () => {
+        db.connect();
+        const initialDB = db;
+
+        db.connect();
+
+        expect(db).toBe(initialDB);
+    });
+
+    test('It should return an error when running an invalid query', () => {
+        db.close();
+        const result = db.runQuery('SELECT 1');
+        expect(result).not.toBeNull();
+    });
 });

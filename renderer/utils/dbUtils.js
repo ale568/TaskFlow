@@ -6,7 +6,9 @@ let db;
 function connect() {
     if (!db) {
         const dbPath = path.resolve(__dirname, '../../data/taskflow.sqlite');
-        db = new Database(dbPath, { fileMustExist: true });
+        db = new Database(dbPath, { verbose: console.log });
+
+        console.info('Database connected');
         initializeTables();
     }
 }
@@ -15,22 +17,28 @@ function close() {
     if (db) {
         db.close();
         db = null;
+        console.info('Database connection closed');
     }
 }
 
 function runQuery(query, params = []) {
     if (!db) {
+        console.warn('Database was not connected. Reconnecting...');
         connect();
     }
 
-    const stmt = db.prepare(query);
-    
-    if (query.trim().toUpperCase().startsWith('SELECT')) {
-        return stmt.all(...params);  
+    try {
+        const stmt = db.prepare(query);
+        if (query.trim().toUpperCase().startsWith('SELECT')) {
+            return stmt.all(...params) || [];
+        } else {
+            const result = stmt.run(...params);
+            return result.changes;
+        }
+    } catch (error) {
+        console.error('Database Error:', error);
+        return { error: error.message, query }; // Added debug query
     }
-    
-    const result = stmt.run(...params);
-    return result.changes; 
 }
 
 
@@ -44,6 +52,7 @@ function initializeTables() {
             priority TEXT NOT NULL,
             date TEXT NOT NULL
         );
+        
         CREATE TABLE IF NOT EXISTS time_entries (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             project TEXT NOT NULL,
@@ -51,12 +60,15 @@ function initializeTables() {
             startTime TEXT NOT NULL,
             duration INTEGER NOT NULL
         );
+
         CREATE TABLE IF NOT EXISTS reports (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             project TEXT NOT NULL,
             total_hours INTEGER NOT NULL
         );
     `);
+
+    console.info('Tables initialized');
 }
 
 module.exports = {
