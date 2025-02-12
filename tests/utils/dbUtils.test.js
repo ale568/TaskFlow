@@ -3,63 +3,67 @@ const db = require('../../renderer/utils/dbUtils');
 describe('Database Utility', () => {
 
     beforeAll(() => {
-        db.connect();      // Ensures that the database is active
-        db.exec('DELETE FROM alerts');          // Delete data before tests
-        db.exec('DELETE FROM time_entries');
-        db.exec('DELETE FROM reports');
+        db.connect(); // Assicura che il database sia attivo
+        db.runQuery('DELETE FROM alerts'); // Pulisce i dati prima dei test
+        db.runQuery('DELETE FROM time_entries');
+        db.runQuery('DELETE FROM reports');
     });
 
     afterAll(() => {
-        db.close();     // Close db after tests
+        db.close(); // Chiude la connessione dopo i test
     });
 
     test('It should insert and retrieve an alert', () => {
-        db.prepare('INSERT INTO alerts (title, project, type, priority, date) VALUES (?, ?, ?, ?, ?)')
-            .run('Urgent Alert', 'ProjectA', 'Expiration', 'High', '2024-11-25');
-        
-        const alert = db.prepare('SELECT * FROM alerts WHERE title = ?').get('Urgent Alert');
+        db.runQuery(
+            'INSERT INTO alerts (title, project, type, priority, date) VALUES (?, ?, ?, ?, ?)',
+            ['Urgent Alert', 'ProjectA', 'Expiration', 'High', '2024-11-25']
+        );
 
-        expect(alert).not.toBeNull();
-        expect(alert.project).toBe('ProjectA');
-        expect(alert.type).toBe('Expiration');
+        const alert = db.runQuery('SELECT * FROM alerts WHERE title = ?', ['Urgent Alert']);
+
+        expect(alert.length).toBe(1);
+        expect(alert[0].project).toBe('ProjectA');
+        expect(alert[0].type).toBe('Expiration');
     });
 
     test('It should insert and retrieve a time entry', () => {
-        db.prepare('INSERT INTO time_entries  (project, task, startTime, duration) VALUES (?, ?, ?, ?)')
-            .run('ProjectB', 'Task1', '2025-02-10 10:00', 120);
+        db.runQuery(
+            'INSERT INTO time_entries (project, task, startTime, duration) VALUES (?, ?, ?, ?)',
+            ['ProjectB', 'Task1', '2025-02-10 10:00', 120]
+        );
 
-        const entry = db.prepare('SELECT * FROM time_entries WHERE project = ?').get('ProjectB');
+        const entry = db.runQuery('SELECT * FROM time_entries WHERE project = ?', ['ProjectB']);
 
-        expect(entry).not.toBeNull();
-        expect(entry.task).toBe('Task1');
-        expect(entry.duration).toBe(120);
+        expect(entry.length).toBe(1);
+        expect(entry[0].task).toBe('Task1');
+        expect(entry[0].duration).toBe(120);
     });
 
-    test('It should and retrieve a report', () => {
-        db.prepare('INSERT INTO reports (project, total_hours) VALUES (?, ?)').run('ProjectC', 50);
+    test('It should insert and retrieve a report', () => {
+        db.runQuery(
+            'INSERT INTO reports (project, total_hours) VALUES (?, ?)',
+            ['ProjectC', 50]
+        );
 
-        const report = db.prepare('SELECT * FROM reports WHERE project = ?').get('ProjectC');
+        const report = db.runQuery('SELECT * FROM reports WHERE project = ?', ['ProjectC']);
 
-        expect(report).not.toBeNull();
-        expect(report.total_hours).toBe(50);
+        expect(report.length).toBe(1);
+        expect(report[0].total_hours).toBe(50);
     });
 
-    test('it should delete an alert', () => {
-        db.prepare('INSERT INTO alerts (title, project, type, priority, date) VALUES (?, ?, ?, ?, ?)')
-            .run('Delete Me', 'ProjectA', 'Reminder', 'Medium', '2025-01-21');
+    test('It should delete an alert', () => {
+        db.runQuery(
+            'INSERT INTO alerts (title, project, type, priority, date) VALUES (?, ?, ?, ?, ?)',
+            ['Delete Me', 'ProjectA', 'Reminder', 'Medium', '2025-01-21']
+        );
 
-        const inserted = db.prepare('SELECT * FROM alerts WHERE title = ?').get('Delete Me');
+        const inserted = db.runQuery('SELECT * FROM alerts WHERE title = ?', ['Delete Me']);
+        expect(inserted.length).toBe(1);
 
-        expect(inserted).not.toBeNull();
+        db.runQuery('DELETE FROM alerts WHERE title = ?', ['Delete Me']);
 
-        db.prepare('DELETE FROM alerts WHERE title = ?').run('Delete Me');
-
-        const deleted = db.prepare('SELECT * FROM alerts WHERE title = ?').get('Delete Me');
-
-        expect(deleted).toBeUndefined();
+        const deleted = db.runQuery('SELECT * FROM alerts WHERE title = ?', ['Delete Me']);
+        expect(deleted.length).toBe(0);
     });
 
-    afterAll(() => {
-        db.close();
-    });
 });
