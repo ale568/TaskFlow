@@ -3,14 +3,14 @@ const db = require('../../renderer/utils/dbUtils');
 describe('Database Utility', () => {
 
     beforeAll(() => {
-        db.connect(); // Assicura che il database sia attivo
-        db.runQuery('DELETE FROM alerts'); // Pulisce i dati prima dei test
+        db.connect(); // Ensures that the database is active
+        db.runQuery('DELETE FROM alerts'); // Clear data before tests
         db.runQuery('DELETE FROM time_entries');
         db.runQuery('DELETE FROM reports');
     });
 
     afterAll(() => {
-        db.close(); // Chiude la connessione dopo i test
+        db.close(); // Close connession after tests
     });
 
     test('It should insert and retrieve an alert', () => {
@@ -64,6 +64,16 @@ describe('Database Utility', () => {
 
         const deleted = db.runQuery('SELECT * FROM alerts WHERE title = ?', ['Delete Me']);
         expect(deleted.length).toBe(0);
+    });
+
+    test('It should handle database connection issues gracefully', () => {
+        db.close();
+        expect(() => db.runQuery('SELECT 1')).not.toThrow();
+    });
+
+    test('It should return an error object when an invalid query is executed', () => {
+        const result = db.runQuery('INVALID SQL SYNTAX');
+        expect(result).toHaveProperty('error');
     });
 
 });
