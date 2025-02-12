@@ -1,33 +1,33 @@
+const dbUtils = require('../utils/dbUtils');
+
 class AlertsController {
-    constructor() {
-        this.alerts = [];
+    async getAlerts() {
+        const query = 'SELECT * FROM alerts';
+        const alerts = await dbUtils.runQuery(query);
+        return alerts;
     }
 
-    addAlert(alert) {
-        this.alerts.push(alert);
+    async addAlert(alertData) {
+        const query = 'INSERT INTO alerts (title, project, type, priority, date) VALUES (?, ?, ?, ?, ?)';
+        const params = [alertData.title, alertData.project, alertData.type, alertData.priority, alertData.date];
+        await dbUtils.runQuery(query, params);
     }
 
-    removeAlert(id) {
-        this.alerts = this.alerts.filter(alert => alert.id !== id);
+    async removeAlert(id) {
+        const query = 'DELETE FROM alerts WHERE id = ?';
+        await dbUtils.runQuery(query, [id]);
     }
 
-    updateAlert(id, updatedData) {
-        const alertIndex = this.alerts.findIndex(alert => alert.id === id);
-        if (alertIndex !== -1) {
-            this.alerts[alertIndex] = { ...this.alerts[alertIndex], ...updatedData };
-        }
+    async updateAlert(id, updatedData) {
+        const query = 'UPDATE alerts SET title = ?, project = ?, type = ?, priority = ?, date = ? WHERE id = ?';
+        const params = [updatedData.title, updatedData.project, updatedData.type, updatedData.priority, updatedData.date, id];
+        await dbUtils.runQuery(query, params);
     }
 
-    getAlerts() {
-        return this.alerts;
-    }
-
-    getAlertById(id) {
-        return this.alerts.find(alert => alert.id === id);
-    }
-
-    setAlerts(alerts) {
-        this.alerts = alerts;
+    async getAlertById(id) {
+        const query = 'SELECT * FROM alerts WHERE id = ?';
+        const alert = await dbUtils.runQuery(query, [id]);
+        return alert[0];
     }
 }
 
