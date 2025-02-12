@@ -10,6 +10,10 @@ class TimeEntry {
     update(fields) {
         Object.assign(this, fields);
     }
+
+    static createFromDbRow(row) {
+        return new TimeEntry(row.id, row.project, row.task, row.startTime, row.duration);
+    }
 }
 
 module.exports = TimeEntry;
