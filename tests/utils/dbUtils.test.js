@@ -3,6 +3,7 @@ const db = require('../../renderer/utils/dbUtils');
 describe('Database Utility', () => {
 
     beforeAll(() => {
+        db.connect();      // Ensures that the database is active
         db.exec('DELETE FROM alerts');          // Delete data before tests
         db.exec('DELETE FROM time_entries');
         db.exec('DELETE FROM reports');
@@ -56,5 +57,9 @@ describe('Database Utility', () => {
         const deleted = db.prepare('SELECT * FROM alerts WHERE title = ?').get('Delete Me');
 
         expect(deleted).toBeUndefined();
+    });
+
+    afterAll(() => {
+        db.close();
     });
 });
