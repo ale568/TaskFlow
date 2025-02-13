@@ -97,4 +97,40 @@ describe('Database Utility', () => {
             expect(foreignKeys).toContain(expectedFK);
         });
     });
+
+    test('It should execute a PRAGMA query successfully', () => {
+        const pragmaResult = db.runQuery("PRAGMA foreign_keys");
+        expect(pragmaResult).toEqual([{ foreign_keys: 1 }]);
+    });
+
+    test('It should execute an INSERT query and return result', () => {
+        const insertResult = db.runQuery("INSERT INTO projects (name, description, created_at, updated_at VALUES (?, ?, ?, ?)",
+            ["Test Project", "A test project", "2025-02-15", "2025-02-15"]
+        );
+        expect(insertResult.changes).toBe(1);
+    });
+
+    test('It should execute an UPDATE query and return result', () => {
+        db.runQuery("INSERT INTO settings (key, values) VALUES (?, ?)", ["theme", "dark"]);
+        const updateResult = db.runQuery("UPDATE settings SET value = ?  WHERE key = ?", ["Light", "theme"]);
+        expect(updateResult.changes).toBe(1);
+    });
+
+    test('It should execute a DELETE query and return result', () => {
+        db.runQuery("INSERT INTO settings (key, values) VALUES (?, ?)", ["temp", "delete_me"]);
+        const deleteResult = db.runQuery("DELETE FROM settings WHERE key = ?", ["temp"]);
+        expect(deleteResult.changes).toBe(1);
+    });
+
+    test('It should handle SQL errors gracefully and return error object', () => {
+        const result = db.runQuery("INVALID SQL SYNTAX");
+        expect(result).toHaveProperty('success', false);
+        expect(result).toHaveProperty('error');
+    });
+
+    test('It should automatically reconnect if the database is not connected', () => {
+        db.close();
+        const result = db.runQuery("SELECT 1");
+        expect(result).toBeDefined();
+    });
 });
