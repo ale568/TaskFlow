@@ -30,22 +30,46 @@ function runQuery(query, params = []) {
     try {
         const stmt = db.prepare(query);
         const upperQuery = query.trim().toUpperCase();
+        let result;
 
         if (upperQuery.startsWith('SELECT')) {
-            return stmt.all(...params) || [];
+            result = stmt.all(...params) || [];
+            console.info('SELECT query executed:', query);
         } else if (upperQuery.startsWith('PRAGMA')) {
-            return stmt.all(...params);
+            result = stmt.all(...params) || [];
+            console.info('PRAGMA query executed:', query);
         } else {
-            const result = stmt.run(...params);
-            return result.changes > 0 ? result : [];
+            const execResult = stmt.run(...params);
+            console.info(`${upperQuery.split(' ')[0]} query executed:`, query);
+
+            result = {
+                success: execResult.changes > 0,
+                changes: execResult.changes,
+                lastInsertRowid: execResult.lastInsertRowid || null
+            };
         }
+
+        return result;
     } catch (error) {
         console.error('Database Error:', error.message);
-        return [];
+        return { success: false, error: error.message, query };
     }
 }
 
+
 function initializeTables() {
+    createAlertsTable();
+    createTimeEntriesTable();
+    createProjectsTable();
+    createActivitiesTable();
+    createReportsTable();
+    createTagsTable();
+    createSettingsTable();
+    createTimersTable();
+    console.info('Tables initialized');
+}
+
+function createAlertsTable() {
     db.exec(`
         CREATE TABLE IF NOT EXISTS alerts (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -57,7 +81,11 @@ function initializeTables() {
             resolved INTEGER DEFAULT 0 CHECK (resolved IN (0, 1)),
             FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
         );
+    `);
+}
 
+function createTimeEntriesTable() {
+    db.exec(`
         CREATE TABLE IF NOT EXISTS time_entries (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             project_id INTEGER NOT NULL,
@@ -69,7 +97,11 @@ function initializeTables() {
             FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE,
             FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE SET NULL
         );
+    `);
+}
 
+function createProjectsTable() {
+    db.exec(`
         CREATE TABLE IF NOT EXISTS projects (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL UNIQUE,
@@ -77,7 +109,11 @@ function initializeTables() {
             created_at TEXT NOT NULL,
             updated_at TEXT NOT NULL
         );
+    `);
+}
 
+function createActivitiesTable() {
+    db.exec(`
         CREATE TABLE IF NOT EXISTS activities (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
@@ -85,7 +121,11 @@ function initializeTables() {
             duration INTEGER NOT NULL,
             FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
         );
+    `);
+}
 
+function createReportsTable() {
+    db.exec(`
         CREATE TABLE IF NOT EXISTS reports (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             project_id INTEGER NOT NULL,
@@ -94,19 +134,31 @@ function initializeTables() {
             endDate TEXT NOT NULL,
             FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
         );
+    `);
+}
 
+function createTagsTable() {
+    db.exec(`
         CREATE TABLE IF NOT EXISTS tags (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL UNIQUE,
             color TEXT NOT NULL
         );
+    `);
+}
 
+function createSettingsTable() {
+    db.exec(`
         CREATE TABLE IF NOT EXISTS settings (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             key TEXT NOT NULL UNIQUE,
             value TEXT NOT NULL
         );
+    `);
+}
 
+function createTimersTable() {
+    db.exec(`
         CREATE TABLE IF NOT EXISTS timers (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             project_id INTEGER NOT NULL,
@@ -117,8 +169,6 @@ function initializeTables() {
             FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
         );
     `);
-
-    console.info('Tables initialized');
 }
 
 module.exports = {

@@ -104,23 +104,33 @@ describe('Database Utility', () => {
     });
 
     test('It should execute an INSERT query and return result', () => {
-        const insertResult = db.runQuery("INSERT INTO projects (name, description, created_at, updated_at VALUES (?, ?, ?, ?)",
+        db.runQuery("DELETE FROM projects WHERE name = ?", ["Test Project"]); // Pulisce eventuali dati preesistenti
+    
+        const insertResult = db.runQuery(
+            "INSERT INTO projects (name, description, created_at, updated_at) VALUES (?, ?, ?, ?)",
             ["Test Project", "A test project", "2025-02-15", "2025-02-15"]
         );
-        expect(insertResult.changes).toBe(1);
+    
+        expect(insertResult).toHaveProperty("success", true);
+        expect(insertResult).toHaveProperty("changes", 1);
+        expect(insertResult).toHaveProperty("lastInsertRowid");
+        expect(insertResult.lastInsertRowid).toBeGreaterThan(0);
     });
+    
+    
 
     test('It should execute an UPDATE query and return result', () => {
-        db.runQuery("INSERT INTO settings (key, values) VALUES (?, ?)", ["theme", "dark"]);
-        const updateResult = db.runQuery("UPDATE settings SET value = ?  WHERE key = ?", ["Light", "theme"]);
+        db.runQuery("INSERT INTO settings (key, value) VALUES (?, ?)", ["theme", "dark"]);
+        const updateResult = db.runQuery("UPDATE settings SET value = ? WHERE key = ?", ["light", "theme"]);
         expect(updateResult.changes).toBe(1);
     });
 
     test('It should execute a DELETE query and return result', () => {
-        db.runQuery("INSERT INTO settings (key, values) VALUES (?, ?)", ["temp", "delete_me"]);
+        db.runQuery("INSERT INTO settings (key, value) VALUES (?, ?)", ["temp", "delete_me"]);
         const deleteResult = db.runQuery("DELETE FROM settings WHERE key = ?", ["temp"]);
         expect(deleteResult.changes).toBe(1);
     });
+    
 
     test('It should handle SQL errors gracefully and return error object', () => {
         const result = db.runQuery("INVALID SQL SYNTAX");
