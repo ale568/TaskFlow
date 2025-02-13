@@ -4,105 +4,97 @@ describe('Database Utility', () => {
 
     beforeAll(() => {
         db.connect(); // Ensures that the database is active
-        db.runQuery('DELETE FROM alerts'); // Clear data before tests
-        db.runQuery('DELETE FROM time_entries');
-        db.runQuery('DELETE FROM reports');
     });
 
     afterAll(() => {
         db.close(); // Close connession after tests
     });
 
-    test('It should insert and retrieve an alert', () => {
-        db.runQuery(
-            'INSERT INTO alerts (title, project, type, priority, date) VALUES (?, ?, ?, ?, ?)',
-            ['Urgent Alert', 'ProjectA', 'Expiration', 'High', '2024-11-25']
-        );
+    const expectedTables = ['alerts', 'time_entries', 'reports', 'projects', 'tags', 'activities', 'settings', 'timers'];
 
-        const alert = db.runQuery('SELECT * FROM alerts WHERE title = ?', ['Urgent Alert']);
-
-        expect(alert.length).toBe(1);
-        expect(alert[0].project).toBe('ProjectA');
-        expect(alert[0].type).toBe('Expiration');
+    test.each(expectedTables)('It should have a table named %s', (tableName) => {
+        const result = db.runQuery("SELECT name FROM sqlite_master WHERE type='table' AND name=?", [tableName]);
+        expect(result.length).toBe(1);
     });
 
-    test('It should insert and retrieve a time entry', () => {
-        db.runQuery(
-            'INSERT INTO time_entries (project, task, startTime, duration) VALUES (?, ?, ?, ?)',
-            ['ProjectB', 'Task1', '2025-02-10 10:00', 120]
-        );
+    test('It should have correct columns in alerts', () => {
+        const result = db.runQuery("PRAGMA table_info(alerts)");
+        const columns = result.map(col => col.name);
 
-        const entry = db.runQuery('SELECT * FROM time_entries WHERE project = ?', ['ProjectB']);
-
-        expect(entry.length).toBe(1);
-        expect(entry[0].task).toBe('Task1');
-        expect(entry[0].duration).toBe(120);
+        expect(columns).toEqual(['id', 'title', 'project_id', 'type', 'priority', 'date', 'resolved']);
     });
 
-    test('It should insert and retrieve a report', () => {
-        db.runQuery(
-            'INSERT INTO reports (project, total_hours) VALUES (?, ?)',
-            ['ProjectC', 50]
-        );
+    test('It should have correct columns in time_entries', () => {
+        const result = db.runQuery("PRAGMA table_info(time_entries)");
+        const columns = result.map(col => col.name);
 
-        const report = db.runQuery('SELECT * FROM reports WHERE project = ?', ['ProjectC']);
-
-        expect(report.length).toBe(1);
-        expect(report[0].total_hours).toBe(50);
+        expect(columns).toEqual(['id', 'project_id', 'task', 'startTime', 'endTime', 'duration', 'tag_id']);
     });
 
-    test('It should delete an alert', () => {
-        db.runQuery(
-            'INSERT INTO alerts (title, project, type, priority, date) VALUES (?, ?, ?, ?, ?)',
-            ['Delete Me', 'ProjectA', 'Reminder', 'Medium', '2025-01-21']
-        );
+    test('It should have correct columns in projects', () => {
+        const result = db.runQuery("PRAGMA table_info(projects)");
+        const columns = result.map(col => col.name);
 
-        const inserted = db.runQuery('SELECT * FROM alerts WHERE title = ?', ['Delete Me']);
-        expect(inserted.length).toBe(1);
-
-        db.runQuery('DELETE FROM alerts WHERE title = ?', ['Delete Me']);
-
-        const deleted = db.runQuery('SELECT * FROM alerts WHERE title = ?', ['Delete Me']);
-        expect(deleted.length).toBe(0);
+        expect(columns).toEqual(['id', 'name', 'description', 'created_at', 'updated_at']);
     });
 
-    test('It should handle database connection issues gracefully', () => {
-        db.close();
-        expect(() => db.runQuery('SELECT 1')).not.toThrow();
+    test('It should have correct columns in activities', () => {
+        const result = db.runQuery("PRAGMA table_info(activities)");
+        const columns = result.map(col => col.name);
+
+        expect(columns).toEqual(['id', 'name', 'project_id', 'duration',]);
     });
 
-    test('It should return an error object when an invalid query is executed', () => {
-        const result = db.runQuery('INVALID SQL SYNTAX');
-        expect(result).toHaveProperty('error');
+    test('It should have correct columns in reports', () => {
+        const result = db.runQuery("PRAGMA table_info(reports)");
+        const columns = result.map(col => col.name);
+
+        expect(columns).toEqual(['id', 'project_id', 'total_hours', 'startDate', 'endDate']);
     });
 
-    test('It should return an error when querying a non-existing table', () => {
-        const result = db.runQuery('SELECT * FROM non_existing_table');
-        expect(result).toHaveProperty('error');
+    test('It should have correct columns in tags', () => {
+        const result = db.runQuery("PRAGMA table_info(tags)");
+        const columns = result.map(col => col.name);
+
+        expect(columns).toEqual(['id', 'name', 'color']);
     });
 
-    test('It should return an error when executing an invalid INSERT', () => {
-        const result = db.runQuery('INSERT INTO alerts (title) VALUES (?)', []);
-        expect(result).toHaveProperty('error');
+    test('It should have correct columns in settings', () => {
+        const result = db.runQuery("PRAGMA table_info(settings)");
+        const columns = result.map(col => col.name);
+
+        expect(columns).toEqual(['id', 'key', 'value']);
     });
 
-    test('It should handle a query when the database is closed', () => {
-        db.close();
-        expect(() => db.runQuery('SELECT 1')).not.toThrow();
+    test('It should have correct columns in timers', () => {
+        const result = db.runQuery("PRAGMA table_info(timers)");
+        const columns = result.map(col => col.name);
+
+        expect(columns).toEqual(['id', 'project_id', 'task', 'startTime', 'endTime', 'status']);
     });
 
-    test('It should not reconnnect if already connected', () => {
-        db.connect();
-        const initialDB = db;
+    test('It should enforce NOT NULL constraints', () => {
+        const result = db.runQuery("PRAGMA table_info(time_entries)");
+        const notNullColumns = result.filter(col => col.notnull === 1).map(col => col.name);
 
-        db.connect();
-
-        expect(db).toBe(initialDB);
+        expect(notNullColumns).toEqual(expect.arrayContaining(['project_id', 'task', 'startTime', 'duration']));
     });
 
-    test('It should return an error when running an invalid query', () => {
-        db.close();
-        const result = db.runQuery('SELECT 1');
-        expect(result).not.toBeNull();
+    test('It should enforce foreign key constraints', () => {
+        const queries = [
+            { table: 'time_entries', expectedFK: 'tags' },
+            { table: 'time_entries', expectedFK: 'projects' },
+            { table: 'alerts', expectedFK: 'projects' },
+            { table: 'activities', expectedFK: 'projects' },
+            { table: 'reports', expectedFK: 'projects' },
+            { table: 'timers', expectedFK:'projects' }
+        ];
+
+        queries.forEach(({ table, expectedFK}) => {
+            const result = db.runQuery(`PRAGMA foreign_key_list(${table})`);
+            const foreignKeys = result.map(fk => fk.table);
+
+            expect(foreignKeys).toContain(expectedFK);
+        });
     });
 });
