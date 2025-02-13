@@ -29,42 +29,92 @@ function runQuery(query, params = []) {
 
     try {
         const stmt = db.prepare(query);
-        if (query.trim().toUpperCase().startsWith('SELECT')) {
+        const upperQuery = query.trim().toUpperCase();
+
+        if (upperQuery.startsWith('SELECT')) {
             return stmt.all(...params) || [];
+        } else if (upperQuery.startsWith('PRAGMA')) {
+            return stmt.all(...params);
         } else {
             const result = stmt.run(...params);
-            return result.changes;
+            return result.changes > 0 ? result : [];
         }
     } catch (error) {
-        console.error('Database Error:', error);
-        return { error: error.message, query }; // Added debug query
+        console.error('Database Error:', error.message);
+        return [];
     }
 }
-
 
 function initializeTables() {
     db.exec(`
         CREATE TABLE IF NOT EXISTS alerts (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             title TEXT NOT NULL,
-            project TEXT NOT NULL,
+            project_id INTEGER NOT NULL,
             type TEXT NOT NULL,
             priority TEXT NOT NULL,
-            date TEXT NOT NULL
+            date TEXT NOT NULL,
+            resolved INTEGER DEFAULT 0 CHECK (resolved IN (0, 1)),
+            FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
         );
-        
+
         CREATE TABLE IF NOT EXISTS time_entries (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            project TEXT NOT NULL,
+            project_id INTEGER NOT NULL,
             task TEXT NOT NULL,
             startTime TEXT NOT NULL,
-            duration INTEGER NOT NULL
+            endTime TEXT NULL,
+            duration INTEGER NOT NULL,
+            tag_id INTEGER NULL,
+            FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE,
+            FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE SET NULL
+        );
+
+        CREATE TABLE IF NOT EXISTS projects (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL UNIQUE,
+            description TEXT NULL,
+            created_at TEXT NOT NULL,
+            updated_at TEXT NOT NULL
+        );
+
+        CREATE TABLE IF NOT EXISTS activities (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            project_id INTEGER NOT NULL,
+            duration INTEGER NOT NULL,
+            FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
         );
 
         CREATE TABLE IF NOT EXISTS reports (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            project TEXT NOT NULL,
-            total_hours INTEGER NOT NULL
+            project_id INTEGER NOT NULL,
+            total_hours INTEGER NOT NULL,
+            startDate TEXT NOT NULL,
+            endDate TEXT NOT NULL,
+            FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
+        );
+
+        CREATE TABLE IF NOT EXISTS tags (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL UNIQUE,
+            color TEXT NOT NULL
+        );
+
+        CREATE TABLE IF NOT EXISTS settings (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            key TEXT NOT NULL UNIQUE,
+            value TEXT NOT NULL
+        );
+
+        CREATE TABLE IF NOT EXISTS timers (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            project_id INTEGER NOT NULL,
+            task TEXT NOT NULL,
+            startTime TEXT NOT NULL,
+            endTime TEXT NULL,
+            status TEXT NOT NULL CHECK (status IN ('running', 'paused', 'stopped')),
+            FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
         );
     `);
 
