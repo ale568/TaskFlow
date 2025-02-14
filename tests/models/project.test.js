@@ -1,58 +1,53 @@
 const Project = require('../../renderer/models/project');
 const Activity = require('../../renderer/models/activity');
 
-describe('Project', () => {
+describe('Project Model', () => {
 
-    test('It should create a project with a name and a description.', () => {
+    test('It should create a project with a name and an optional description', () => {
+        const project1 = new Project('Project Alpha', 'This is a test project');
+        const project2 = new Project('Project Beta');
 
-        const project = new Project('Project X', 'Project\'s description');
-        expect(project.name).toBe('Project X');
-        expect(project.description).toBe('Project\'s description');
+        expect(project1.name).toBe('Project Alpha');
+        expect(project1.description).toBe('This is a test project');
+
+        expect(project2.name).toBe('Project Beta');
+        expect(project2.description).toBeNull();
     });
 
-    test('It should create a project with a optional description', () => {
-        const project = new Project('Project Y');
-        expect(project.name).toBe('Project Y');
-        expect(project.description).toBe(null);
+    test('It should throw an error if name is missing or empty', () => {
+        expect(() => new Project()).toThrow('Project name is required');
+        expect(() => new Project('')).toThrow('Project name is required');
     });
 
-    test('It should initially have an empty task list', () => {
-        const project = new Project('Project Z');
-        expect(project.activities).toEqual([]);
-    });
+    test('It should add an activity to the project', () => {
+        const project = new Project('Project Gamma');
+        const activity = new Activity('Design UI', 300);
 
-    test('It should allow to add an activity to the project', () => {
-        const project = new Project('Project T');
-        const activity = new Activity('Write a report', 300);
         project.addActivity(activity);
+
         expect(project.activities.length).toBe(1);
         expect(project.activities[0]).toBe(activity);
     });
 
-    test('It should calculate the total time of the tasks', () => {
-        const project = new Project('Project X');
-        project.addActivity(new Activity('Write a report', 300));
-        project.addActivity(new Activity('Meeting', 400));
-        expect(project.getTotalTime()).toBe(700);
+    test('It should calculate the total time of all activities in the project', () => {
+        const project = new Project('Project Delta');
+        project.addActivity(new Activity('Task1', 200));
+        project.addActivity(new Activity('Task2', 300));
+
+        expect(project.getTotalTime()).toBe(500);
     });
-                                                                                        // Edge cases
-    test('It should return a total time of 0, if there are no activities', () => {
-        const project = new Project('Empty Project');
-        expect(project.getTotalTime()).toBe(0);
-    });
-                                                                                
-    test('It should manage activities without a valid duration', () => {     
-        const project = new Project('Test Project');
-        project.addActivity(new Activity('Activity without a duration', NaN))  
+
+    test('It should return 0 if there are no activities', () => {
+        const project = new Project('Project Epsilon');
         expect(project.getTotalTime()).toBe(0);
     });
 
-    test('It should allow adding multiple activities and mantain their order ', () => {
-        const project = new Project('Project1');
-        const activity1 = new Activity('Task1', 200);
-        const activity2 = new Activity('Task2', 300);
-        project.addActivity(activity1);
-        project.addActivity(activity2);
-        expect(project.activities).toEqual([activity1, activity2]);
+    test('It should handle avtivities with undefined or null durations', () => {
+        const project = new Project('Project Zeta');
+        project.addActivity(new Activity('Task1', 200));
+        project.addActivity(new Activity('Task2', null));
+        project.addActivity(new Activity('Task3', undefined));
+
+        expect(project.getTotalTime()).toBe(200);
     });
 });
