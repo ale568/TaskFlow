@@ -82,4 +82,51 @@ describe('Alert Model', () => {
         expect(dbObject.resolved).toBe(0);
     });
 
+    test('It should update the alert with valid values', () => {
+        const alert = new Alert(1, 'Original Alert', 3, 'Warning', 'High', '2025-10-01 12:00:00', 0);
+        
+        alert.update({ title: 'Updated Alert', resolved: 1 });
+        
+        expect(alert.title).toBe('Updated Alert');
+        expect(alert.resolved).toBe(1);
+    });
+    
+    test('It should retain existing values when updating with undefined fields', () => {
+        const alert = new Alert(2, 'Initial Alert', 2, 'Info', 'Low', '2025-10-01 12:00:00', 0);
+    
+        alert.update({ title: undefined, resolved: undefined });
+    
+        expect(alert.title).toBe('Initial Alert'); 
+        expect(alert.resolved).toBe(0); 
+    });
+    
+    test('It should throw an error if updated title is empty', () => {
+        const alert = new Alert(3, 'Valid Alert', 5, 'Feature', 'Medium', '2025-12-02 14:30:00', 0);
+    
+        expect(() => alert.update({ title: '' })).toThrow('Invalid title');
+    });
+    
+    test('It should correctly handle toDbObject when resolved is undefined', () => {
+        const alert = new Alert(4, 'Database Alert', 1, 'Reminder', 'Normal', '2026-01-10 09:45:00');
+        const dbObject = alert.toDbObject();
+    
+        expect(dbObject.resolved).toBe(0); 
+    });
+    
+    test('It should create an alert from a database row, even if resolved is missing', () => {
+        const dbRow = {
+            id: 1,
+            title: "Test Alert",
+            project_id: 2,
+            type: "Deadline",
+            priority: "High",
+            date: "2025-02-20"
+            // resolved è assente
+        };
+    
+        const alert = Alert.createFromDbRow(dbRow);
+        expect(alert.resolved).toBeNull();
+    });
+    
+    
 });
