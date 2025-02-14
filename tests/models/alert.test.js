@@ -61,4 +61,25 @@ describe('Alert Model', () => {
     test('It should throw an error for invalid resolved value', () => {
         expect(() => new Alert(7, 'Deprecated API', 7, 'Deprecation', 'Medium', '2025-02-05 17:15:00', 2)).toThrow('Invalid resolved value');
     });
+
+    test('It should throw an error if title is null or undefined', () => {
+        expect(() => new Alert(8, null, 3, 'Warning', 'High', '2025-10-01 12:00:00', 0)).toThrow('Invalid title');
+        expect(() => new Alert(9, undefined, 3, 'Warning', 'High', '2025-10-01 12:00:00', 0)).toThrow('Invalid title');
+    });
+
+    test('It should throw an error if project_id is not a number', () => {
+        expect(() => new Alert(10, 'Test Alert', 'NaN', 'Feature', 'Low', '2025-01-21 11:00:30', 0)).toThrow('Invalid project_id');
+    });
+
+    test('It should throw an error if resolved is not 0 or 1', () => {
+        expect(() => new Alert(11, 'Security Issue', 4, 'Security', 'Critical', '2025-12-05 18:15:00', 2)).toThrow('Invalid resolved value');
+        expect(() => new Alert(12, 'Security Issue', 4, 'Security', 'Critical', '2025-12-05 18:15:00', 'string')).toThrow('Invalid resolved value');
+    });
+
+    test('It should correctly handle toDbObject when resolved is undefined', () => {
+        const alert = new Alert(13, 'New Alert', 5, 'Reminder', 'Normal', '2026-01-10 09:45:00');
+        const dbObject = alert.toDbObject();
+        expect(dbObject.resolved).toBe(0);
+    });
+
 });
