@@ -19,7 +19,7 @@ describe('Report Model', () => {
 
     test('It should update report details', () => {
         report.update({ total_hours: 50, endDate: '2025-02-05' });
-        expect(report.description).toBe(50);
+        expect(report.total_hours).toBe(50);
         expect(report.endDate).toBe('2025-02-05');
         expect(report.project_id).toBe(101);
     });
@@ -37,7 +37,7 @@ describe('Report Model', () => {
             project_id: 101,
             total_hours: 40,
             startDate: '2025-01-16',
-            endDate: '2025-02-28'
+            endDate: '2025-02-03'
         });
     });
 
