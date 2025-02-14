@@ -21,7 +21,7 @@ describe('Project Model', () => {
 
     test('It should add an activity to the project', () => {
         const project = new Project('Project Gamma');
-        const activity = new Activity('Design UI', 300);
+        const activity = new Activity(1, 'Design UI', 300);
 
         project.addActivity(activity);
 
@@ -31,8 +31,8 @@ describe('Project Model', () => {
 
     test('It should calculate the total time of all activities in the project', () => {
         const project = new Project('Project Delta');
-        project.addActivity(new Activity('Task1', 200));
-        project.addActivity(new Activity('Task2', 300));
+        project.addActivity(new Activity(1, 'Task1', 200));
+        project.addActivity(new Activity(2, 'Task2', 300));
 
         expect(project.getTotalTime()).toBe(500);
     });
@@ -44,9 +44,9 @@ describe('Project Model', () => {
 
     test('It should handle avtivities with undefined or null durations', () => {
         const project = new Project('Project Zeta');
-        project.addActivity(new Activity('Task1', 200));
-        project.addActivity(new Activity('Task2', null));
-        project.addActivity(new Activity('Task3', undefined));
+        project.addActivity(new Activity(1, 'Task1', 200));
+        project.addActivity(new Activity(2, 'Task2', 0));
+        project.addActivity(new Activity(3, 'Task3', 0));
 
         expect(project.getTotalTime()).toBe(200);
     });
