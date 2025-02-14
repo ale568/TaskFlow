@@ -36,10 +36,10 @@ describe('Activity Model', () => {
     });
 
     test('It should throw an error for invalid name', () => {
-        expect(() => new Activity(5, '', 300)).toThrow('Invalid Name');
+        expect(() => new Activity(5, '', 300)).toThrow('Invalid name');
     });
 
     test('It should throw an error for invalid duration', () => {
-        expect(() => new Activity(6, 'Bug Fix', -10)).toThrow('Invalid Duration');
+        expect(() => new Activity(6, 'Bug Fix', -10)).toThrow('Invalid duration');
     });
 });

@@ -1,24 +1,36 @@
 class Activity {
-    constructor(name, duration, project = null, startTime = new Date()) {
+    constructor(id, name, duration, project_id = null) {
+        if (typeof id !== 'number' || id <= 0) {
+            throw new Error('Invalid id');
+        }
         if (typeof name !== 'string' || name.trim() === '') {
             throw new Error('Invalid name');
         }
         if (typeof duration !== 'number' || duration <= 0) {
             throw new Error('Invalid duration');
         }
-        if (project !== null && typeof project !== 'string') {
-            throw new Error('Invalid project');
-        }
-        if (!(startTime instanceof Date) || isNaN(startTime.getTime())) {
-            throw new Error('Invalid startTime');
+        if (project_id !== null && typeof project_id !== 'number') {
+            throw new Error('Invalid project_id');
         }
 
+        this.id = id;
         this.name = name;
-        this.duration = duration; // (For Copilot) - Important: time is stored in 'duration', not in 'hours'
-        this.project = project;
-        this.startTime = startTime;
-        this.endTime = new Date(this.startTime.getTime() + duration * 1000);
-        this.createdAt = new Date(); 
+        this.duration = duration;
+        this.project_id = project_id;
+        this.createdAt = new Date();
+    }
+
+    toDbObject() {
+        return {
+            id: this.id,
+            name: this.name,
+            duration: this.duration,
+            project_id: this.project_id
+        };
+    }
+
+    static createFromDbRow(row) {
+        return new Activity(row.id, row.name, row.duration, row.project_id);
     }
 }
 
