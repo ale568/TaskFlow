@@ -5,30 +5,50 @@ describe('Report Model', () => {
     let report;
 
     beforeEach(() => {
-        report = new Report(1, 'Project1', 'Task1', 'Description', 'Tag1', 120, '2025-02-10 13:30');
+        report = new Report(1, 101, 40, '2025-01-16', '2025-02-03');
 
     });
 
     test('It should create a report instance with correct properties', () => {
         expect(report.id).toBe(1);
-        expect(report.project).toBe('Project1');
-        expect(report.task).toBe('Task1');
-        expect(report.description).toBe('Description');
-        expect(report.tag).toBe('Tag1');
-        expect(report.duration).toBe(120);
-        expect(report.date).toBe('2025-02-10 13:30');
+        expect(report.project_id).toBe(101);
+        expect(report.total_hours).toBe(40);
+        expect(report.startDate).toBe('2025-01-16');
+        expect(report.endDate).toBe('2025-02-03');
     });
 
     test('It should update report details', () => {
-        report.update({ description: 'Updated Description', duration: 150 });
-        expect(report.description).toBe('Updated Description');
-        expect(report.duration).toBe(150);
-        expect(report.project).toBe('Project1');
+        report.update({ total_hours: 50, endDate: '2025-02-05' });
+        expect(report.description).toBe(50);
+        expect(report.endDate).toBe('2025-02-05');
+        expect(report.project_id).toBe(101);
     });
 
     test('It should not modify other fields if not included in update', () => {
-        report.update({ task: 'Updated Task'});
-        expect(report.task).toBe('Updated Task');
-        expect(report.description).toBe('Description');
+        report.update({ startDate: '2025-01-09'});
+        expect(report.startDate).toBe('2025-01-09');
+        expect(report.total_hours).toBe(40);
+    });
+
+    test('it should convert an instance to a database object', () => {
+        const dbObject = report.toDbObject();
+        expect(dbObject).toEqual({
+            id: 1,
+            project_id: 101,
+            total_hours: 40,
+            startDate: '2025-01-16',
+            endDate: '2025-02-28'
+        });
+    });
+
+    test('it should create an instance from a database row', () => {
+        const dbRow = { id: 2, project_id: 102, total_hours: 60, startDate: '2025-01-15', endDate: '2025-01-30'};
+        const reportInstance = Report.createFromDbRow(dbRow);
+
+        expect(reportInstance.id).toBe(2);
+        expect(reportInstance.project_id).toBe(102);
+        expect(reportInstance.total_hours).toBe(60);
+        expect(reportInstance.startDate).toBe('2025-01-15');
+        expect(reportInstance.endDate).toBe('2025-01-30');
     });
 });
