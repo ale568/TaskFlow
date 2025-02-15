@@ -21,7 +21,7 @@ describe('Settings Model', () => {
     });
 
     test('It should update the date format', () => {
-        settings.setDataFormat('MM/DD/YYYY');
+        settings.setDateFormat('MM/DD/YYYY');
         expect(settings.dateFormat).toBe('MM/DD/YYYY');
     });
 
