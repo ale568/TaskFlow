@@ -1,102 +1,62 @@
 const Report = require('../../renderer/models/report');
 
-describe('Report Model', () => {
-
-    let report;
-
-    beforeEach(() => {
-        report = new Report(1, 101, 40, '2025-01-16', '2025-02-03');
-
-    });
-
-    test('It should create a report instance with correct properties', () => {
-        expect(report.id).toBe(1);
-        expect(report.project_id).toBe(101);
-        expect(report.total_hours).toBe(40);
-        expect(report.startDate).toBe('2025-01-16');
-        expect(report.endDate).toBe('2025-02-03');
-    });
-
-    test('It should update report details', () => {
-        report.update({ total_hours: 50, endDate: '2025-02-05' });
-        expect(report.total_hours).toBe(50);
-        expect(report.endDate).toBe('2025-02-05');
-        expect(report.project_id).toBe(101);
-    });
-
-    test('It should not modify other fields if not included in update', () => {
-        report.update({ startDate: '2025-01-09'});
-        expect(report.startDate).toBe('2025-01-09');
+describe('Report Model - Database Integration', () => {
+    test('It should create a new report in the database', async () => {
+        const report = await Report.createReport(5, 40, '2025-02-10', '2025-02-16');
+        expect(report).toBeInstanceOf(Report);
+        expect(report.project_id).toBe(5);
         expect(report.total_hours).toBe(40);
     });
 
-    test('it should convert an instance to a database object', () => {
-        const dbObject = report.toDbObject();
-        expect(dbObject).toEqual({
-            id: 1,
-            project_id: 101,
-            total_hours: 40,
-            startDate: '2025-01-16',
-            endDate: '2025-02-03'
-        });
+    test('It should retrieve a report by ID', async () => {
+        const newReport = await Report.createReport(5, 30, '2025-02-05', '2025-02-15');
+        const retrievedReport = await Report.getReportById(newReport.id);
+        expect(retrievedReport).toBeInstanceOf(Report);
+        expect(retrievedReport.id).toBe(newReport.id);
     });
 
-    test('it should create an instance from a database row', () => {
-        const dbRow = { id: 2, project_id: 102, total_hours: 60, startDate: '2025-01-15', endDate: '2025-01-30'};
-        const reportInstance = Report.createFromDbRow(dbRow);
-
-        expect(reportInstance.id).toBe(2);
-        expect(reportInstance.project_id).toBe(102);
-        expect(reportInstance.total_hours).toBe(60);
-        expect(reportInstance.startDate).toBe('2025-01-15');
-        expect(reportInstance.endDate).toBe('2025-01-30');
+    test('It should return null for a non-existing report ID', async () => {
+        const report = await Report.getReportById(99999);
+        expect(report).toBeNull();
     });
 
-    test('It should throw an error when trying to update with an invalid project_id', () => {
-        expect(() => report.update({ project_id: -10 })).toThrow('Invalid project_id');
+    test('It should retrieve all reports of a project', async () => {
+        const report1 = await Report.createReport(5, 50, '2025-02-01', '2025-02-10');
+        const report2 = await Report.createReport(5, 60, '2025-02-11', '2025-02-20');
+
+        const reports = await Report.getReportsByProjectId(5);
+        expect(reports.length).toBeGreaterThanOrEqual(2);
+        expect(reports).toEqual(expect.arrayContaining([
+            expect.objectContaining({ id: report1.id }),
+            expect.objectContaining({ id: report2.id })
+        ]));
     });
-    
-    test('It should throw an error when trying to update with an invalid total_hours', () => {
-        expect(() => report.update({ total_hours: -5 })).toThrow('Invalid total_hours');
+
+    test('It should delete a report successfully', async () => {
+        const report = await Report.createReport(5, 35, '2025-02-12', '2025-02-18');
+        const deleted = await Report.deleteReport(report.id);
+        expect(deleted).toBe(true);
+
+        const deletedReport = await Report.getReportById(report.id);
+        expect(deletedReport).toBeNull();
     });
-    
-    test('It should throw an error if startDate is set after endDate', () => {
-        expect(() => report.update({ startDate: '2025-02-10', endDate: '2025-02-05' }))
-            .toThrow('Invalid endDate');
+
+    test('It should return false if deleting a non-existing report', async () => {
+        const deleted = await Report.deleteReport(99999);
+        expect(deleted).toBe(false);
     });
-    
-    test('It should throw an error if endDate is set before startDate', () => {
-        expect(() => report.update({ endDate: '2025-01-05' }))
-            .toThrow('Invalid endDate');
+
+    test('It should throw an error if report ID is invalid', async () => {
+        await expect(Report.getReportById(null)).rejects.toThrow('Invalid report ID');
+        await expect(Report.getReportById(-1)).rejects.toThrow('Invalid report ID');
     });
-    
-    test('It should throw an error when trying to update startDate with an invalid format', () => {
-        expect(() => report.update({ startDate: '10-02-2025' })).toThrow('Invalid date format');
+
+    test('It should throw an error for invalid project ID when retrieving reports', async () => {
+        await expect(Report.getReportsByProjectId(null)).rejects.toThrow('Invalid project ID');
+        await expect(Report.getReportsByProjectId(-1)).rejects.toThrow('Invalid project ID');
     });
-    
-    test('It should throw an error when trying to update endDate with an invalid format', () => {
-        expect(() => report.update({ endDate: '32/01/2025' })).toThrow('Invalid date format');
+
+    test('It should throw an error for an invalid date range when creating a report', async () => {
+        await expect(Report.createReport(5, 20, '2025-02-16', '2025-02-10')).rejects.toThrow('Invalid date range');
     });
-    
-    test('It should correctly convert to a database object when optional fields are missing', () => {
-        const minimalReport = new Report(2, 102, 60, '2025-01-15', '2025-01-30');
-        const dbObject = minimalReport.toDbObject();
-        expect(dbObject).toEqual({
-            id: 2,
-            project_id: 102,
-            total_hours: 60,
-            startDate: '2025-01-15',
-            endDate: '2025-01-30'
-        });
-    });
-    
-    test('It should throw an error when trying to create a report from an invalid database row', () => {
-        expect(() => Report.createFromDbRow(null)).toThrow('Invalid database row');
-    });
-    
-    test('It should throw an error when creating a report from a database row with invalid values', () => {
-        const invalidRow = { id: 'invalid', project_id: 'not a number', total_hours: -10, startDate: 'wrong', endDate: 'wrong' };
-        expect(() => Report.createFromDbRow(invalidRow)).toThrow();
-    });
-    
 });
