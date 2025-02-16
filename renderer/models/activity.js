@@ -1,40 +1,79 @@
+const dbUtils = require('../utils/dbUtils');
+
 class Activity {
-    constructor(id, name, duration = 0, project_id = null, startTime = new Date()) {
-        if (typeof id !== 'number' || id <= 0) {
-            throw new Error('Invalid id');
-        }
-        if (typeof name !== 'string' || name.trim() === '') {
+    constructor(id, name, project_id, duration) {
+        this.id = id;
+        this.name = name;
+        this.project_id = project_id;
+        this.duration = duration;
+    }
+
+    // 🔹 **Crea una nuova attività nel database**
+    static async createActivity(name, project_id, duration = 0) {
+        if (!name || typeof name !== 'string' || name.trim() === '') {
             throw new Error('Invalid name');
+        }
+        if (!project_id || typeof project_id !== 'number' || project_id <= 0) {
+            throw new Error('Invalid project_id');
         }
         if (typeof duration !== 'number' || duration < 0) {
             throw new Error('Invalid duration');
         }
-        if (project_id !== null && typeof project_id !== 'number') {
-            throw new Error('Invalid project_id');
+
+        const checkProject = await dbUtils.runQuery(`SELECT id FROM projects WHERE id = ?`, [project_id]);
+        if (!checkProject || checkProject.length === 0) {
+            throw new Error(`Project with id ${project_id} does not exist`);
         }
 
-        this.id = id;
-        this.name = name;
-        this.duration = duration;
-        this.project_id = project_id;
-        this.startTime = startTime;
-        this.endTime = new Date(this.startTime.getTime() + duration * 1000);
-        this.createdAt = new Date();
+        const query = `INSERT INTO activities (name, project_id, duration) VALUES (?, ?, ?) RETURNING *`;
+        const result = await dbUtils.runQuery(query, [name, project_id, duration]);
+
+        if (!result || !result.success) {
+            throw new Error('Failed to create activity');
+        }
+
+        return new Activity(result.lastInsertRowid, name, project_id, duration);
     }
 
-    toDbObject() {
-        return {
-            id: this.id,
-            name: this.name,
-            duration: this.duration,
-            project_id: this.project_id,
-            start_time: this.startTime.toISOString(),
-            end_time: this.endTime.toISOString()
-        };
+    // 🔹 **Recupera un'attività per ID**
+    static async getActivityById(activityId) {
+        if (!activityId || typeof activityId !== 'number' || activityId <= 0) {
+            throw new Error('Invalid activity ID');
+        }
+
+        const query = `SELECT * FROM activities WHERE id = ?`;
+        const result = await dbUtils.runQuery(query, [activityId]);
+
+        if (!result || result.length === 0) {
+            return null;
+        }
+
+        const row = result[0];
+        return new Activity(row.id, row.name, row.project_id, row.duration);
     }
 
-    static createFromDbRow(row) {
-        return new Activity(row.id, row.name, row.duration, row.project_id, new Date(row.start_time));
+    // 🔹 **Aggiorna la durata di un'attività**
+    static async updateActivityDuration(activityId, newDuration) {
+        if (typeof newDuration !== 'number' || newDuration < 0) {
+            throw new Error('Invalid duration');
+        }
+
+        const query = `UPDATE activities SET duration = ? WHERE id = ? RETURNING *`;
+        const result = await dbUtils.runQuery(query, [newDuration, activityId]);
+
+        if (!result || !result.success) {
+            throw new Error('Failed to update activity');
+        }
+
+        return Activity.getActivityById(activityId);
+    }
+
+    // 🔹 **Elimina un'attività**
+    static async deleteActivity(activityId) {
+        const query = `DELETE FROM activities WHERE id = ?`;
+        const result = await dbUtils.runQuery(query, [activityId]);
+
+        return result.success;
     }
 }
 
