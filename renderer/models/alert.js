@@ -1,13 +1,7 @@
-class Alert {
-    constructor(id, title, project_id, type, priority, date, resolved = 0, fromDb = false) {
-        // Validazione del titolo
-        if (!title) throw new Error('Invalid title');
-        // Validazione del project_id
-        if (project_id == null || typeof project_id !== 'number') throw new Error('Invalid project_id');
-        // Validazione del resolved
-        if (!fromDb && ![0, 1].includes(resolved)) throw new Error('Invalid resolved value');
-        if (fromDb && resolved !== null && ![0, 1].includes(resolved)) throw new Error('Invalid resolved value');
+const dbUtils = require('../utils/dbUtils');
 
+class Alert {
+    constructor(id, title, project_id, type, priority, date, resolved = 0) {
         this.id = id;
         this.title = title;
         this.project_id = project_id;
@@ -17,39 +11,103 @@ class Alert {
         this.resolved = resolved;
     }
 
-    update(fields) {
-        // Validazione del titolo
-        if (fields.title !== undefined && !fields.title) throw new Error('Invalid title');
-        // Validazione del project_id
-        if (fields.project_id !== undefined && (fields.project_id == null || typeof fields.project_id !== 'number')) throw new Error('Invalid project_id');
-        // Validazione del resolved
-        if (fields.resolved !== undefined && ![0, 1].includes(fields.resolved)) throw new Error('Invalid resolved value');
+    // 🔹 **Crea un nuovo alert nel database**
+    static async createAlert(title, project_id, type, priority, date) {
+        if (!title || typeof title !== 'string' || title.trim() === '') {
+            throw new Error('Invalid title');
+        }
+        if (!project_id || typeof project_id !== 'number' || project_id <= 0) {
+            throw new Error('Invalid project_id');
+        }
 
-        // Mantieni i valori esistenti se un campo è undefined
-        this.title = fields.title !== undefined ? fields.title : this.title;
-        this.project_id = fields.project_id !== undefined ? fields.project_id : this.project_id;
-        this.type = fields.type !== undefined ? fields.type : this.type;
-        this.priority = fields.priority !== undefined ? fields.priority : this.priority;
-        this.date = fields.date !== undefined ? fields.date : this.date;
-        this.resolved = fields.resolved !== undefined ? fields.resolved : this.resolved;
+        const checkProject = await dbUtils.runQuery(`SELECT id FROM projects WHERE id = ?`, [project_id]);
+        if (!checkProject || checkProject.length === 0) {
+            throw new Error(`Project with id ${project_id} does not exist`);
+        }
+
+        const query = `INSERT INTO alerts (title, project_id, type, priority, date, resolved) 
+                       VALUES (?, ?, ?, ?, ?, ?) RETURNING *`;
+        const result = await dbUtils.runQuery(query, [title, project_id, type, priority, date, 0]);
+
+        if (!result || !result.success) {
+            throw new Error('Failed to create alert');
+        }
+
+        return new Alert(result.lastInsertRowid, title, project_id, type, priority, date, 0);
     }
 
-    toDbObject() {
-        return {
-            id: this.id,
-            title: this.title,
-            project_id: this.project_id,
-            type: this.type,
-            priority: this.priority,
-            date: this.date,
-            resolved: this.resolved !== undefined ? this.resolved : 0
-        };
+    // 🔹 **Recupera un alert per ID**
+    static async getAlertById(alertId) {
+        if (!alertId || typeof alertId !== 'number' || alertId <= 0) {
+            throw new Error('Invalid alert ID');
+        }
+
+        const query = `SELECT * FROM alerts WHERE id = ?`;
+        const result = await dbUtils.runQuery(query, [alertId]);
+
+        if (!result || result.length === 0) {
+            return null;
+        }
+
+        const row = result[0];
+        return new Alert(row.id, row.title, row.project_id, row.type, row.priority, row.date, row.resolved);
     }
 
-    static createFromDbRow(row) {
-        // Imposta resolved a null se è null o mancante nei dati del database
-        const resolved = row.resolved !== undefined && row.resolved !== null ? row.resolved : null;
-        return new Alert(row.id, row.title, row.project_id, row.type, row.priority, row.date, resolved, true);
+    // 🔹 **Recupera tutti gli alert di un progetto**
+    static async getAlertsByProjectId(project_id) {
+        if (!project_id || typeof project_id !== 'number' || project_id <= 0) {
+            throw new Error('Invalid project ID');
+        }
+
+        const query = `SELECT * FROM alerts WHERE project_id = ?`;
+        const results = await dbUtils.runQuery(query, [project_id]);
+
+        return results.map(row => new Alert(row.id, row.title, row.project_id, row.type, row.priority, row.date, row.resolved));
+    }
+
+    // 🔹 **Aggiorna un alert**
+    static async updateAlert(alertId, fields) {
+        if (!alertId || typeof alertId !== 'number' || alertId <= 0) {
+            throw new Error('Invalid alert ID');
+        }
+
+        let updateFields = [];
+        let updateValues = [];
+
+        if (fields.title !== undefined) {
+            updateFields.push('title = ?');
+            updateValues.push(fields.title);
+        }
+        if (fields.resolved !== undefined) {
+            updateFields.push('resolved = ?');
+            updateValues.push(fields.resolved);
+        }
+
+        if (updateFields.length === 0) {
+            throw new Error('No valid fields to update');
+        }
+
+        updateValues.push(alertId);
+        const query = `UPDATE alerts SET ${updateFields.join(', ')} WHERE id = ? RETURNING *`;
+        const result = await dbUtils.runQuery(query, updateValues);
+
+        if (!result || !result.success) {
+            throw new Error('Failed to update alert');
+        }
+
+        return true;
+    }
+
+    // 🔹 **Elimina un alert**
+    static async deleteAlert(alertId) {
+        if (!alertId || typeof alertId !== 'number' || alertId <= 0) {
+            throw new Error('Invalid alert ID');
+        }
+
+        const query = `DELETE FROM alerts WHERE id = ?`;
+        const result = await dbUtils.runQuery(query, [alertId]);
+
+        return result.success;
     }
 }
 
