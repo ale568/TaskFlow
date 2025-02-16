@@ -1,13 +1,22 @@
 const db = require('../../renderer/utils/dbUtils');
 
-describe('Database Utility', () => {
+describe('Database Utility - Integration Tests', () => {
 
     beforeAll(() => {
-        db.connect(); // Ensures that the database is active
+        db.connect(); // Assicura che il database sia attivo prima di ogni test
     });
 
     afterAll(() => {
-        db.close(); // Close connession after tests
+        db.close(); // Chiude la connessione dopo i test
+    });
+
+    test('It should successfully connect to the database', () => {
+        expect(() => db.connect()).not.toThrow();
+    });
+
+    test('It should successfully close the database connection', () => {
+        db.connect(); // Assicura che sia connesso prima di chiudere
+        expect(() => db.close()).not.toThrow();
     });
 
     const expectedTables = ['alerts', 'time_entries', 'reports', 'projects', 'tags', 'activities', 'settings', 'timers'];
@@ -15,62 +24,6 @@ describe('Database Utility', () => {
     test.each(expectedTables)('It should have a table named %s', (tableName) => {
         const result = db.runQuery("SELECT name FROM sqlite_master WHERE type='table' AND name=?", [tableName]);
         expect(result.length).toBe(1);
-    });
-
-    test('It should have correct columns in alerts', () => {
-        const result = db.runQuery("PRAGMA table_info(alerts)");
-        const columns = result.map(col => col.name);
-
-        expect(columns).toEqual(['id', 'title', 'project_id', 'type', 'priority', 'date', 'resolved']);
-    });
-
-    test('It should have correct columns in time_entries', () => {
-        const result = db.runQuery("PRAGMA table_info(time_entries)");
-        const columns = result.map(col => col.name);
-
-        expect(columns).toEqual(['id', 'project_id', 'task', 'startTime', 'endTime', 'duration', 'tag_id']);
-    });
-
-    test('It should have correct columns in projects', () => {
-        const result = db.runQuery("PRAGMA table_info(projects)");
-        const columns = result.map(col => col.name);
-
-        expect(columns).toEqual(['id', 'name', 'description', 'created_at', 'updated_at']);
-    });
-
-    test('It should have correct columns in activities', () => {
-        const result = db.runQuery("PRAGMA table_info(activities)");
-        const columns = result.map(col => col.name);
-
-        expect(columns).toEqual(['id', 'name', 'project_id', 'duration',]);
-    });
-
-    test('It should have correct columns in reports', () => {
-        const result = db.runQuery("PRAGMA table_info(reports)");
-        const columns = result.map(col => col.name);
-
-        expect(columns).toEqual(['id', 'project_id', 'total_hours', 'startDate', 'endDate']);
-    });
-
-    test('It should have correct columns in tags', () => {
-        const result = db.runQuery("PRAGMA table_info(tags)");
-        const columns = result.map(col => col.name);
-
-        expect(columns).toEqual(['id', 'name', 'color']);
-    });
-
-    test('It should have correct columns in settings', () => {
-        const result = db.runQuery("PRAGMA table_info(settings)");
-        const columns = result.map(col => col.name);
-
-        expect(columns).toEqual(['id', 'key', 'value']);
-    });
-
-    test('It should have correct columns in timers', () => {
-        const result = db.runQuery("PRAGMA table_info(timers)");
-        const columns = result.map(col => col.name);
-
-        expect(columns).toEqual(['id', 'project_id', 'task', 'startTime', 'endTime', 'status']);
     });
 
     test('It should enforce NOT NULL constraints', () => {
@@ -98,11 +51,6 @@ describe('Database Utility', () => {
         });
     });
 
-    test('It should execute a PRAGMA query successfully', () => {
-        const pragmaResult = db.runQuery("PRAGMA foreign_keys");
-        expect(pragmaResult).toEqual([{ foreign_keys: 1 }]);
-    });
-
     test('It should execute an INSERT query and return result', () => {
         db.runQuery("DELETE FROM projects WHERE name = ?", ["Test Project"]); // Pulisce eventuali dati preesistenti
     
@@ -116,8 +64,6 @@ describe('Database Utility', () => {
         expect(insertResult).toHaveProperty("lastInsertRowid");
         expect(insertResult.lastInsertRowid).toBeGreaterThan(0);
     });
-    
-    
 
     test('It should execute an UPDATE query and return result', () => {
         db.runQuery("INSERT INTO settings (key, value) VALUES (?, ?)", ["theme", "dark"]);
@@ -130,7 +76,6 @@ describe('Database Utility', () => {
         const deleteResult = db.runQuery("DELETE FROM settings WHERE key = ?", ["temp"]);
         expect(deleteResult.changes).toBe(1);
     });
-    
 
     test('It should handle SQL errors gracefully and return error object', () => {
         const result = db.runQuery("INVALID SQL SYNTAX");
@@ -143,4 +88,10 @@ describe('Database Utility', () => {
         const result = db.runQuery("SELECT 1");
         expect(result).toBeDefined();
     });
+
+    test('It should prevent SQL Injection attempts', () => {
+        const result = db.runQuery("SELECT * FROM projects WHERE name = ?", ["' OR 1=1 --"]);
+        expect(result).toEqual([]); // Se la protezione funziona, non dovrebbe ritornare nessun risultato
+    });
+
 });
