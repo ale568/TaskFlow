@@ -1,4 +1,11 @@
 function formatDate(date, format) {
+    if (!date) return null;
+    
+    // Se la data è una stringa, proviamo a convertirla
+    if (typeof date === 'string') {
+        date = new Date(date);
+    }
+
     if (!(date instanceof Date) || isNaN(date)) {
         return null;
     }
@@ -11,12 +18,19 @@ function formatDate(date, format) {
         return `${year}-${month}-${day}`;
     } else if (format === 'DD/MM/YYYY') {
         return `${day}/${month}/${year}`;
+    } else if (format === 'MM/DD/YYYY') {
+        return `${month}/${day}/${year}`;
     } else {
-        throw new Error('Formato non supportato');
+        return null; // Restituisce null invece di lanciare un errore
     }
 }
 
 function dateInDays(start, end) {
+    if (!start || !end) return 0;
+
+    if (typeof start === 'string') start = new Date(start);
+    if (typeof end === 'string') end = new Date(end);
+
     if (!(start instanceof Date) || isNaN(start) || !(end instanceof Date) || isNaN(end)) {
         return 0;
     }
@@ -27,6 +41,10 @@ function dateInDays(start, end) {
 }
 
 function isFutureDate(date) {
+    if (!date) return false;
+
+    if (typeof date === 'string') date = new Date(date);
+
     if (!(date instanceof Date) || isNaN(date)) {
         return false;
     }
@@ -34,10 +52,11 @@ function isFutureDate(date) {
 }
 
 function addDays(date, days) {
+    if (!date || typeof days !== 'number' || !Number.isInteger(days)) return null;
+
+    if (typeof date === 'string') date = new Date(date);
+
     if (!(date instanceof Date) || isNaN(date)) {
-        return null;
-    }
-    if (typeof days !== 'number' || !Number.isInteger(days)) {
         return null;
     }
 
