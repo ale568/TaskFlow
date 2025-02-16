@@ -17,10 +17,7 @@ class Report {
         if (typeof total_hours !== 'number' || total_hours < 0) {
             throw new Error('Invalid total_hours');
         }
-        if (!startDate || !endDate) {
-            throw new Error('Both startDate and endDate are required');
-        }
-        if (new Date(startDate) >= new Date(endDate)) {
+        if (!startDate || !endDate || new Date(startDate) >= new Date(endDate)) {
             throw new Error('Invalid date range');
         }
 
@@ -66,6 +63,43 @@ class Report {
         const results = await dbUtils.runQuery(query, [project_id]);
 
         return results.map(row => new Report(row.id, row.project_id, row.total_hours, row.startDate, row.endDate));
+    }
+
+    // 🔹 **Aggiorna un report**
+    static async updateReport(reportId, fields) {
+        if (!reportId || typeof reportId !== 'number' || reportId <= 0) {
+            throw new Error('Invalid report ID');
+        }
+
+        let updateFields = [];
+        let updateValues = [];
+
+        if (fields.total_hours !== undefined) {
+            updateFields.push('total_hours = ?');
+            updateValues.push(fields.total_hours);
+        }
+        if (fields.startDate !== undefined) {
+            updateFields.push('startDate = ?');
+            updateValues.push(fields.startDate);
+        }
+        if (fields.endDate !== undefined) {
+            updateFields.push('endDate = ?');
+            updateValues.push(fields.endDate);
+        }
+
+        if (updateFields.length === 0) {
+            throw new Error('No valid fields to update');
+        }
+
+        updateValues.push(reportId);
+        const query = `UPDATE reports SET ${updateFields.join(', ')} WHERE id = ? RETURNING *`;
+        const result = await dbUtils.runQuery(query, updateValues);
+
+        if (!result || !result.success) {
+            throw new Error('Failed to update report');
+        }
+
+        return true;
     }
 
     // 🔹 **Elimina un report**
