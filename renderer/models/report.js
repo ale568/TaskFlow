@@ -1,10 +1,7 @@
-class Report {
-    constructor(id, project_id = 1, total_hours = 0, startDate, endDate) {
-        this.validateId(id);
-        this.validateProjectId(project_id);
-        this.validateTotalHours(total_hours);
-        this.validateDateRange(startDate, endDate);
+const dbUtils = require('../utils/dbUtils');
 
+class Report {
+    constructor(id, project_id, total_hours, startDate, endDate) {
         this.id = id;
         this.project_id = project_id;
         this.total_hours = total_hours;
@@ -12,97 +9,75 @@ class Report {
         this.endDate = endDate;
     }
 
-    update(fields) {
-        if (fields.project_id !== undefined) {
-            this.validateProjectId(fields.project_id);
-            this.project_id = fields.project_id;
-        }
-        if (fields.total_hours !== undefined) {
-            this.validateTotalHours(fields.total_hours);
-            this.total_hours = fields.total_hours;
-        }
-        if (fields.startDate !== undefined) {
-            this.validateDate(fields.startDate);
-            if (this.endDate && new Date(fields.startDate) >= new Date(this.endDate)) {
-                throw new Error('Invalid endDate');
-            }
-            this.startDate = fields.startDate;
-        }
-        if (fields.endDate !== undefined) {
-            this.validateDate(fields.endDate);
-            if (this.startDate && new Date(this.startDate) >= new Date(fields.endDate)) {
-                throw new Error('Invalid endDate');
-            }
-            this.endDate = fields.endDate;
-        }
-    }
-
-    toDbObject() {
-        return {
-            id: this.id,
-            project_id: this.project_id,
-            total_hours: this.total_hours,
-            startDate: this.startDate || null,
-            endDate: this.endDate || null
-        };
-    }
-
-    static createFromDbRow(row) {
-        if (!row || typeof row !== 'object') {
-            throw new Error('Invalid database row');
-        }
-        return new Report(
-            row.id || null,
-            row.project_id || null,
-            row.total_hours || null,
-            row.startDate || null,
-            row.endDate || null
-        );
-    }
-
-    validateId(id) {
-        if (!Number.isInteger(id) || id <= 0) {
-            throw new Error('Invalid id');
-        }
-    }
-
-    validateProjectId(project_id) {
-        if (!Number.isInteger(project_id) || project_id <= 0) {
+    // 🔹 **Crea un nuovo report nel database**
+    static async createReport(project_id, total_hours, startDate, endDate) {
+        if (!project_id || typeof project_id !== 'number' || project_id <= 0) {
             throw new Error('Invalid project_id');
         }
-    }
-
-    validateTotalHours(total_hours) {
-        if (!Number.isInteger(total_hours) || total_hours < 0) {
+        if (typeof total_hours !== 'number' || total_hours < 0) {
             throw new Error('Invalid total_hours');
         }
-    }
-
-    validateDate(dateString) {
-        const regex = /^\d{4}-\d{2}-\d{2}$/;
-        if (!dateString.match(regex)) {
-            throw new Error('Invalid date format');
+        if (!startDate || !endDate) {
+            throw new Error('Both startDate and endDate are required');
         }
-        const date = new Date(dateString);
-        const timestamp = date.getTime();
-        if (typeof timestamp !== 'number' || Number.isNaN(timestamp)) {
-            throw new Error('Invalid date');
-        }
-        if (dateString !== date.toISOString().split('T')[0]) {
-            throw new Error('Invalid date');
-        }
-    }
-
-    validateDateRange(startDate, endDate) {
-        if (startDate !== undefined) {
-            this.validateDate(startDate);
-        }
-        if (endDate !== undefined) {
-            this.validateDate(endDate);
-        }
-        if (startDate && endDate && new Date(startDate) >= new Date(endDate)) {
+        if (new Date(startDate) >= new Date(endDate)) {
             throw new Error('Invalid date range');
         }
+
+        const checkProject = await dbUtils.runQuery(`SELECT id FROM projects WHERE id = ?`, [project_id]);
+        if (!checkProject || checkProject.length === 0) {
+            throw new Error(`Project with id ${project_id} does not exist`);
+        }
+
+        const query = `INSERT INTO reports (project_id, total_hours, startDate, endDate) VALUES (?, ?, ?, ?) RETURNING *`;
+        const result = await dbUtils.runQuery(query, [project_id, total_hours, startDate, endDate]);
+
+        if (!result || !result.success) {
+            throw new Error('Failed to create report');
+        }
+
+        return new Report(result.lastInsertRowid, project_id, total_hours, startDate, endDate);
+    }
+
+    // 🔹 **Recupera un report per ID**
+    static async getReportById(reportId) {
+        if (!reportId || typeof reportId !== 'number' || reportId <= 0) {
+            throw new Error('Invalid report ID');
+        }
+
+        const query = `SELECT * FROM reports WHERE id = ?`;
+        const result = await dbUtils.runQuery(query, [reportId]);
+
+        if (!result || result.length === 0) {
+            return null;
+        }
+
+        const row = result[0];
+        return new Report(row.id, row.project_id, row.total_hours, row.startDate, row.endDate);
+    }
+
+    // 🔹 **Recupera tutti i report di un progetto**
+    static async getReportsByProjectId(project_id) {
+        if (!project_id || typeof project_id !== 'number' || project_id <= 0) {
+            throw new Error('Invalid project ID');
+        }
+
+        const query = `SELECT * FROM reports WHERE project_id = ?`;
+        const results = await dbUtils.runQuery(query, [project_id]);
+
+        return results.map(row => new Report(row.id, row.project_id, row.total_hours, row.startDate, row.endDate));
+    }
+
+    // 🔹 **Elimina un report**
+    static async deleteReport(reportId) {
+        if (!reportId || typeof reportId !== 'number' || reportId <= 0) {
+            throw new Error('Invalid report ID');
+        }
+
+        const query = `DELETE FROM reports WHERE id = ?`;
+        const result = await dbUtils.runQuery(query, [reportId]);
+
+        return result.success;
     }
 }
 
