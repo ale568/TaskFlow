@@ -2,60 +2,89 @@ const dbUtils = require('../utils/dbUtils');
 
 class Tag {
     constructor(id, name, color) {
+        if (!name || typeof name !== 'string' || name.trim() === '') {
+            throw new Error('Invalid tag name');
+        }
+        if (!color || typeof color !== 'string' || !/^#[0-9A-F]{6}$/i.test(color)) {
+            throw new Error('Invalid tag color');
+        }
+
         this.id = id;
         this.name = name;
         this.color = color;
     }
 
-    // Carica tutti i tag dal database
-    static async loadAllTags() {
-        const query = `SELECT * FROM tags`;
-        const rows = await dbUtils.runQuery(query);
-        return rows.map(row => new Tag(row.id, row.name, row.color));
-    }
-
-    // Crea un nuovo tag nel database
     static async createTag(name, color) {
-        if (!name || !color) {
-            throw new Error("Invalid tag data");
-        }
+        try {
+            const query = `INSERT INTO tags (name, color) VALUES (?, ?)`;
+            const result = await dbUtils.runQuery(query, [name, color]);
 
-        const query = `INSERT INTO tags (name, color) VALUES (?, ?)`;
-        const result = await dbUtils.runQuery(query, [name, color]);
-
-        if (result.success) {
-            return new Tag(result.lastInsertRowid, name, color);
-        } else {
-            throw new Error("Failed to insert tag");
+            if (result.success) {
+                return new Tag(result.lastInsertRowid, name, color);
+            }
+            throw new Error('Failed to create tag');
+        } catch (error) {
+            throw new Error(`Database error: ${error.message}`);
         }
     }
 
-    // Aggiorna un tag esistente nel database
     static async updateTag(id, name, color) {
-        if (!id || !name || !color) {
-            throw new Error("Invalid tag update data");
-        }
+        try {
+            if (!id || typeof id !== 'number' || id <= 0) {
+                throw new Error('Invalid tag ID');
+            }
 
-        const query = `UPDATE tags SET name = ?, color = ? WHERE id = ?`;
-        const result = await dbUtils.runQuery(query, [name, color, id]);
+            const query = `UPDATE tags SET name = ?, color = ? WHERE id = ?`;
+            const result = await dbUtils.runQuery(query, [name, color, id]);
 
-        if (result.success) {
-            return new Tag(id, name, color);
-        } else {
-            throw new Error("Failed to update tag");
+            if (result.changes > 0) {
+                return new Tag(id, name, color);
+            }
+            throw new Error('Tag not found or no changes applied');
+        } catch (error) {
+            throw new Error(`Database error: ${error.message}`);
         }
     }
 
-    // Cancella un tag dal database
     static async deleteTag(id) {
-        if (!id) {
-            throw new Error("Invalid tag ID");
+        try {
+            if (!id || typeof id !== 'number' || id <= 0) {
+                throw new Error('Invalid tag ID');
+            }
+
+            const query = `DELETE FROM tags WHERE id = ?`;
+            const result = await dbUtils.runQuery(query, [id]);
+
+            return result.changes > 0;
+        } catch (error) {
+            throw new Error(`Database error: ${error.message}`);
         }
+    }
 
-        const query = `DELETE FROM tags WHERE id = ?`;
-        const result = await dbUtils.runQuery(query, [id]);
+    static async loadAllTags() {
+        try {
+            const query = `SELECT * FROM tags`;
+            const rows = await dbUtils.runQuery(query);
 
-        return result.success;
+            return rows.length > 0 ? rows.map(row => new Tag(row.id, row.name, row.color)) : [];
+        } catch (error) {
+            throw new Error(`Database error: ${error.message}`);
+        }
+    }
+
+    static async getTagById(id) {
+        try {
+            if (!id || typeof id !== 'number' || id <= 0) {
+                throw new Error('Invalid tag ID');
+            }
+
+            const query = `SELECT * FROM tags WHERE id = ?`;
+            const rows = await dbUtils.runQuery(query, [id]);
+
+            return rows.length > 0 ? new Tag(rows[0].id, rows[0].name, rows[0].color) : null;
+        } catch (error) {
+            throw new Error(`Database error: ${error.message}`);
+        }
     }
 }
 

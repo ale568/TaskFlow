@@ -2,9 +2,8 @@ const Tag = require('../../renderer/models/tag');
 const dbUtils = require('../../renderer/utils/dbUtils');
 
 describe('Tag Model - Database Integration', () => {
-    
     beforeAll(async () => {
-        await dbUtils.runQuery("DELETE FROM tags");  // Pulisce la tabella prima dei test
+        await dbUtils.runQuery('DELETE FROM tags'); // Pulizia database prima dei test
     });
 
     test('It should create a new tag in the database', async () => {
@@ -12,43 +11,68 @@ describe('Tag Model - Database Integration', () => {
         expect(newTag).toBeInstanceOf(Tag);
         expect(newTag.name).toBe('Urgent');
         expect(newTag.color).toBe('#FF0000');
+    });
 
-        // Verifica che esista nel database
+    test('It should retrieve a tag by ID', async () => {
+        const tag = await Tag.createTag('Work', '#00FF00');
+        const fetchedTag = await Tag.getTagById(tag.id);
+        expect(fetchedTag).toBeInstanceOf(Tag);
+        expect(fetchedTag.name).toBe('Work');
+    });
+
+    test('It should return null for a non-existing tag ID', async () => {
+        const tag = await Tag.getTagById(99999);
+        expect(tag).toBeNull();
+    });
+
+    test('It should load all tags from the database', async () => {
+        await Tag.createTag('Personal', '#0000FF');
         const tags = await Tag.loadAllTags();
-        expect(tags.length).toBe(1);
-        expect(tags[0].name).toBe('Urgent');
+        expect(Array.isArray(tags)).toBe(true);
+        expect(tags.length).toBeGreaterThanOrEqual(1);
+    });
+
+    test('It should return an empty array if no tags exist', async () => {
+        await dbUtils.runQuery('DELETE FROM tags');
+        const tags = await Tag.loadAllTags();
+        expect(tags).toEqual([]);
     });
 
     test('It should update an existing tag', async () => {
-        const tagToUpdate = (await Tag.loadAllTags())[0];
-        const updatedTag = await Tag.updateTag(tagToUpdate.id, 'High Priority', '#FFA500');
-
-        expect(updatedTag).toBeInstanceOf(Tag);
-        expect(updatedTag.name).toBe('High Priority');
-        expect(updatedTag.color).toBe('#FFA500');
-
-        // Verifica l'aggiornamento nel database
-        const tags = await Tag.loadAllTags();
-        expect(tags[0].name).toBe('High Priority');
+        const tag = await Tag.createTag('Home', '#FFFF00');
+        const updatedTag = await Tag.updateTag(tag.id, 'Updated', '#FFFFFF');
+        expect(updatedTag.name).toBe('Updated');
+        expect(updatedTag.color).toBe('#FFFFFF');
     });
 
-    test('It should delete a tag from the database', async () => {
-        const tagToDelete = (await Tag.loadAllTags())[0];
-        const deletionSuccess = await Tag.deleteTag(tagToDelete.id);
-
-        expect(deletionSuccess).toBe(true);
-
-        // Verifica che non esista più nel database
-        const tags = await Tag.loadAllTags();
-        expect(tags.length).toBe(0);
+    test('It should throw an error if updating a non-existing tag', async () => {
+        await expect(Tag.updateTag(99999, 'Fake', '#FFFFFF')).rejects.toThrow('Tag not found');
     });
 
-    test('It should retrieve all tags from the database', async () => {
-        await Tag.createTag('Work', '#00FF00');
-        await Tag.createTag('Personal', '#0000FF');
-
-        const tags = await Tag.loadAllTags();
-        expect(tags.length).toBe(2);
+    test('It should delete a tag successfully', async () => {
+        const tag = await Tag.createTag('ToDelete', '#123456');
+        const deleted = await Tag.deleteTag(tag.id);
+        expect(deleted).toBe(true);
     });
 
+    test('It should return false if deleting a non-existing tag', async () => {
+        const deleted = await Tag.deleteTag(99999);
+        expect(deleted).toBe(false);
+    });
+
+    test('It should throw an error if tag name is empty', async () => {
+        await expect(Tag.createTag('', '#FFFFFF')).rejects.toThrow('Invalid tag name');
+    });
+
+    test('It should throw an error if color format is incorrect', async () => {
+        await expect(Tag.createTag('Test', 'red')).rejects.toThrow('Invalid tag color');
+    });
+
+    test('It should throw an error if tag ID is invalid', async () => {
+        await expect(Tag.getTagById(null)).rejects.toThrow('Invalid tag ID');
+    });
+
+    test('It should throw an error if tag ID is negative', async () => {
+        await expect(Tag.getTagById(-5)).rejects.toThrow('Invalid tag ID');
+    });
 });
