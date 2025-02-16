@@ -9,7 +9,7 @@ class Activity {
     }
 
     // 🔹 **Crea una nuova attività nel database**
-    static async createActivity(name, project_id, duration = 0) {
+    static async createActivity(name, project_id, duration) {
         if (!name || typeof name !== 'string' || name.trim() === '') {
             throw new Error('Invalid name');
         }
@@ -52,24 +52,24 @@ class Activity {
         return new Activity(row.id, row.name, row.project_id, row.duration);
     }
 
-    // 🔹 **Aggiorna la durata di un'attività**
-    static async updateActivityDuration(activityId, newDuration) {
-        if (typeof newDuration !== 'number' || newDuration < 0) {
-            throw new Error('Invalid duration');
+    // 🔹 **Recupera tutte le attività di un progetto**
+    static async getActivitiesByProjectId(project_id) {
+        if (!project_id || typeof project_id !== 'number' || project_id <= 0) {
+            throw new Error('Invalid project ID');
         }
 
-        const query = `UPDATE activities SET duration = ? WHERE id = ? RETURNING *`;
-        const result = await dbUtils.runQuery(query, [newDuration, activityId]);
+        const query = `SELECT * FROM activities WHERE project_id = ?`;
+        const results = await dbUtils.runQuery(query, [project_id]);
 
-        if (!result || !result.success) {
-            throw new Error('Failed to update activity');
-        }
-
-        return Activity.getActivityById(activityId);
+        return results.map(row => new Activity(row.id, row.name, row.project_id, row.duration));
     }
 
     // 🔹 **Elimina un'attività**
     static async deleteActivity(activityId) {
+        if (!activityId || typeof activityId !== 'number' || activityId <= 0) {
+            throw new Error('Invalid activity ID');
+        }
+
         const query = `DELETE FROM activities WHERE id = ?`;
         const result = await dbUtils.runQuery(query, [activityId]);
 
