@@ -1,75 +1,83 @@
+const dbUtils = require('../utils/dbUtils');
+
 class Settings {
-    constructor() {
-        this.timeFormat = '24h';
-        this.dateFormat = 'YYYY-MM-DD';
-        this.language = 'en';
-        this.notificationsEnabled = true;
+    constructor(timeFormat = '24h', dateFormat = 'YYYY-MM-DD', language = 'en', notificationsEnabled = true) {
+        this.timeFormat = timeFormat;
+        this.dateFormat = dateFormat;
+        this.language = language;
+        this.notificationsEnabled = notificationsEnabled;
     }
 
-    setTimeFormat(format) {
-        if (['12h', '24h'].includes(format)) {
-            this.timeFormat = format;
-        } else {
-            throw new Error('Invalid time format');
+    static async loadSettings() {
+        const query = 'SELECT key, value FROM settings';
+        const rows = await dbUtils.runQuery(query);
+
+        if (!rows || rows.length === 0) {
+            return new Settings(); // Ritorna ai valori predefiniti
         }
-    }
 
-    setDateFormat(format) {
-        // Assuming valid formats are 'YYYY-MM-DD' and 'DD-MM-YYYY'
-        if (['YYYY-MM-DD', 'DD-MM-YYYY', 'MM/DD/YYYY'].includes(format)) {
-            this.dateFormat = format;
-        } else {
-            throw new Error('Invalid date format');
-        }
-    }
-
-    setLanguage(language) {
-        // Assuming valid languages are 'en', 'it', etc.
-        if (['en', 'it'].includes(language)) {
-            this.language = language;
-        } else {
-            throw new Error('Invalid language');
-        }
-    }
-
-    setNotifications(enabled) {
-        if (typeof enabled === 'boolean') {
-            this.notificationsEnabled = enabled;
-        } else {
-            throw new Error('Invalid value for notifications');
-        }
-    }
-
-    toDbObject() {
-        return [
-            { key: 'timeFormat', value: this.timeFormat },
-            { key: 'dateFormat', value: this.dateFormat },
-            { key: 'language', value: this.language },
-            { key: 'notificationsEnabled', value: this.notificationsEnabled.toString() },
-        ];
-    }
-
-    static createFromDbRows(dbRows) {
         const settings = new Settings();
-        dbRows.forEach(row => {
+        for (const row of rows) {
             switch (row.key) {
                 case 'timeFormat':
-                    settings.setTimeFormat(row.value);
+                    settings.timeFormat = row.value || '24h';
                     break;
                 case 'dateFormat':
-                    settings.setDateFormat(row.value);
+                    settings.dateFormat = row.value || 'YYYY-MM-DD';
                     break;
                 case 'language':
-                    settings.setLanguage(row.value);
+                    settings.language = row.value || 'en';
                     break;
                 case 'notificationsEnabled':
-                    settings.setNotifications(row.value === 'true');
+                    settings.notificationsEnabled = row.value === 'true';
                     break;
                 default:
-                    throw new Error(`Unknown setting key: ${row.key}`);
+                    console.warn(`Unknown setting key: ${row.key}`);
             }
-        });
+        }
         return settings;
+    }
+
+    async updateSetting(key, value) {
+        if (!['timeFormat', 'dateFormat', 'language', 'notificationsEnabled'].includes(key)) {
+            throw new Error(`Unknown setting key: ${key}`);
+        }
+        const query = 'UPDATE settings SET value = ? WHERE key = ?';
+        await dbUtils.runQuery(query, [value, key]);
+        this[key] = value;
+    }
+
+    async setTimeFormat(format) {
+        if (!['12h', '24h'].includes(format)) {
+            throw new Error('Invalid time format');
+        }
+        await this.updateSetting('timeFormat', format);
+    }
+
+    async setDateFormat(format) {
+        if (!['YYYY-MM-DD', 'DD-MM-YYYY', 'MM/DD/YYYY'].includes(format)) {
+            throw new Error('Invalid date format');
+        }
+        await this.updateSetting('dateFormat', format);
+    }
+
+    async setLanguage(language) {
+        if (!['en', 'it'].includes(language)) {
+            throw new Error('Invalid language');
+        }
+        await this.updateSetting('language', language);
+    }
+
+    async setNotifications(enabled) {
+        if (typeof enabled !== 'boolean') {
+            throw new Error('Invalid value for notifications');
+        }
+        await this.updateSetting('notificationsEnabled', enabled.toString());
+    }
+
+    async toDbObject() {
+        const query = 'SELECT key, value FROM settings';
+        return await dbUtils.runQuery(query);
     }
 }
 
