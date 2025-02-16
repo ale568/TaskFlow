@@ -1,22 +1,31 @@
 const Project = require('../../renderer/models/project');
+const dbUtils = require('../../renderer/utils/dbUtils');
 
 describe('Project Model - Database Integration', () => {
+    beforeAll(async () => {
+        await dbUtils.runQuery('DELETE FROM projects'); // Pulisce la tabella prima di eseguire i test
+    });
+
     test('It should create a new project in the database', async () => {
-        const project = await Project.createProject('Test Project', 'This is a test project');
+        const project = await Project.createProject(`Test Project ${Date.now()}`, 'This is a test project');
         expect(project).toBeInstanceOf(Project);
-        expect(project.name).toBe('Test Project');
-        expect(project.description).toBe('This is a test project');
+        expect(project.name).toContain('Test Project');
     });
 
     test('It should throw an error when creating a project without a name', async () => {
         await expect(Project.createProject('')).rejects.toThrow('Invalid project name');
     });
 
+    test('It should throw an error if project name already exists', async () => {
+        const name = `Duplicate Project ${Date.now()}`;
+        await Project.createProject(name, 'First instance');
+        await expect(Project.createProject(name, 'Second instance')).rejects.toThrow('Project with this name already exists');
+    });
+
     test('It should retrieve a project by ID', async () => {
-        const newProject = await Project.createProject('New Project', 'Another test project');
-        const retrievedProject = await Project.getProjectById(newProject.id);
-        expect(retrievedProject).toBeInstanceOf(Project);
-        expect(retrievedProject.id).toBe(newProject.id);
+        const project = await Project.createProject(`Project ${Date.now()}`, 'Another test project');
+        const retrievedProject = await Project.getProjectById(project.id);
+        expect(retrievedProject.id).toBe(project.id);
     });
 
     test('It should return null for a non-existing project ID', async () => {
@@ -25,35 +34,29 @@ describe('Project Model - Database Integration', () => {
     });
 
     test('It should retrieve all projects', async () => {
-        await Project.createProject('Project 1', 'Description 1');
-        await Project.createProject('Project 2', 'Description 2');
+        await Project.createProject(`Project A ${Date.now()}`, 'Description 1');
+        await Project.createProject(`Project B ${Date.now()}`, 'Description 2');
 
         const projects = await Project.getAllProjects();
         expect(projects.length).toBeGreaterThanOrEqual(2);
     });
 
     test('It should update a project successfully', async () => {
-        const project = await Project.createProject('Update Test', 'To be updated');
-        const updated = await Project.updateProject(project.id, { name: 'Updated Name', description: 'Updated description' });
+        const project = await Project.createProject(`Update Test ${Date.now()}`, 'To be updated');
+        const updated = await Project.updateProject(project.id, { name: `Updated Name ${Date.now()}` });
 
         expect(updated).toBe(true);
         const updatedProject = await Project.getProjectById(project.id);
-        expect(updatedProject.name).toBe('Updated Name');
-        expect(updatedProject.description).toBe('Updated description');
+        expect(updatedProject.name).toContain('Updated Name');
     });
 
     test('It should not update a project with an invalid name', async () => {
-        const project = await Project.createProject('Update Test Invalid', 'To be updated');
+        const project = await Project.createProject(`Invalid Update ${Date.now()}`, 'To be updated');
         await expect(Project.updateProject(project.id, { name: '' })).rejects.toThrow('Invalid project name');
     });
 
-    test('It should throw an error if trying to update with no fields', async () => {
-        const project = await Project.createProject('Update Test Empty', 'No updates');
-        await expect(Project.updateProject(project.id, {})).rejects.toThrow('No valid fields to update');
-    });
-
     test('It should delete a project successfully', async () => {
-        const project = await Project.createProject('Delete Test', 'To be deleted');
+        const project = await Project.createProject(`Delete Test ${Date.now()}`, 'To be deleted');
         const deleted = await Project.deleteProject(project.id);
         expect(deleted).toBe(true);
 

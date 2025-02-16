@@ -9,10 +9,16 @@ class Project {
         this.updated_at = updated_at;
     }
 
-    // 🔹 **Crea un nuovo progetto nel database**
+    // 🔹 **Crea un nuovo progetto nel database, evitando duplicati**
     static async createProject(name, description = null) {
         if (!name || typeof name !== 'string' || name.trim() === '') {
             throw new Error('Invalid project name');
+        }
+
+        // Verifica se il progetto esiste già
+        const existingProject = await dbUtils.runQuery(`SELECT * FROM projects WHERE name = ?`, [name]);
+        if (existingProject.length > 0) {
+            throw new Error('Project with this name already exists');
         }
 
         const createdAt = new Date().toISOString().split('T')[0];
@@ -31,7 +37,7 @@ class Project {
 
     // 🔹 **Recupera un progetto per ID**
     static async getProjectById(projectId) {
-        if (!projectId || typeof projectId !== 'number' || projectId <= 0) {
+        if (!Number.isInteger(projectId) || projectId <= 0) {
             throw new Error('Invalid project ID');
         }
 
@@ -56,27 +62,31 @@ class Project {
 
     // 🔹 **Aggiorna un progetto**
     static async updateProject(projectId, fields) {
-        if (!projectId || typeof projectId !== 'number' || projectId <= 0) {
+        if (!Number.isInteger(projectId) || projectId <= 0) {
             throw new Error('Invalid project ID');
+        }
+
+        if (!fields || typeof fields !== 'object' || Object.keys(fields).length === 0) {
+            throw new Error('No valid fields to update');
         }
 
         let updateFields = [];
         let updateValues = [];
 
         if (fields.name !== undefined) {
+            if (typeof fields.name !== 'string' || fields.name.trim() === '') {
+                throw new Error('Invalid project name');
+            }
             updateFields.push('name = ?');
             updateValues.push(fields.name);
         }
+
         if (fields.description !== undefined) {
             updateFields.push('description = ?');
             updateValues.push(fields.description);
         }
 
-        if (updateFields.length === 0) {
-            throw new Error('No valid fields to update');
-        }
-
-        updateValues.push(new Date().toISOString().split('T')[0]);
+        updateValues.push(new Date().toISOString().split('T')[0]); // updated_at
         updateFields.push('updated_at = ?');
 
         updateValues.push(projectId);
@@ -92,7 +102,7 @@ class Project {
 
     // 🔹 **Elimina un progetto**
     static async deleteProject(projectId) {
-        if (!projectId || typeof projectId !== 'number' || projectId <= 0) {
+        if (!Number.isInteger(projectId) || projectId <= 0) {
             throw new Error('Invalid project ID');
         }
 
