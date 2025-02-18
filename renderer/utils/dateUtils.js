@@ -1,7 +1,7 @@
 function formatDate(date, format) {
     if (!date) return null;
     
-    // Se la data è una stringa, proviamo a convertirla
+    // Se la data è una stringa, provo a convertirla
     if (typeof date === 'string') {
         date = new Date(date);
     }

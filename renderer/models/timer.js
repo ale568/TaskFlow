@@ -1,4 +1,4 @@
-const dbUtils = require('../utils/dbUtils');
+const storageUtils = require('../utils/storageUtils');
 
 class Timer {
     constructor(id, project_id, task, startTime, endTime, status) {
@@ -10,7 +10,7 @@ class Timer {
         this.status = status;
     }
 
-    // 🔹 **Crea un nuovo timer nel database**
+    // Creates a new timer entry in the database
     static async createTimer(project_id, task) {
         if (!project_id || typeof project_id !== 'number' || project_id <= 0) {
             throw new Error('Invalid project_id');
@@ -19,66 +19,60 @@ class Timer {
             throw new Error('Invalid task');
         }
 
-        const checkProject = await dbUtils.runQuery(`SELECT id FROM projects WHERE id = ?`, [project_id]);
-        if (!checkProject || checkProject.length === 0) {
-            throw new Error(`Project with id ${project_id} does not exist`);
-        }
+        const data = {
+            project_id,
+            task,
+            startTime: new Date().toISOString(),
+            status: 'running'
+        };
 
-        const startTime = new Date().toISOString();
-        const query = `INSERT INTO timers (project_id, task, startTime, status) VALUES (?, ?, ?, 'running') RETURNING *`;
-        const result = await dbUtils.runQuery(query, [project_id, task, startTime]);
-
-        if (!result || !result.success) {
-            throw new Error('Failed to create timer');
-        }
-
-        return new Timer(result.lastInsertRowid, project_id, task, startTime, null, 'running');
+        const timerId = await storageUtils.createRecord('timers', data);
+        return new Timer(timerId, project_id, task, data.startTime, null, 'running');
     }
 
-    // 🔹 **Recupera un timer per ID**
+    // Retrieves a timer entry by ID
     static async getTimerById(timerId) {
-        if (timerId === null || timerId === undefined || typeof timerId !== 'number' || timerId <= 0) {
+        if (!timerId || typeof timerId !== 'number' || timerId <= 0) {
             throw new Error('Invalid timer ID');
         }
 
-        const query = `SELECT * FROM timers WHERE id = ?`;
-        const result = await dbUtils.runQuery(query, [timerId]);
+        const row = await storageUtils.getRecordById('timers', timerId);
+        if (!row) return null;
 
-        if (!result || result.length === 0) {
-            return null;
-        }
-
-        const row = result[0];
         return new Timer(row.id, row.project_id, row.task, row.startTime, row.endTime, row.status);
     }
 
-    // 🔹 **Aggiorna lo stato di un timer**
+    // Updates the status of a timer
     static async updateTimerStatus(timerId, newStatus) {
         if (!['running', 'paused', 'stopped'].includes(newStatus)) {
             throw new Error('Invalid status');
         }
 
-        let endTime = null;
+        const updateData = { status: newStatus };
         if (newStatus === 'stopped') {
-            endTime = new Date().toISOString();
+            updateData.endTime = new Date().toISOString();
         }
 
-        const query = `UPDATE timers SET status = ?, endTime = ? WHERE id = ? RETURNING *`;
-        const result = await dbUtils.runQuery(query, [newStatus, endTime, timerId]);
-
-        if (!result || !result.success) {
-            throw new Error('Failed to update timer');
+        const success = await storageUtils.updateRecord('timers', timerId, updateData);
+        
+        if (!success) {
+            throw new Error('Failed to update timer');  // Throw an error if the timer does not exist
         }
 
-        return Timer.getTimerById(timerId);
+        const updatedTimer = await this.getTimerById(timerId);
+        if (!updatedTimer) {
+            throw new Error('Failed to update timer');  // Throw an error if the timer is not found
+        }
+
+        return updatedTimer;
     }
-
-    // 🔹 **Elimina un timer**
+    // Deletes a timer entry by ID
     static async deleteTimer(timerId) {
-        const query = `DELETE FROM timers WHERE id = ?`;
-        const result = await dbUtils.runQuery(query, [timerId]);
+        if (!timerId || typeof timerId !== 'number' || timerId <= 0) {
+            throw new Error('Invalid timer ID');
+        }
 
-        return result.success;
+        return await storageUtils.deleteRecord('timers', timerId);
     }
 }
 

@@ -91,7 +91,7 @@ describe('Database Utility - Integration Tests', () => {
 
     test('It should prevent SQL Injection attempts', () => {
         const result = db.runQuery("SELECT * FROM projects WHERE name = ?", ["' OR 1=1 --"]);
-        expect(result).toEqual([]); // Se la protezione funziona, non dovrebbe ritornare nessun risultato
+        expect(result).toEqual([]);
     });
 
 });
