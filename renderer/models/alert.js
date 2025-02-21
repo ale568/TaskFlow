@@ -1,39 +1,71 @@
 const storageUtils = require('../utils/storageUtils');
 
 class Alert {
-    constructor(id, title, project_id, type, priority, date, resolved = 0) {
-        this.id = id;
-        this.title = title;
-        this.project_id = project_id;
-        this.type = type;
-        this.priority = priority;
-        this.date = date;
-        this.resolved = resolved;
+    static dbName = 'taskflow_test_alerts.sqlite'; // Default test database
+
+    /**
+     * Sets the database to use (for test or production environments).
+     * @param {string} databaseName - The database file name.
+     */
+    static setDatabase(databaseName) {
+        this.dbName = databaseName;
     }
 
+    /**
+     * Creates a new alert.
+     * @param {string} title - The alert title.
+     * @param {number} project_id - The project ID associated with the alert.
+     * @param {string} type - The type of alert.
+     * @param {string} priority - The priority level of the alert.
+     * @param {string} date - The date of the alert.
+     * @returns {Promise<number>} The ID of the newly created alert.
+     */
     static async createAlert(title, project_id, type, priority, date) {
-        const alertData = await storageUtils.createAlert(title, project_id, type, priority, date);
-        return alertData ? new Alert(...Object.values(alertData)) : null;
+        return await storageUtils.createRecord('alerts', {
+            title,
+            project_id,
+            type,
+            priority,
+            date,
+            resolved: 0
+        }, this.dbName);
     }
 
-    static async getAlertById(alertId) {
-        const alertData = await storageUtils.getAlertById(alertId);
-        return alertData ? new Alert(...Object.values(alertData)) : null;
+    /**
+     * Retrieves an alert by ID.
+     * @param {number} id - The alert ID.
+     * @returns {Promise<Object|null>} The alert object or null if not found.
+     */
+    static async getAlertById(id) {
+        return await storageUtils.getRecordById('alerts', id, this.dbName);
     }
 
-    static async getAlertsByProjectId(project_id) {
-        const alerts = await storageUtils.getAlertsByProjectId(project_id);
-        return alerts.map(data => new Alert(...Object.values(data)));
+    /**
+     * Updates an alert's status (e.g., resolve it).
+     * @param {number} id - The alert ID.
+     * @param {Object} updates - The updated fields.
+     * @returns {Promise<boolean>} True if the update was successful, false otherwise.
+     */
+    static async updateAlert(id, updates) {
+        return await storageUtils.updateRecord('alerts', id, updates, this.dbName);
     }
 
-    static async updateAlert(alertId, fields) {
-        return await storageUtils.updateAlert(alertId, fields);
+    /**
+     * Deletes an alert from the database.
+     * @param {number} id - The alert ID.
+     * @returns {Promise<boolean>} True if the deletion was successful.
+     */
+    static async deleteAlert(id) {
+        return await storageUtils.deleteRecord('alerts', id, this.dbName);
     }
 
-    static async deleteAlert(alertId) {
-        return await storageUtils.deleteAlert(alertId);
+    /**
+     * Retrieves all alerts from the database.
+     * @returns {Promise<Array>} An array of all alerts.
+     */
+    static async getAllAlerts() {
+        return await storageUtils.getAllRecords('alerts', this.dbName);
     }
 }
 
 module.exports = Alert;
-

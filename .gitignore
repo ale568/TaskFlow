@@ -34,3 +34,5 @@ temp/
 # SQLite Cache Directory
 sqlite/
 
+# Logs Directory
+logs/

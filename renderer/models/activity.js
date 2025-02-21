@@ -1,76 +1,61 @@
 const storageUtils = require('../utils/storageUtils');
 
 class Activity {
-    constructor(id, name, project_id, duration) {
-        this.id = id;
-        this.name = name;
-        this.project_id = project_id;
-        this.duration = duration;
+    static dbName = 'taskflow_test_activity.sqlite'; // Default test database
+
+    /**
+     * Sets the database to use (for test or production environments).
+     * @param {string} databaseName - The database file name.
+     */
+    static setDatabase(databaseName) {
+        this.dbName = databaseName;
     }
 
-    // Creates a new activity in the database
+    /**
+     * Creates a new activity.
+     * @param {string} name - The name of the activity.
+     * @param {number} projectId - The project ID the activity belongs to.
+     * @param {number} duration - The duration of the activity in minutes.
+     * @returns {Promise<number>} The ID of the newly created activity.
+     */
     static async createActivity(name, projectId, duration) {
-        if (!name || typeof name !== 'string' || name.trim() === '') {
-            throw new Error('Invalid name');
-        }
-        if (!projectId || typeof projectId !== 'number') {
-            throw new Error('Invalid project ID');
-        }
-        if (!duration || typeof duration !== 'number' || duration <= 0) {
-            throw new Error('Invalid duration');
-        }
-    
-        const activityId = await storageUtils.createRecord('activities', {
-            name,
-            project_id: projectId,
-            duration
-        });
-    
-        return new Activity(activityId, name, projectId, duration);
-    }
-    
-
-    // Retrieves an activity by ID
-    static async getActivityById(activityId) {
-        if (!activityId || typeof activityId !== 'number' || activityId <= 0) {
-            throw new Error('Invalid activity ID');
-        }
-
-        const data = await storageUtils.getRecordById('activities', activityId);
-        return data ? new Activity(data.id, data.name, data.project_id, data.duration) : null;
+        return await storageUtils.createRecord('activities', { name, project_id: projectId, duration }, this.dbName);
     }
 
-    // Retrieves all activities for a given project
-    static async getActivitiesByProjectId(project_id) {
-        if (!project_id || typeof project_id !== 'number' || project_id <= 0) {
-            throw new Error('Invalid project ID');
-        }
-
-        const results = await storageUtils.getRecordsByField('activities', 'project_id', project_id);
-        return results.map(row => new Activity(row.id, row.name, row.project_id, row.duration));
+    /**
+     * Retrieves an activity by ID.
+     * @param {number} id - The activity ID.
+     * @returns {Promise<Object|null>} The activity data or null if not found.
+     */
+    static async getActivityById(id) {
+        return await storageUtils.getRecordById('activities', id, this.dbName);
     }
 
-    // Updates an activity
-    static async updateActivity(activityId, updates) {
-        if (!activityId || typeof activityId !== 'number' || activityId <= 0) {
-            throw new Error('Invalid activity ID');
-        }
-        
-        const success = await storageUtils.updateRecord('activities', activityId, updates);
-        if (!success) {
-            throw new Error('Failed to update activity');
-        }
-
-        return this.getActivityById(activityId);
+    /**
+     * Updates an existing activity.
+     * @param {number} id - The ID of the activity.
+     * @param {Object} updates - The fields to update.
+     * @returns {Promise<boolean>} True if successful, false otherwise.
+     */
+    static async updateActivity(id, updates) {
+        return await storageUtils.updateRecord('activities', id, updates, this.dbName);
     }
 
-    // Deletes an activity
-    static async deleteActivity(activityId) {
-        if (!activityId || typeof activityId !== 'number' || activityId <= 0) {
-            throw new Error('Invalid activity ID');
-        }
+    /**
+     * Deletes an activity.
+     * @param {number} id - The ID of the activity to delete.
+     * @returns {Promise<boolean>} True if deleted, false otherwise.
+     */
+    static async deleteActivity(id) {
+        return await storageUtils.deleteRecord('activities', id, this.dbName);
+    }
 
-        return await storageUtils.deleteRecord('activities', activityId);
+    /**
+     * Retrieves all activities.
+     * @returns {Promise<Array>} List of all activities.
+     */
+    static async getAllActivities() {
+        return await storageUtils.getAllRecords('activities', this.dbName);
     }
 }
 

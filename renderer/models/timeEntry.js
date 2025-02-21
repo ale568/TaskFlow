@@ -1,37 +1,69 @@
 const storageUtils = require('../utils/storageUtils');
 
 class TimeEntry {
-    constructor(id, project_id, task, startTime, endTime, duration, tag_id) {
-        this.id = id;
-        this.project_id = project_id;
-        this.task = task;
-        this.startTime = startTime;
-        this.endTime = endTime;
-        this.duration = duration;
-        this.tag_id = tag_id;
+    static dbName = 'taskflow_test_timeEntry.sqlite'; // Default test database
+
+    /**
+     * Sets the database to use (for test or production environments).
+     * @param {string} databaseName - The database file name.
+     */
+    static setDatabase(databaseName) {
+        this.dbName = databaseName;
     }
 
-    static async createTimeEntry(project_id, task, startTime, tag_id = null) {
-        const entryData = await storageUtils.createTimeEntry(project_id, task, startTime, tag_id);
-        return entryData ? new TimeEntry(...Object.values(entryData)) : null;
+    /**
+     * Creates a new time entry.
+     * @param {number} project_id - The associated project ID.
+     * @param {string} task - The task name.
+     * @param {string} startTime - The start time (ISO format).
+     * @param {string|null} endTime - The end time (ISO format or null).
+     * @param {number|null} tag_id - The associated tag ID (optional).
+     * @returns {Promise<number>} The ID of the newly created time entry.
+     */
+    static async createTimeEntry(project_id, task, startTime, endTime = null, tag_id = null) {
+        return await storageUtils.createRecord('time_entries', {
+            project_id,
+            task,
+            startTime,
+            endTime,
+            tag_id
+        }, this.dbName);
     }
 
-    static async getTimeEntryById(entryId) {
-        const entryData = await storageUtils.getTimeEntryById(entryId);
-        return entryData ? new TimeEntry(...Object.values(entryData)) : null;
+    /**
+     * Retrieves a time entry by ID.
+     * @param {number} id - The time entry ID.
+     * @returns {Promise<Object|null>} The time entry object or null if not found.
+     */
+    static async getTimeEntryById(id) {
+        return await storageUtils.getRecordById('time_entries', id, this.dbName);
     }
 
-    static async getAllTimeEntries() {
-        const entries = await storageUtils.getAllTimeEntries();
-        return entries.map(data => new TimeEntry(...Object.values(data)));
-    }
-
+    /**
+     * Updates an existing time entry.
+     * @param {number} id - The time entry ID.
+     * @param {Object} updates - The updated fields.
+     * @returns {Promise<boolean>} True if the update was successful, false otherwise.
+     */
     static async updateTimeEntry(id, updates) {
-        return await storageUtils.updateTimeEntry(id, updates);
+        return await storageUtils.updateRecord('time_entries', id, updates, this.dbName);
     }
 
+    /**
+     * Deletes a time entry from the database.
+     * @param {number} id - The time entry ID.
+     * @returns {Promise<boolean>} True if the deletion was successful.
+     */
     static async deleteTimeEntry(id) {
-        return await storageUtils.deleteTimeEntry(id);
+        return await storageUtils.deleteRecord('time_entries', id, this.dbName);
+    }
+
+    /**
+     * Retrieves all time entries from the database.
+     * @returns {Promise<Array>} An array of all time entries.
+     */
+    static async getAllTimeEntries() {
+        return await storageUtils.getAllRecords('time_entries', this.dbName);
     }
 }
 

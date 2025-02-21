@@ -1,37 +1,68 @@
 const storageUtils = require('../utils/storageUtils');
 
 class Report {
-    constructor(id, project_id, total_hours, startDate, endDate) {
-        this.id = id;
-        this.project_id = project_id;
-        this.total_hours = total_hours;
-        this.startDate = startDate;
-        this.endDate = endDate;
+    static dbName = 'taskflow_test_reports.sqlite'; // Default test database
+
+    /**
+     * Sets the database to use (for test or production environments).
+     * @param {string} databaseName - The database file name.
+     */
+    static setDatabase(databaseName) {
+        this.dbName = databaseName;
     }
 
-    static async createReport(project_id, total_hours, startDate, endDate) {
-        const reportData = await storageUtils.createReport(project_id, total_hours, startDate, endDate);
-        return reportData ? new Report(...Object.values(reportData)) : null;
+    /**
+     * Creates a new report entry in the database.
+     * @param {number} projectId - The project associated with the report.
+     * @param {number} totalHours - The total hours recorded.
+     * @param {string} startDate - The start date of the report period.
+     * @param {string} endDate - The end date of the report period.
+     * @returns {Promise<number>} The ID of the newly created report.
+     */
+    static async createReport(projectId, totalHours, startDate, endDate) {
+        return await storageUtils.createRecord('reports', {
+            project_id: projectId,
+            total_hours: totalHours,
+            startDate,
+            endDate
+        }, this.dbName);
     }
 
+    /**
+     * Retrieves a report by ID.
+     * @param {number} reportId - The ID of the report.
+     * @returns {Promise<Object|null>} The report object or null if not found.
+     */
     static async getReportById(reportId) {
-        const reportData = await storageUtils.getReportById(reportId);
-        return reportData ? new Report(...Object.values(reportData)) : null;
+        return await storageUtils.getRecordById('reports', reportId, this.dbName);
     }
 
-    static async getReportsByProjectId(project_id) {
-        const reports = await storageUtils.getReportsByProjectId(project_id);
-        return reports.map(data => new Report(...Object.values(data)));
+    /**
+     * Updates a report entry in the database.
+     * @param {number} reportId - The ID of the report.
+     * @param {Object} updates - An object containing the fields to update.
+     * @returns {Promise<boolean>} True if the update was successful, false otherwise.
+     */
+    static async updateReport(reportId, updates) {
+        return await storageUtils.updateRecord('reports', reportId, updates, this.dbName);
     }
 
-    static async updateReport(reportId, fields) {
-        return await storageUtils.updateReport(reportId, fields);
-    }
-
+    /**
+     * Deletes a report from the database.
+     * @param {number} reportId - The ID of the report.
+     * @returns {Promise<boolean>} True if the deletion was successful, false otherwise.
+     */
     static async deleteReport(reportId) {
-        return await storageUtils.deleteReport(reportId);
+        return await storageUtils.deleteRecord('reports', reportId, this.dbName);
+    }
+
+    /**
+     * Retrieves all reports from the database.
+     * @returns {Promise<Array>} An array of all reports.
+     */
+    static async getAllReports() {
+        return await storageUtils.getAllRecords('reports', this.dbName);
     }
 }
 
 module.exports = Report;
-

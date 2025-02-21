@@ -1,78 +1,67 @@
 const storageUtils = require('../utils/storageUtils');
 
 class Timer {
-    constructor(id, project_id, task, startTime, endTime, status) {
-        this.id = id;
-        this.project_id = project_id;
-        this.task = task;
-        this.startTime = startTime;
-        this.endTime = endTime;
-        this.status = status;
+    static dbName = 'taskflow_test_timer.sqlite'; // Default test database
+
+    /**
+     * Sets the database to use (for test or production environments).
+     * @param {string} databaseName - The database file name.
+     */
+    static setDatabase(databaseName) {
+        this.dbName = databaseName;
     }
 
-    // Creates a new timer entry in the database
-    static async createTimer(project_id, task) {
-        if (!project_id || typeof project_id !== 'number' || project_id <= 0) {
-            throw new Error('Invalid project_id');
-        }
-        if (!task || typeof task !== 'string' || task.trim() === '') {
-            throw new Error('Invalid task');
-        }
-
-        const data = {
-            project_id,
+    /**
+     * Creates a new timer entry in the database.
+     * @param {number} projectId - The ID of the associated project.
+     * @param {string} task - The task name associated with the timer.
+     * @param {string} startTime - The start time of the timer (ISO string).
+     * @param {string} status - The status of the timer ('running', 'paused', 'stopped').
+     * @returns {Promise<number>} - The ID of the newly created timer.
+     */
+    static async createTimer(projectId, task, startTime, status) {
+        return await storageUtils.createRecord('timers', {
+            project_id: projectId,
             task,
-            startTime: new Date().toISOString(),
-            status: 'running'
-        };
-
-        const timerId = await storageUtils.createRecord('timers', data);
-        return new Timer(timerId, project_id, task, data.startTime, null, 'running');
+            startTime,
+            status
+        }, this.dbName);
     }
 
-    // Retrieves a timer entry by ID
+    /**
+     * Retrieves a timer entry by ID.
+     * @param {number} timerId - The ID of the timer.
+     * @returns {Promise<Object|null>} - The timer object or null if not found.
+     */
     static async getTimerById(timerId) {
-        if (!timerId || typeof timerId !== 'number' || timerId <= 0) {
-            throw new Error('Invalid timer ID');
-        }
-
-        const row = await storageUtils.getRecordById('timers', timerId);
-        if (!row) return null;
-
-        return new Timer(row.id, row.project_id, row.task, row.startTime, row.endTime, row.status);
+        return await storageUtils.getRecordById('timers', timerId, this.dbName);
     }
 
-    // Updates the status of a timer
-    static async updateTimerStatus(timerId, newStatus) {
-        if (!['running', 'paused', 'stopped'].includes(newStatus)) {
-            throw new Error('Invalid status');
-        }
-
-        const updateData = { status: newStatus };
-        if (newStatus === 'stopped') {
-            updateData.endTime = new Date().toISOString();
-        }
-
-        const success = await storageUtils.updateRecord('timers', timerId, updateData);
-        
-        if (!success) {
-            throw new Error('Failed to update timer');  // Throw an error if the timer does not exist
-        }
-
-        const updatedTimer = await this.getTimerById(timerId);
-        if (!updatedTimer) {
-            throw new Error('Failed to update timer');  // Throw an error if the timer is not found
-        }
-
-        return updatedTimer;
+    /**
+     * Updates a timer entry.
+     * @param {number} timerId - The ID of the timer.
+     * @param {Object} updates - The fields to update.
+     * @returns {Promise<boolean>} - Whether the update was successful.
+     */
+    static async updateTimer(timerId, updates) {
+        return await storageUtils.updateRecord('timers', timerId, updates, this.dbName);
     }
-    // Deletes a timer entry by ID
+
+    /**
+     * Deletes a timer entry.
+     * @param {number} timerId - The ID of the timer.
+     * @returns {Promise<boolean>} - Whether the deletion was successful.
+     */
     static async deleteTimer(timerId) {
-        if (!timerId || typeof timerId !== 'number' || timerId <= 0) {
-            throw new Error('Invalid timer ID');
-        }
+        return await storageUtils.deleteRecord('timers', timerId, this.dbName);
+    }
 
-        return await storageUtils.deleteRecord('timers', timerId);
+    /**
+     * Retrieves all timer entries.
+     * @returns {Promise<Array>} - A list of all timer records.
+     */
+    static async getAllTimers() {
+        return await storageUtils.getAllRecords('timers', this.dbName);
     }
 }
 
