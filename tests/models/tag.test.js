@@ -8,10 +8,6 @@ describe('Tag Model - Database Operations', () => {
         dbUtils.resetDatabase(); // Reset the database before running tests
     });
 
-    beforeEach(async () => {
-        await new Promise(resolve => setTimeout(resolve, 100)); // Prevent race conditions
-    });
-
     test('It should create and retrieve a tag', async () => {
         const tagId = await Tag.createTag('Important', '#FF5733');
 

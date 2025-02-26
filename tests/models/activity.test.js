@@ -9,10 +9,6 @@ describe('Activity Model - Database Operations', () => {
         dbUtils.resetDatabase(); // Reset the database before running tests
     });
 
-    beforeEach(async () => {
-        await new Promise(resolve => setTimeout(resolve, 100)); // Prevent race conditions
-    });
-
     test('It should create and retrieve an activity', async () => {
         // Step 1: Create a project to link the activity
         const projectId = await Project.createProject('Activity Project', 'Project for activity testing');

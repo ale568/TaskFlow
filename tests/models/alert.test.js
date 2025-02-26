@@ -9,10 +9,6 @@ describe('Alert Model - Database Operations', () => {
         dbUtils.resetDatabase(); // Reset the database before running tests
     });
 
-    beforeEach(async () => {
-        await new Promise(resolve => setTimeout(resolve, 100)); // Prevent race conditions
-    });
-
     test('It should create and retrieve an alert', async () => {
         // Step 1: Create a project to link the alert
         const projectId = await Project.createProject('Alert Project', 'Project for alert testing');

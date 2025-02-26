@@ -37,6 +37,9 @@ function connect(databaseName) {
         db = new Database(dbPath, { verbose: null });
 
         db.exec('PRAGMA foreign_keys = ON;'); // Enforce foreign key constraints
+        db.exec('PRAGMA journal_mode = WAL;'); // Enable Write-Ahead Logging mode for better concurrency
+        logToFile(`✅ WAL mode enabled for database: ${currentDatabase}`);
+
         initializeTables();
         logToFile(`✅ Connected to database: ${currentDatabase}`);
     } catch (error) {
@@ -45,7 +48,6 @@ function connect(databaseName) {
         throw new Error('Failed to connect to the database');
     }
 }
-
 
 /**
  * Closes the database connection.

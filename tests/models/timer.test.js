@@ -9,10 +9,6 @@ describe('Timer Model - Database Operations', () => {
         dbUtils.resetDatabase(); // Reset the database before running tests
     });
 
-    beforeEach(async () => {
-        await new Promise(resolve => setTimeout(resolve, 100)); // Prevent race conditions
-    });
-
     test('It should create and retrieve a timer', async () => {
         // Step 1: Create a project to link the timer
         const projectId = await Project.createProject('Timer Project', 'Project for timer testing');

@@ -10,10 +10,6 @@ describe('TimeEntry Model - Database Operations', () => {
         dbUtils.resetDatabase(); // Reset the database before running tests
     });
 
-    beforeEach(async () => {
-        await new Promise(resolve => setTimeout(resolve, 100)); // Prevent race conditions
-    });
-
     test('It should create and retrieve a time entry', async () => {
         // Step 1: Create a project to link the time entry
         const projectId = await Project.createProject('TimeEntry Project', 'Project for time entry testing');

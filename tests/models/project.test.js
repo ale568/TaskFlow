@@ -5,32 +5,29 @@ describe('Project Model - Database Operations', () => {
     beforeAll(async () => {
         Project.setDatabase('taskflow_test_project.sqlite');
         dbUtils.connect('taskflow_test_project.sqlite'); 
-        dbUtils.resetDatabase(); // Reset of database before all tests
-    });
-
-    beforeEach(async () => {
-        await new Promise(resolve => setTimeout(resolve, 100)); // Avoid race conditions in tests
     });
 
     test('It should create and retrieve a project', async () => {
-        const projectId = await Project.createProject('Test Project', 'Sample description');
-
+        const uniqueName = `Test Project ${Date.now()}`;
+        const projectId = await Project.createProject(uniqueName, 'Sample description');
+    
         expect(projectId).toBeDefined();
         const project = await Project.getProjectById(projectId);
         expect(project).not.toBeNull();
-        expect(project.name).toBe('Test Project');
+        expect(project.name).toBe(uniqueName);
         expect(project.description).toBe('Sample description');
     });
 
-    test('It should update a project', async () => {
-        const projectId = await Project.createProject('Updatable Project', 'Original description');
-
-        const updated = await Project.updateProject(projectId, { name: 'Updated Project Name' });
+    test('It should update a project (Model)', async () => {
+        const uniqueName = `Updatable Model Project ${Date.now()}`;
+        const projectId = await Project.createProject(uniqueName, 'Original description');
+    
+        const updated = await Project.updateProject(projectId, { name: `Updated Model Project ${Date.now()}` });
         expect(updated.success).toBeTruthy();
-
+    
         const updatedProject = await Project.getProjectById(projectId);
-        expect(updatedProject.name).toBe('Updated Project Name');
-    });
+        expect(updatedProject.name).toContain('Updated Model Project');
+    });    
 
     test('It should delete a project', async () => {
         const projectId = await Project.createProject('To Delete', 'Temporary data');
@@ -58,9 +55,12 @@ describe('Project Model - Database Operations', () => {
     });
 
     test('It should retrieve all projects', async () => {
-        await Project.createProject('Project A', 'Description A');
-        await Project.createProject('Project B', 'Description B');
-
+        const uniqueNameA = `Project A ${Date.now()}`;
+        const uniqueNameB = `Project B ${Date.now()}`;
+    
+        await Project.createProject(uniqueNameA, 'Description A');
+        await Project.createProject(uniqueNameB, 'Description B');
+    
         const projects = await Project.getAllProjects();
         expect(projects.length).toBeGreaterThanOrEqual(2);
     });

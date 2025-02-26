@@ -43,11 +43,12 @@ class Settings {
      */
     static async deleteSetting(key) {
         const setting = await this.getSettingByKey(key);
-        if (setting) {
-            return await storageUtils.deleteRecord('settings', setting.id, this.dbName);
+        if (!setting) {
+            return false; // Ensure false is returned if the setting does not exist
         }
-        return false;
-    }
+        const result = await storageUtils.deleteRecord('settings', setting.id);
+        return result === true && (await storageUtils.getRecordById('settings', setting.id)) === null;
+    }    
 
     /**
      * Retrieves all settings from the database.
