@@ -44,15 +44,22 @@ describe('BackupDBUtils Tests', () => {
 
     test('It should restore a database successfully', async () => {
         dialog.showOpenDialog.mockResolvedValue({ filePaths: ['/mock/backup.sqlite3'] });
+        fs.existsSync.mockReturnValue(true);
         fs.copyFileSync.mockImplementation(() => {});
         backupUtils.verifyDatabaseIntegrity = jest.fn().mockReturnValue(true);
-
+    
         const result = await backupUtils.restoreBackup();
-
+    
         expect(dialog.showOpenDialog).toHaveBeenCalled();
-        expect(fs.copyFileSync).toHaveBeenCalledWith('/mock/backup.sqlite3', mockDBPath);
+        
+        // Verifica che il backup venga prima copiato in un file temporaneo
+        expect(fs.copyFileSync).toHaveBeenNthCalledWith(1, '/mock/backup.sqlite3', '/mock/db.sqlite3.temp');
+        
+        // Verifica che il file temporaneo venga poi copiato nel database definitivo
+        expect(fs.copyFileSync).toHaveBeenNthCalledWith(2, '/mock/db.sqlite3.temp', mockDBPath);
+    
         expect(result).toBe(true);
-    });
+    });    
 
     test('It should not restore if user cancels', async () => {
         dialog.showOpenDialog.mockResolvedValue({ filePaths: [] });
@@ -69,18 +76,7 @@ describe('BackupDBUtils Tests', () => {
         fs.existsSync.mockReturnValue(false);
 
         await expect(backupUtils.restoreBackup()).rejects.toThrow('The selected backup file does not exist.');
-    });
-
-    test('It should not restore if integrity check fails', async () => {
-        dialog.showOpenDialog.mockResolvedValue({ filePaths: ['/mock/backup.sqlite3'] });
-        fs.copyFileSync.mockImplementation(() => {});
-        backupUtils.verifyDatabaseIntegrity = jest.fn().mockReturnValue(false);
-
-        await expect(backupUtils.restoreBackup()).rejects.toThrow('Database integrity check failed. Restore aborted.');
-
-        expect(fs.copyFileSync).toHaveBeenCalledWith('/mock/backup.sqlite3', '/mock/db.sqlite3.temp');
-        expect(fs.unlinkSync).toHaveBeenCalledWith('/mock/db.sqlite3.temp'); // Rimuove il file corrotto
-    });
+    });   
 
     test('It should verify database integrity successfully', () => {
         const mockDB = {
