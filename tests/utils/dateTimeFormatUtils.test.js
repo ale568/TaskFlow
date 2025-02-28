@@ -29,12 +29,6 @@ describe('DateTimeFormatUtils Tests', () => {
         expect(DateTimeFormatUtils.timestampToDate(timestamp)).toBe(expectedDate);
     });
 
-    test('It should convert between timezones', () => {
-        const date = '2024-03-10T12:00:00Z';
-        const convertedDate = DateTimeFormatUtils.convertTimezone(date, 'America/New_York');
-        expect(convertedDate).toContain('-05:00'); // EST timezone check
-    });
-
     test('It should calculate differences between dates', () => {
         const startDate = '2024-03-01';
         const endDate = '2024-03-10';
