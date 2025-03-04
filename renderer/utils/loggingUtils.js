@@ -21,7 +21,7 @@ function logToFile(filePath, message) {
     try {
         fs.appendFileSync(filePath, logMessage, 'utf8');
     } catch (error) {
-        console.error(`Failed to write log: ${error.message}`);
+        console.error(`[ERROR] Failed to write log to ${filePath}: ${error.message}`);
     }
 }
 
