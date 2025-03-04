@@ -87,5 +87,4 @@ describe('LoggingUtils Tests', () => {
         expect(() => loggingUtils.logMessage('INFO', 'Error handling test', 'UNKNOWN'))
             .not.toThrow();
     });
-
 });
