@@ -2,22 +2,13 @@ const db = require('../../renderer/utils/dbUtils');
 const fs = require('fs');
 const path = require('path');
 
-// Define the test database
 const TEST_DB_PATH = 'taskflow_test_utils.sqlite';
-
-const LOG_FILE = path.resolve(__dirname, '../../logs/database.log');
-
+const LOG_FILE = path.resolve(__dirname, '../../logs/db.log');
 
 describe('Database Utility - Integration Tests', () => {
 
     beforeAll(() => {
         db.connect(TEST_DB_PATH);
-        db.resetDatabase();
-
-        // Clear log file before tests
-        if (fs.existsSync(LOG_FILE)) {
-            fs.writeFileSync(LOG_FILE, '');
-        }
     });
 
     afterAll(() => {
@@ -56,14 +47,12 @@ describe('Database Utility - Integration Tests', () => {
     test('It should connect to the default database if no name is provided', () => {
         db.close();
         
-        // Temporarily override NODE_ENV to simulate non-test environment
         const originalEnv = process.env.NODE_ENV;
         process.env.NODE_ENV = 'production';
     
         db.connect();
         expect(db.getCurrentDatabase()).toBe('taskflow.sqlite');
     
-        // Restore the original environment variable
         process.env.NODE_ENV = originalEnv;
     });
 
@@ -95,21 +84,47 @@ describe('Database Utility - Integration Tests', () => {
     });
 
     test('It should log database queries to a file', async () => {
-        await db.runQuery("INSERT INTO projects (name) VALUES (?)", ["Log Test Project"]);
-    
-        await new Promise(resolve => setTimeout(resolve, 200));
+        await db.runQuery("INSERT INTO projects (name, description) VALUES ('Test Project', 'Description')");
     
         const logs = fs.readFileSync(LOG_FILE, 'utf8');
         expect(logs).toMatch(/Query executed: INSERT INTO projects/);
-    });    
+    });      
 
     test('It should log database errors to a file', async () => {
         try {
             await db.runQuery("INVALID SQL QUERY");
         } catch (error) {
-            // Read the logs
             const logs = fs.readFileSync(LOG_FILE, 'utf8');
             expect(logs).toMatch(/Database Error:.*syntax error/i);
         }
+    });
+
+    test('It should throw an error if database connection fails', () => {
+        db.close();
+        
+        const connectSpy = jest.spyOn(db, 'connect').mockImplementation(() => {
+            throw new Error('Forced connection error');
+        });
+    
+        expect(() => db.connect(TEST_DB_PATH)).toThrow('Forced connection error');
+    
+        connectSpy.mockRestore();
+    });
+    
+    test('It should reconnect if a query is executed while database is closed', async () => {
+        db.close(); 
+        
+        const logSpy = jest.spyOn(require('../../renderer/utils/loggingUtils'), 'logMessage');
+        
+        await db.runQuery("SELECT 1"); 
+        
+        expect(logSpy).toHaveBeenCalledWith('warn', 'Database was not connected. Reconnecting...', 'DB');
+        
+        logSpy.mockRestore();
+    });
+
+    test('It should return the current database name', () => {
+        db.connect(TEST_DB_PATH);
+        expect(db.getCurrentDatabase()).toBe(TEST_DB_PATH);
     });
 });

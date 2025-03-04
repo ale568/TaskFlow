@@ -1,22 +1,9 @@
 const Database = require('better-sqlite3');
-const fs = require('fs');
 const path = require('path');
+const LoggingUtils = require('../utils/loggingUtils');
 
 let db;
 let currentDatabase;
-const LOG_FILE = path.resolve(__dirname, '../../logs/database.log');
-
-/**
- * Logs messages to a file, but only if they indicate an error.
- * @param {string} message - The log message.
- * @param {boolean} isError - If true, logs the message. Otherwise, it does nothing.
- */
-function logToFile(message) {
-    const timestamp = new Date().toISOString();
-    const logMessage = `[${timestamp}] ${message}\n`;
-    
-    fs.appendFileSync(LOG_FILE, logMessage);
-}
 
 /**
  * Connects to a specified SQLite database and ensures tables exist.
@@ -26,25 +13,22 @@ function logToFile(message) {
 function connect(databaseName) {
     try {
         if (db) {
-            close(); // Ensure no lingering connections
+            close();
         }
 
         const isTestEnv = process.env.NODE_ENV === 'test';
         currentDatabase = databaseName || (isTestEnv ? 'taskflow_test_utils.sqlite' : 'taskflow.sqlite');
 
         const dbPath = path.resolve(__dirname, '../../data', currentDatabase);
-
         db = new Database(dbPath, { verbose: null });
 
-        db.exec('PRAGMA foreign_keys = ON;'); // Enforce foreign key constraints
-        db.exec('PRAGMA journal_mode = WAL;'); // Enable Write-Ahead Logging mode for better concurrency
-        logToFile(`✅ WAL mode enabled for database: ${currentDatabase}`);
+        db.exec('PRAGMA foreign_keys = ON;');
+        db.exec('PRAGMA journal_mode = WAL;');
 
+        LoggingUtils.logMessage('info', `Connected to database: ${currentDatabase}`, 'DATABASE');
         initializeTables();
-        logToFile(`✅ Connected to database: ${currentDatabase}`);
     } catch (error) {
-        logToFile(`❌ Database connection failed: ${error.message}`);
-        console.error(`❌ Database connection failed: ${error.message}`);
+        LoggingUtils.logMessage('error', `Database connection failed: ${error.message}`, 'DATABASE');
         throw new Error('Failed to connect to the database');
     }
 }
@@ -57,9 +41,9 @@ function close() {
         try {
             db.close();
             db = null;
-            logToFile('📴 Database connection closed');
+            LoggingUtils.logMessage('info', 'Database connection closed', 'DATABASE');
         } catch (error) {
-            logToFile(`⚠️ Error closing database: ${error.message}`);
+            LoggingUtils.logMessage('error', `Error closing database: ${error.message}`, 'DATABASE');
         }
     }
 }
@@ -68,12 +52,12 @@ function close() {
  * Runs an SQL query asynchronously with optional parameters.
  * @param {string} query - The SQL query to execute.
  * @param {Array} [params=[]] - Query parameters.
- * @returns {Promise<Object|Array>} - Query result or error object.
+ * @returns {Object|Array} - Query result or error object.
  */
 async function runQuery(query, params = []) {
     try {
         if (!db) {
-            logToFile('⚠️ Database was not connected. Reconnecting...');
+            LoggingUtils.logMessage('warn', 'Database was not connected. Reconnecting...', 'DB');
             connect(currentDatabase);
         }
 
@@ -92,11 +76,11 @@ async function runQuery(query, params = []) {
             };
         }
 
-        logToFile(`✅ Query executed: ${query}`);
+        LoggingUtils.logMessage('info', `Query executed: ${query}`, 'DB');
         return result; 
     } catch (error) {
-        logToFile(`❌ Database Error: ${error.message} | Query: ${query}`);
-        return { success: false, error: error.message }; // Instead of throwing, return an error object
+        LoggingUtils.logMessage('error', `Database Error: ${error.message} | Query: ${query}`, 'ERRORS');
+        return { success: false, error: error.message };
     }
 }
 
@@ -174,7 +158,7 @@ function initializeTables() {
     ];
 
     tables.forEach(query => db.exec(query));
-    logToFile('✅ All tables initialized successfully.');
+    LoggingUtils.logMessage('info', 'All tables initialized successfully.', 'DATABASE');
 }
 
 /**
@@ -182,22 +166,22 @@ function initializeTables() {
  */
 function resetDatabase() {
     if (!db) {
-        logToFile('⚠️ No active database connection. Cannot reset.');
+        LoggingUtils.logMessage('warn', 'No active database connection. Cannot reset.', 'DATABASE');
         return;
     }
 
     const tables = ['alerts', 'time_entries', 'projects', 'tags'];
     tables.forEach(table => {
-        db.exec(`DELETE FROM ${table};`); // Delete all records
-        db.exec(`DELETE FROM sqlite_sequence WHERE name='${table}';`); // Reset autoincrement IDs
+        db.exec(`DELETE FROM ${table};`);
+        db.exec(`DELETE FROM sqlite_sequence WHERE name='${table}';`);
     });
 
-    initializeTables(); // Ensure tables exist after reset
-    logToFile('♻️ Database reset completed.');
+    initializeTables();
+    LoggingUtils.logMessage('info', 'Database reset completed.', 'DATABASE');
 }
 
 /**
- *  Getter to retrieve the current database name in dbUtils.js
+ * Getter to retrieve the current database name.
  */
 function getCurrentDatabase() {
     return currentDatabase;

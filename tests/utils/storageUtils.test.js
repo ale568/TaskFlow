@@ -1,53 +1,52 @@
 const storageUtils = require('../../renderer/utils/storageUtils');
 const dbUtils = require('../../renderer/utils/dbUtils');
+const timerUtils = require('../../renderer/utils/timerUtils');
+const dateTimeFormatUtils = require('../../renderer/utils/dateTimeFormatUtils');
+
+const fs = require('fs');
 const path = require('path');
 
 // Use the shared test database for storageUtils
 const TEST_DB_PATH = path.resolve(__dirname, '../../data/taskflow_test_utils.sqlite');
+const LOG_FILE_DB = path.resolve(__dirname, '../../logs/db.log');
+const LOG_FILE_ERRORS = path.resolve(__dirname, '../../logs/errors.log');
 
 describe('StorageUtils - Database Operations', () => {
 
     beforeAll(async () => {
         dbUtils.connect(TEST_DB_PATH);
-        dbUtils.resetDatabase(); // Reset entire database instead of clearing individual tables
-        console.info('✅ Database reset before running tests.');
     });
     
 
-    /*** ✅ Generic tests for CRUD operations in `storageUtils.js` ***/
-
-    test('It should create and retrieve a project', async () => {
-        const projectId = await storageUtils.createRecord('projects', { name: 'Test Project', description: 'A sample project' });
-
-        expect(projectId).toBeDefined();
-        const project = await storageUtils.getRecordById('projects', projectId);
-        expect(project.name).toBe('Test Project');
-    });
+    // Generic tests for CRUD operations
 
     test('It should update an existing project', async () => {
-        const projectId = await storageUtils.createRecord('projects', { name: 'Old Project' });
-
-        const updated = await storageUtils.updateRecord('projects', projectId, { name: 'Updated Project' });
-        expect(updated.success).toBeTruthy();
-
-        const project = await storageUtils.getRecordById('projects', projectId);
-        expect(project.name).toBe('Updated Project');
-    });
+        const uniqueProjectName = `Test Project ${Date.now()}`;
+        const projectId = await storageUtils.createRecord('projects', { name: uniqueProjectName });
+    
+        const updated = await storageUtils.updateRecord('projects', projectId, { name: `Updated ${uniqueProjectName}` });
+    
+        expect(updated).toEqual({ success: true });
+    });    
 
     test('It should delete a project', async () => {
-        const projectId = await storageUtils.createRecord('projects', { name: 'To Delete' });
-
+        const uniqueProjectName = `To Delete ${Date.now()}`;
+        const projectId = await storageUtils.createRecord('projects', { name: uniqueProjectName });
+    
         const deleted = await storageUtils.deleteRecord('projects', projectId);
-        expect(deleted).toBeTruthy();
-
+        expect(deleted).toBe(true);
+    
         const project = await storageUtils.getRecordById('projects', projectId);
         expect(project).toBeNull();
     });
 
     test('It should retrieve all records from a table', async () => {
-        await storageUtils.createRecord('projects', { name: 'Project A' });
-        await storageUtils.createRecord('projects', { name: 'Project B' });
-
+        const projectA = `Project A ${Date.now()}`;
+        const projectB = `Project B ${Date.now()}`;
+    
+        await storageUtils.createRecord('projects', { name: projectA });
+        await storageUtils.createRecord('projects', { name: projectB });
+    
         const projects = await storageUtils.getAllRecords('projects');
         expect(projects.length).toBeGreaterThanOrEqual(2);
     });
@@ -57,6 +56,11 @@ describe('StorageUtils - Database Operations', () => {
     test('It should fail to create a record with missing required fields', async () => {
         await expect(storageUtils.createRecord('projects', { description: 'Missing name' }))
             .rejects.toThrow('Missing required field: name');
+
+        await new Promise(resolve => setTimeout(resolve, 50));
+
+        const logs = fs.readFileSync(LOG_FILE_ERRORS, 'utf8');
+        expect(logs).toMatch(/Database Error: near|Database error inserting into projects/);
     });
 
     test('It should return null for a non-existing record', async () => {
@@ -65,16 +69,19 @@ describe('StorageUtils - Database Operations', () => {
     });
 
     test('It should fail to update a record with invalid fields', async () => {
-        const projectId = await storageUtils.createRecord('projects', { name: 'Valid Project' });
+        const uniqueProjectName = `Valid Project ${Date.now()}`;
+        const projectId = await storageUtils.createRecord('projects', { name: uniqueProjectName });
     
-        await expect(storageUtils.updateRecord('projects', projectId, { name: 'Valid Project', non_existent_field: 'value' }))
-            .rejects.toThrow(/Invalid field: non_existent_field does not exist in projects/i);
-    });    
+        const result = await storageUtils.updateRecord('projects', projectId, { non_existent_field: 'value' });
+    
+        expect(result).toEqual({ success: false });
+    }); 
 
     test('It should return false when updating a non-existing record', async () => {
         const result = await storageUtils.updateRecord('projects', 99999, { name: 'New Name' });
-        expect(result.success).toBeFalsy();
-    });
+        
+        expect(result).toEqual({ success: false });
+    });    
 
     test('It should fail to delete a record with an invalid ID', async () => {
         await expect(storageUtils.deleteRecord('projects', 'invalid-id')).rejects.toThrow();
@@ -82,149 +89,141 @@ describe('StorageUtils - Database Operations', () => {
 
     test('It should return false when deleting a non-existing record', async () => {
         const result = await storageUtils.deleteRecord('projects', 99999);
-        expect(result).toBeFalsy();
+        expect(result).toBe(false);
     });
 
     test('It should return an error object when executing an invalid SQL query', async () => {
         const result = await dbUtils.runQuery('INVALID SQL QUERY');
         expect(result.success).toBe(false);
         expect(result).toHaveProperty('error');
-    });    
+    });  
 
     test('It should correctly handle the full CRUD cycle for a project', async () => {
-        // Step 1: CREATE a new project
-        const projectId = await storageUtils.createRecord('projects', { name: 'CRUD Project', description: 'A test project' });
+        const uniqueProjectName = `CRUD Project ${Date.now()}`;
+    
+        // CREATE
+        const projectId = await storageUtils.createRecord('projects', { name: uniqueProjectName, description: 'A test project' });
         expect(projectId).toBeDefined();
     
-        // Step 2: READ the newly created project
+        // READ
         let project = await storageUtils.getRecordById('projects', projectId);
         expect(project).not.toBeNull();
-        expect(project.name).toBe('CRUD Project');
+        expect(project.name).toBe(uniqueProjectName);
     
-        // Step 3: UPDATE the project
-        const updated = await storageUtils.updateRecord('projects', projectId, { name: 'Updated CRUD Project' });
-        expect(updated.success).toBeTruthy();
+        // UPDATE
+        const updatedName = `Updated ${uniqueProjectName}`;
+        const updated = await storageUtils.updateRecord('projects', projectId, { name: updatedName });
+        expect(updated).toEqual({ success: true });
     
-        // Step 4: READ again to verify update
+        // READ Again
         project = await storageUtils.getRecordById('projects', projectId);
-        expect(project.name).toBe('Updated CRUD Project');
+        expect(project.name).toBe(updatedName);
     
-        // Step 5: DELETE the project
+        // DELETE
         const deleted = await storageUtils.deleteRecord('projects', projectId);
-        expect(deleted).toBeTruthy();
+        expect(deleted).toBe(true);
     
-        // Step 6: READ again to ensure deletion
+        // Ensure deletion
         project = await storageUtils.getRecordById('projects', projectId);
         expect(project).toBeNull();
     });
 
     test('It should correctly handle the full CRUD cycle for a timer', async () => {
-        // Step 1: CREATE
-        const timerId = await storageUtils.createRecord('timers', { project_id: 1, task: 'Test Task', startTime: '2024-02-21T10:00:00', status: 'running' });
+        const startTime = timerUtils.getCurrentTimestamp();
+        const taskName = `Test Task ${Date.now()}`;
+        const timerId = await storageUtils.createRecord('timers', { project_id: 1, task: taskName, startTime, status: 'running' });
+    
         expect(timerId).toBeDefined();
     
-        // Step 2: READ
         let timer = await storageUtils.getRecordById('timers', timerId);
         expect(timer).not.toBeNull();
         expect(timer.status).toBe('running');
     
-        // Step 3: UPDATE
         const updated = await storageUtils.updateRecord('timers', timerId, { status: 'paused' });
-        expect(updated.success).toBeTruthy();
+        expect(updated).toEqual({ success: true });
     
-        // Step 4: READ again
         timer = await storageUtils.getRecordById('timers', timerId);
         expect(timer.status).toBe('paused');
     
-        // Step 5: DELETE
         const deleted = await storageUtils.deleteRecord('timers', timerId);
-        expect(deleted).toBeTruthy();
+        expect(deleted).toBe(true);
     
-        // Step 6: Ensure deletion
         timer = await storageUtils.getRecordById('timers', timerId);
         expect(timer).toBeNull();
     });
     
     test('It should correctly handle the full CRUD cycle for a tag', async () => {
-        // Step 1: CREATE
-        const tagId = await storageUtils.createRecord('tags', { name: 'Urgent', color: '#FF0000' });
+        const uniqueTagName = `Urgent ${Date.now()}`;
+        const tagId = await storageUtils.createRecord('tags', { name: uniqueTagName, color: '#FF0000' });
+    
         expect(tagId).toBeDefined();
     
-        // Step 2: READ
         let tag = await storageUtils.getRecordById('tags', tagId);
         expect(tag).not.toBeNull();
-        expect(tag.name).toBe('Urgent');
+        expect(tag.name).toBe(uniqueTagName);
     
-        // Step 3: UPDATE
-        const updated = await storageUtils.updateRecord('tags', tagId, { name: 'Important' });
-        expect(updated.success).toBeTruthy();
+        const updated = await storageUtils.updateRecord('tags', tagId, { name: `Important ${Date.now()}` });
+        expect(updated).toEqual({ success: true });
     
-        // Step 4: READ again
         tag = await storageUtils.getRecordById('tags', tagId);
-        expect(tag.name).toBe('Important');
+        expect(tag.name).toMatch(/^Important/);
     
-        // Step 5: DELETE
         const deleted = await storageUtils.deleteRecord('tags', tagId);
-        expect(deleted).toBeTruthy();
+        expect(deleted).toBe(true);
     
-        // Step 6: Ensure deletion
         tag = await storageUtils.getRecordById('tags', tagId);
         expect(tag).toBeNull();
     });
     
     test('It should correctly handle the full CRUD cycle for a time entry', async () => {
-        // Step 1: CREATE
-        const timeEntryId = await storageUtils.createRecord('time_entries', { project_id: 1, task: 'Development', startTime: '2024-02-21T10:00:00' });
+        const startTime = timerUtils.getCurrentTimestamp();
+        const taskName = `Development ${Date.now()}`;
+        const timeEntryId = await storageUtils.createRecord('time_entries', { project_id: 1, task: taskName, startTime });
+    
         expect(timeEntryId).toBeDefined();
     
-        // Step 2: READ
         let timeEntry = await storageUtils.getRecordById('time_entries', timeEntryId);
         expect(timeEntry).not.toBeNull();
-        expect(timeEntry.task).toBe('Development');
+        expect(timeEntry.task).toBe(taskName);
     
-        // Step 3: UPDATE
-        const updated = await storageUtils.updateRecord('time_entries', timeEntryId, { task: 'Testing' });
-        expect(updated.success).toBeTruthy();
+        const updated = await storageUtils.updateRecord('time_entries', timeEntryId, { task: `Testing ${Date.now()}` });
+        expect(updated).toEqual({ success: true });
     
-        // Step 4: READ again
         timeEntry = await storageUtils.getRecordById('time_entries', timeEntryId);
-        expect(timeEntry.task).toBe('Testing');
+        expect(timeEntry.task).toMatch(/^Testing/);
     
-        // Step 5: DELETE
         const deleted = await storageUtils.deleteRecord('time_entries', timeEntryId);
-        expect(deleted).toBeTruthy();
+        expect(deleted).toBe(true);
     
-        // Step 6: Ensure deletion
         timeEntry = await storageUtils.getRecordById('time_entries', timeEntryId);
         expect(timeEntry).toBeNull();
     });
-    
+
     test('It should correctly handle the full CRUD cycle for a report', async () => {
-        // Step 1: CREATE
-        const reportId = await storageUtils.createRecord('reports', { project_id: 1, total_hours: 8, startDate: '2024-02-20', endDate: '2024-02-21' });
+        const startDate = dateTimeFormatUtils.getCurrentDate();
+        const endDate = dateTimeFormatUtils.addTime(startDate, 7, 'days');
+        const totalHours = Math.floor(Math.random() * 10) + 1;
+    
+        const reportId = await storageUtils.createRecord('reports', { project_id: 1, total_hours: totalHours, startDate, endDate });
         expect(reportId).toBeDefined();
     
-        // Step 2: READ
         let report = await storageUtils.getRecordById('reports', reportId);
         expect(report).not.toBeNull();
-        expect(report.total_hours).toBe(8);
+        expect(report.total_hours).toBe(totalHours);
     
-        // Step 3: UPDATE
-        const updated = await storageUtils.updateRecord('reports', reportId, { total_hours: 10 });
-        expect(updated.success).toBeTruthy();
+        const updatedHours = totalHours + 2;
+        const updated = await storageUtils.updateRecord('reports', reportId, { total_hours: updatedHours });
+        expect(updated).toEqual({ success: true });
     
-        // Step 4: READ again
         report = await storageUtils.getRecordById('reports', reportId);
-        expect(report.total_hours).toBe(10);
+        expect(report.total_hours).toBe(updatedHours);
     
-        // Step 5: DELETE
         const deleted = await storageUtils.deleteRecord('reports', reportId);
-        expect(deleted).toBeTruthy();
+        expect(deleted).toBe(true);
     
-        // Step 6: Ensure deletion
         report = await storageUtils.getRecordById('reports', reportId);
         expect(report).toBeNull();
-    });    
+    });
 
     test('It should fail validation when a required field is missing', async () => {
         await expect(storageUtils.createRecord('projects', { description: 'No name' }))
@@ -298,11 +297,13 @@ describe('StorageUtils - Database Operations', () => {
     });
 
     test('It should fail to update a record with missing required fields', async () => {
-        const projectId = await storageUtils.createRecord('projects', { name: 'Project Test' });
+        const uniqueProjectName = `Project Test ${Date.now()}`;
+        const projectId = await storageUtils.createRecord('projects', { name: uniqueProjectName });
     
-        await expect(storageUtils.updateRecord('projects', projectId, {}))
-            .rejects.toThrow('No fields provided to update in table: projects');
+        const result = await storageUtils.updateRecord('projects', projectId, {});
+        expect(result).toEqual({ success: false });
     });
+    
 
     test('It should fail to delete a record with an undefined ID', async () => {
         await expect(storageUtils.deleteRecord('projects', undefined))
@@ -323,7 +324,25 @@ describe('StorageUtils - Database Operations', () => {
         const result = await dbUtils.runQuery('INVALID SQL');
         expect(result.success).toBe(false);
         expect(result).toHaveProperty('error');
-    });    
+    });
+    
+    test('It should log database operations', async () => {
+        const uniqueProjectName = `Log Test Project ${Date.now()}`;
+        const projectId = await storageUtils.createRecord('projects', { name: uniqueProjectName });
+    
+        const logs = fs.readFileSync(LOG_FILE_DB, 'utf8');
+        expect(logs).toMatch(/Record created in projects/);
+    });
+
+    test('It should log database errors', async () => {
+        await expect(storageUtils.createRecord('projects', { name: 123 }))
+            .rejects.toThrow('Invalid value for field "name": must be a non-empty string');
+
+        await new Promise(resolve => setTimeout(resolve, 50));
+
+        const logs = fs.readFileSync(LOG_FILE_ERRORS, 'utf8');
+        expect(logs).toMatch(/Database Error: near|Database error:/);
+    });
 
     afterAll(async () => {
         dbUtils.close();

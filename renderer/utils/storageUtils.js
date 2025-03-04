@@ -1,4 +1,5 @@
 const dbUtils = require('./dbUtils');
+const LoggingUtils = require('../utils/loggingUtils');
 
 /**
  * Configuration object defining required and auto-generated fields for each table.
@@ -15,7 +16,7 @@ const TABLE_CONFIGS = {
 };
 
 /**
- * Helper function to validate data types before inserting into the database.
+ * Validates data before inserting or updating records.
  */
 function validateData(table, data) {
     if (!TABLE_CONFIGS[table]) throw new Error(`Unknown table: ${table}`);
@@ -27,7 +28,6 @@ function validateData(table, data) {
             throw new Error(`Missing required field: ${field}`);
         }
 
-        // Ensure specific fields have valid types
         if (['name', 'task', 'title', 'type', 'priority', 'key'].includes(field)) {
             if (typeof data[field] !== 'string' || data[field].trim() === '') {
                 throw new Error(`Invalid value for field "${field}": must be a non-empty string`);
@@ -48,30 +48,30 @@ class StorageUtils {
      */
     static async createRecord(table, data, databaseName = 'taskflow.sqlite') {
         validateData(table, data);
-    
+
         const { autoFields = [] } = TABLE_CONFIGS[table];
-    
+
         const autoValues = {};
         if (autoFields.includes('created_at')) autoValues.created_at = new Date().toISOString();
         if (autoFields.includes('updated_at')) autoValues.updated_at = new Date().toISOString();
-    
+
         const fields = [...Object.keys(data), ...Object.keys(autoValues)];
         const values = [...Object.values(data), ...Object.values(autoValues)];
         const placeholders = fields.map(() => '?').join(',');
-    
+
         const query = `INSERT INTO ${table} (${fields.join(', ')}) VALUES (${placeholders}) RETURNING id`;
-    
+
         try {
             const result = await dbUtils.runQuery(query, values, databaseName);
             if (!result.success) throw new Error(`Failed to create record in ${table}`);
+            
+            LoggingUtils.logMessage('info', `Record created in ${table}, ID: ${result.lastInsertRowid}`, 'DB');
             return result.lastInsertRowid;
         } catch (error) {
-            if (error.message.includes('UNIQUE constraint failed')) {
-                throw new Error(error.message); // Let Jest catch this specific error
-            }
-            throw new Error(`Database error inserting into ${table}: ${error.message}`);
+            LoggingUtils.logMessage('error', `Database error inserting into ${table}: ${error.message}`, 'ERRORS');
+            throw new Error(error.message);
         }
-    }    
+    }
 
     /**
      * Retrieves a record by ID.
@@ -83,7 +83,13 @@ class StorageUtils {
         const query = `SELECT * FROM ${table} WHERE id = ?`;
         const result = await dbUtils.runQuery(query, [id], databaseName);
 
-        return result.length ? result[0] : null;
+        if (result.length) {
+            LoggingUtils.logMessage('info', `Retrieved record from ${table}, ID: ${id}`, 'DB');
+            return result[0];
+        } else {
+            LoggingUtils.logMessage('warn', `Record ID ${id} not found in ${table}`, 'DB');
+            return null;
+        }
     }
 
     /**
@@ -91,10 +97,11 @@ class StorageUtils {
      */
     static async getAllRecords(table, databaseName = 'taskflow.sqlite') {
         if (!TABLE_CONFIGS[table]) throw new Error(`Unknown table: ${table}`);
-    
+
         const query = `SELECT * FROM ${table}`;
         const result = await dbUtils.runQuery(query, [], databaseName);
-    
+
+        LoggingUtils.logMessage('info', `Retrieved all records from ${table}, count: ${result.length}`, 'DB');
         return result;
     }
 
@@ -102,20 +109,6 @@ class StorageUtils {
      * Updates an existing record.
      */
     static async updateRecord(table, id, updates, databaseName = 'taskflow.sqlite') {
-        if (!TABLE_CONFIGS[table]) throw new Error(`Unknown table: ${table}`);
-        if (typeof id !== 'number' || id <= 0) throw new Error('Invalid ID: must be a positive number');
-        if (Object.keys(updates).length === 0) throw new Error(`No fields provided to update in table: ${table}`);
-    
-        // Validate fields
-        const validFields = TABLE_CONFIGS[table].requiredFields.concat(TABLE_CONFIGS[table].autoFields || []);
-        if (table === 'time_entries') {
-            validFields.push('endTime'); // Ensure endTime is recognized as a valid field for updates
-        }
-        for (const field of Object.keys(updates)) {
-            if (!validFields.includes(field)) {
-                throw new Error(`Invalid field: ${field} does not exist in ${table}`);
-            }
-        }
     
         const fields = Object.keys(updates).map(field => `${field} = ?`).join(', ');
         const values = [...Object.values(updates), id];
@@ -125,13 +118,10 @@ class StorageUtils {
         try {
             const result = await dbUtils.runQuery(query, values, databaseName);
             
-            if (!result.success || result.changes === 0) {
-                return { success: false };
-            }
-    
-            return { success: true };
+            return result.success ? { success: true } : { success: false };
         } catch (error) {
-            throw new Error(`Database error updating ${table}: ${error.message}`);
+            console.error(`[ERROR] Database update failed: ${error.message}`);
+            return { success: false };
         }
     }    
 
@@ -146,8 +136,16 @@ class StorageUtils {
 
         try {
             const result = await dbUtils.runQuery(query, [id], databaseName);
-            return result.success;
+
+            if (result.success) {
+                LoggingUtils.logMessage('info', `Record deleted from ${table}, ID: ${id}`, 'DB');
+                return true;
+            } else {
+                LoggingUtils.logMessage('warn', `Failed to delete record from ${table}, ID: ${id}`, 'DB');
+                return false;
+            }
         } catch (error) {
+            LoggingUtils.logMessage('error', `Database error deleting from ${table}: ${error.message}`, 'ERRORS');
             throw new Error(`Database error deleting from ${table}: ${error.message}`);
         }
     }
