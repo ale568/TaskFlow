@@ -1,36 +1,24 @@
-const fs = require('fs');
-const path = require('path');
 const Timer = require('../models/timer');
+const loggingUtils = require('../utils/loggingUtils');
+const timerUtils = require('../utils/timerUtils'); 
+const dateTimeFormatUtils = require('../utils/dateTimeFormatUtils');
 
-const LOG_FILE = path.resolve(__dirname, '../../logs/controllers.log');
-
-/**
- * Logs messages to a file instead of the terminal.
- * @param {string} message - The log message.
- */
-function logToFile(message) {
-    const timestamp = new Date().toISOString();
-    fs.appendFileSync(LOG_FILE, `[${timestamp}] ${message}\n`);
-}
-
-/**
- * Controller for managing timers.
- * Handles CRUD operations for timers linked to projects.
- */
 class TimerController {
     /**
      * Creates a new timer.
      * @param {number} projectId - The project ID associated with the timer.
      * @param {string} task - The task name linked to the timer.
-     * @param {string} startTime - The start time in ISO format.
      * @param {string} status - The initial status of the timer (`running`, `paused`, `stopped`).
      * @returns {Promise<number>} The ID of the newly created timer.
      */
-    static async createTimer(projectId, task, startTime, status) {
+    static async createTimer(projectId, task, status) {
         try {
-            return await Timer.createTimer(projectId, task, startTime, status);
+            const startTime = timerUtils.startTimer();
+            const timerId = await Timer.createTimer(projectId, task, startTime, status);
+            loggingUtils.logMessage('info', `Timer created: Task ${task}, Project ID ${projectId}`, 'CONTROLLERS');
+            return timerId;
         } catch (error) {
-            logToFile(`❌ Error creating timer: ${error.message}`);
+            loggingUtils.logMessage('error', `Error creating timer: ${error.message}`, 'CONTROLLERS');
             throw new Error('Failed to create timer');
         }
     }
@@ -42,9 +30,13 @@ class TimerController {
      */
     static async getTimerById(timerId) {
         try {
-            return await Timer.getTimerById(timerId);
+            const timer = await Timer.getTimerById(timerId);
+            if (!timer) {
+                loggingUtils.logMessage('warn', `Timer not found: ID ${timerId}`, 'CONTROLLERS');
+            }
+            return timer;
         } catch (error) {
-            logToFile(`❌ Error retrieving timer: ${error.message}`);
+            loggingUtils.logMessage('error', `Error retrieving timer: ${error.message}`, 'CONTROLLERS');
             throw new Error('Failed to retrieve timer');
         }
     }
@@ -57,12 +49,31 @@ class TimerController {
      */
     static async updateTimer(timerId, updates) {
         try {
-            return await Timer.updateTimer(timerId, updates);
+            if (updates.endTime && !dateTimeFormatUtils.isValidDate(updates.endTime)) {
+                throw new Error('Invalid end time format');
+            }
+    
+            // ⬇️ Controlliamo se il timer esiste prima di aggiornarlo
+            const existingTimer = await Timer.getTimerById(timerId);
+            if (!existingTimer) {
+                loggingUtils.logMessage('error', `Error updating timer: Timer ID ${timerId} not found`, 'CONTROLLERS');
+                return { success: false };
+            }
+    
+            const success = await Timer.updateTimer(timerId, updates);
+    
+            if (!success) {
+                loggingUtils.logMessage('error', `Error updating timer: Timer ID ${timerId} update failed`, 'CONTROLLERS');
+                return { success: false };
+            }
+    
+            loggingUtils.logMessage('info', `Timer updated: ID ${timerId}`, 'CONTROLLERS');
+            return { success: true };
         } catch (error) {
-            logToFile(`❌ Error updating timer: ${error.message}`);
+            loggingUtils.logMessage('error', `Error updating timer: ${error.message}`, 'CONTROLLERS');
             throw new Error('Failed to update timer');
         }
-    }
+    }    
 
     /**
      * Deletes a timer.
@@ -71,9 +82,17 @@ class TimerController {
      */
     static async deleteTimer(timerId) {
         try {
-            return await Timer.deleteTimer(timerId);
+            const success = await Timer.deleteTimer(timerId);
+
+            if (!success) {
+                loggingUtils.logMessage('error', `Error deleting timer: Timer ID ${timerId} not found`, 'CONTROLLERS');
+                return false;
+            }
+
+            loggingUtils.logMessage('info', `Timer deleted: ID ${timerId}`, 'CONTROLLERS');
+            return true;
         } catch (error) {
-            logToFile(`❌ Error deleting timer: ${error.message}`);
+            loggingUtils.logMessage('error', `Error deleting timer: ${error.message}`, 'CONTROLLERS');
             throw new Error('Failed to delete timer');
         }
     }
@@ -84,10 +103,35 @@ class TimerController {
      */
     static async getAllTimers() {
         try {
-            return await Timer.getAllTimers();
+            const timers = await Timer.getAllTimers();
+            loggingUtils.logMessage('info', `Retrieved ${timers.length} timers`, 'CONTROLLERS');
+            return timers;
         } catch (error) {
-            logToFile(`❌ Error retrieving timers: ${error.message}`);
+            loggingUtils.logMessage('error', `Error retrieving timers: ${error.message}`, 'CONTROLLERS');
             throw new Error('Failed to retrieve timers');
+        }
+    }
+
+    /**
+     * Stops a timer and calculates total elapsed time.
+     * @param {number} timerId - The ID of the timer.
+     * @returns {Promise<string>} Total elapsed time in HH:mm:ss format.
+     */
+    static async stopTimer(timerId) {
+        try {
+            const timer = await Timer.getTimerById(timerId);
+            if (!timer) {
+                throw new Error(`Timer not found: ID ${timerId}`);
+            }
+
+            const elapsedTime = timerUtils.stopTimer(timer.startTime);
+            await Timer.updateTimer(timerId, { status: 'stopped', elapsedTime });
+
+            loggingUtils.logMessage('info', `Timer stopped: ID ${timerId}, Elapsed: ${elapsedTime}`, 'CONTROLLERS');
+            return elapsedTime;
+        } catch (error) {
+            loggingUtils.logMessage('error', `Error stopping timer: ${error.message}`, 'CONTROLLERS');
+            throw new Error('Failed to stop timer');
         }
     }
 }

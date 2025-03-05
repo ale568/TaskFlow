@@ -17,7 +17,7 @@ class Alert {
      * @param {number} project_id - The project ID associated with the alert.
      * @param {string} type - The type of alert.
      * @param {string} priority - The priority level of the alert.
-     * @param {string} date - The date of the alert.
+     * @param {string} date - The date of the alert (ISO format).
      * @returns {Promise<number>} The ID of the newly created alert.
      */
     static async createAlert(title, project_id, type, priority, date) {
@@ -41,7 +41,7 @@ class Alert {
     }
 
     /**
-     * Updates an alert's status (e.g., resolve it).
+     * Updates an alert's status.
      * @param {number} id - The alert ID.
      * @param {Object} updates - The updated fields.
      * @returns {Promise<boolean>} True if the update was successful, false otherwise.

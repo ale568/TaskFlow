@@ -1,6 +1,18 @@
 const SettingsController = require('../../renderer/controllers/settingsController');
 const Settings = require('../../renderer/models/settings');
 const dbUtils = require('../../renderer/utils/dbUtils');
+const fs = require('fs');
+const path = require('path');
+
+const LOG_FILE_PATH = path.resolve(__dirname, '../../logs/controllers.log');
+
+/**
+ * Reads the log file content.
+ * @returns {string} The log file content.
+ */
+function readLogs() {
+    return fs.existsSync(LOG_FILE_PATH) ? fs.readFileSync(LOG_FILE_PATH, 'utf8') : '';
+}
 
 describe('SettingsController - Database Operations', () => {
     beforeAll(async () => {
@@ -8,7 +20,13 @@ describe('SettingsController - Database Operations', () => {
         dbUtils.connect('taskflow_test_settings.sqlite'); // Connect to the test database
     });
 
-    test('It should create and retrieve a setting', async () => {
+    beforeEach(() => {
+        if (fs.existsSync(LOG_FILE_PATH)) {
+            fs.writeFileSync(LOG_FILE_PATH, ''); // Clear logs before each test
+        }
+    });
+
+    test('It should create and retrieve a setting with logging', async () => {
         const uniqueKey = `TestSetting_${Date.now()}`;
         const value = 'TestValue';
 
@@ -22,10 +40,13 @@ describe('SettingsController - Database Operations', () => {
         expect(setting.key).toBe(uniqueKey);
         expect(setting.value).toBe(value);
 
+        const logs = readLogs();
+        expect(logs).toMatch(new RegExp(`Setting updated: ${uniqueKey} = ${value}`));
+
         spy.mockRestore();
     });
 
-    test('It should update an existing setting', async () => {
+    test('It should update an existing setting with logging', async () => {
         const uniqueKey = `UpdatableSetting_${Date.now()}`;
         await SettingsController.setSetting(uniqueKey, 'InitialValue');
 
@@ -38,10 +59,13 @@ describe('SettingsController - Database Operations', () => {
         const updatedSetting = await SettingsController.getSettingByKey(uniqueKey);
         expect(updatedSetting.value).toBe(updatedValue);
 
+        const logs = readLogs();
+        expect(logs).toMatch(new RegExp(`Setting updated: ${uniqueKey} = ${updatedValue}`));
+
         spy.mockRestore();
     });
 
-    test('It should delete a setting', async () => {
+    test('It should delete a setting with logging', async () => {
         const uniqueKey = `DeleteSetting_${Date.now()}`;
         await SettingsController.setSetting(uniqueKey, 'SomeValue');
 
@@ -54,30 +78,39 @@ describe('SettingsController - Database Operations', () => {
         const deletedSetting = await SettingsController.getSettingByKey(uniqueKey);
         expect(deletedSetting).toBeNull();
 
+        const logs = readLogs();
+        expect(logs).toMatch(new RegExp(`Setting deleted: ${uniqueKey}`));
+
         spy.mockRestore();
     });
 
-    test('It should return null for a non-existing setting', async () => {
+    test('It should return null for a non-existing setting with logging', async () => {
         const spy = jest.spyOn(Settings, 'getSettingByKey');
         const setting = await SettingsController.getSettingByKey('NonExistingSetting');
 
         expect(spy).toHaveBeenCalledWith('NonExistingSetting');
         expect(setting).toBeNull();
 
+        const logs = readLogs();
+        expect(logs).toMatch(/Setting not found: NonExistingSetting/);
+
         spy.mockRestore();
     });
 
-    test('It should return false when deleting a non-existing setting', async () => {
+    test('It should return false when deleting a non-existing setting with logging', async () => {
         const spy = jest.spyOn(Settings, 'deleteSetting');
         const result = await SettingsController.deleteSetting('NonExistingSetting');
 
         expect(spy).toHaveBeenCalledWith('NonExistingSetting');
         expect(result).toBeFalsy();
 
+        const logs = readLogs();
+        expect(logs).toMatch(/Failed to delete setting: NonExistingSetting/);
+
         spy.mockRestore();
     });
 
-    test('It should retrieve all settings', async () => {
+    test('It should retrieve all settings with logging', async () => {
         const keyA = `SettingA_${Date.now()}`;
         const keyB = `SettingB_${Date.now()}`;
 
@@ -90,10 +123,13 @@ describe('SettingsController - Database Operations', () => {
         expect(spy).toHaveBeenCalled();
         expect(settings.length).toBeGreaterThanOrEqual(2);
 
+        const logs = readLogs();
+        expect(logs).toMatch(/Retrieved \d+ settings/);
+
         spy.mockRestore();
     });
 
-    test('It should handle errors when creating a setting with an invalid key', async () => {
+    test('It should handle errors when creating a setting with an invalid key and log the error', async () => {
         const spy = jest.spyOn(Settings, 'setSetting').mockImplementation(() => {
             throw new Error('Invalid key format');
         });
@@ -101,12 +137,15 @@ describe('SettingsController - Database Operations', () => {
         await expect(SettingsController.setSetting('', 'Value'))
             .rejects.toThrow('Failed to save setting');
 
+        const logs = readLogs();
+        expect(logs).toMatch(/Error setting configuration: Invalid key format/);
+
         spy.mockRestore();
     });
 
     test.skip('It should handle database connection failure gracefully', async () => {
         dbUtils.close(); // Simulate database connection failure
-    
+
         let errorCaught = false;
         try {
             await SettingsController.setSetting('DatabaseFailSetting', 'FailValue');
@@ -116,8 +155,11 @@ describe('SettingsController - Database Operations', () => {
 
         expect(errorCaught).toBeTruthy(); // Ensure an error was caught
 
+        const logs = readLogs();
+        expect(logs).toMatch(/Error setting configuration/);
+
         dbUtils.connect('taskflow_test_settings.sqlite'); // Restore database connection for further tests
-    });    
+    });
 
     afterAll(async () => {
         dbUtils.close();

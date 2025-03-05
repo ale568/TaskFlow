@@ -1,5 +1,4 @@
 const storageUtils = require('../utils/storageUtils');
-const dbUtils = require('../utils/dbUtils');
 
 class Project {
     static dbName = 'taskflow_test_project.sqlite'; // Default to the test database

@@ -2,6 +2,10 @@ const ProjectsController = require('../../renderer/controllers/projectsControlle
 const Project = require('../../renderer/models/project');
 const dbUtils = require('../../renderer/utils/dbUtils');
 
+const fs = require('fs');
+const path = require('path');
+const LOG_FILE_PATH = path.resolve(__dirname, '../../logs/controllers.log');
+
 describe('ProjectsController - Database Operations', () => {
     beforeAll(async () => {
         Project.setDatabase('taskflow_test_project.sqlite'); // Set the dedicated test database
@@ -127,6 +131,37 @@ describe('ProjectsController - Database Operations', () => {
         expect(result).not.toBeTruthy();
     
         dbUtils.connect('taskflow_test_project.sqlite'); // Restore database connection for further tests
+    });
+    
+    test('It should log project creation', async () => {        // Utility tests
+        const uniqueName = `Logged Project ${Date.now()}`;
+        await ProjectsController.createProject(uniqueName, 'Log test description');
+    
+        const logs = fs.readFileSync(LOG_FILE_PATH, 'utf8');
+        expect(logs).toMatch(/Project created: ID/);
+    });
+    
+    test('It should log project deletion', async () => {
+        const uniqueName = `To Log Delete ${Date.now()}`;
+        const projectId = await ProjectsController.createProject(uniqueName, 'Log delete test');
+    
+        await ProjectsController.deleteProject(projectId);
+    
+        const logs = fs.readFileSync(LOG_FILE_PATH, 'utf8');
+        expect(logs).toMatch(/Project deleted: ID/);
+    });
+
+    test('It should filter projects by name', async () => {
+        const uniqueNameA = `Filtered Project A ${Date.now()}`;
+        const uniqueNameB = `Filtered Project B ${Date.now()}`;
+    
+        await ProjectsController.createProject(uniqueNameA, 'Filter test A');
+        await ProjectsController.createProject(uniqueNameB, 'Filter test B');
+    
+        const filteredProjects = await ProjectsController.getAllProjects({ name: uniqueNameA });
+    
+        expect(filteredProjects.length).toBe(1);
+        expect(filteredProjects[0].name).toBe(uniqueNameA);
     });    
 
     afterAll(async () => {

@@ -1,17 +1,5 @@
-const fs = require('fs');
-const path = require('path');
 const Settings = require('../models/settings');
-
-const LOG_FILE = path.resolve(__dirname, '../../logs/controllers.log');
-
-/**
- * Logs messages to a file instead of the terminal.
- * @param {string} message - The log message.
- */
-function logToFile(message) {
-    const timestamp = new Date().toISOString();
-    fs.appendFileSync(LOG_FILE, `[${timestamp}] ${message}\n`);
-}
+const loggingUtils = require('../utils/loggingUtils');
 
 /**
  * Controller for managing application settings.
@@ -27,9 +15,11 @@ class SettingsController {
      */
     static async setSetting(key, value) {
         try {
-            return await Settings.setSetting(key, value);
+            await Settings.setSetting(key, value);
+            loggingUtils.logMessage('info', `Setting updated: ${key} = ${value}`, 'CONTROLLERS');
+            return true;
         } catch (error) {
-            logToFile(`❌ Error setting configuration: ${error.message}`);
+            loggingUtils.logMessage('error', `Error setting configuration: ${error.message}`, 'CONTROLLERS');
             throw new Error('Failed to save setting');
         }
     }
@@ -41,9 +31,15 @@ class SettingsController {
      */
     static async getSettingByKey(key) {
         try {
-            return await Settings.getSettingByKey(key);
+            const setting = await Settings.getSettingByKey(key);
+            if (setting) {
+                loggingUtils.logMessage('info', `Setting retrieved: ${key} = ${setting.value}`, 'CONTROLLERS');
+            } else {
+                loggingUtils.logMessage('warn', `Setting not found: ${key}`, 'CONTROLLERS');
+            }
+            return setting;
         } catch (error) {
-            logToFile(`❌ Error retrieving setting: ${error.message}`);
+            loggingUtils.logMessage('error', `Error retrieving setting: ${error.message}`, 'CONTROLLERS');
             throw new Error('Failed to retrieve setting');
         }
     }
@@ -55,9 +51,15 @@ class SettingsController {
      */
     static async deleteSetting(key) {
         try {
-            return await Settings.deleteSetting(key);
+            const success = await Settings.deleteSetting(key);
+            if (success) {
+                loggingUtils.logMessage('info', `Setting deleted: ${key}`, 'CONTROLLERS');
+            } else {
+                loggingUtils.logMessage('warn', `Failed to delete setting: ${key}`, 'CONTROLLERS');
+            }
+            return success;
         } catch (error) {
-            logToFile(`❌ Error deleting setting: ${error.message}`);
+            loggingUtils.logMessage('error', `Error deleting setting: ${error.message}`, 'CONTROLLERS');
             throw new Error('Failed to delete setting');
         }
     }
@@ -68,9 +70,11 @@ class SettingsController {
      */
     static async getAllSettings() {
         try {
-            return await Settings.getAllSettings();
+            const settings = await Settings.getAllSettings();
+            loggingUtils.logMessage('info', `Retrieved ${settings.length} settings.`, 'CONTROLLERS');
+            return settings;
         } catch (error) {
-            logToFile(`❌ Error retrieving settings: ${error.message}`);
+            loggingUtils.logMessage('error', `Error retrieving settings: ${error.message}`, 'CONTROLLERS');
             throw new Error('Failed to retrieve settings');
         }
     }

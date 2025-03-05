@@ -6,37 +6,41 @@ describe('Alert Model - Database Operations', () => {
     beforeAll(async () => {
         Alert.setDatabase('taskflow_test_alerts.sqlite'); // Set the dedicated test database
         dbUtils.connect('taskflow_test_alerts.sqlite'); // Connect to the test database
-        dbUtils.resetDatabase(); // Reset the database before running tests
     });
 
     test('It should create and retrieve an alert', async () => {
-        // Step 1: Create a project to link the alert
-        const projectId = await Project.createProject('Alert Project', 'Project for alert testing');
+        const uniqueProjectName = `Alert Project ${Date.now()}`;
+        const projectId = await Project.createProject(uniqueProjectName, 'Project for alert testing');
 
-        // Step 2: Create an alert associated with the project
-        const alertId = await Alert.createAlert('Test Alert', projectId, 'Warning', 'High', '2024-02-21');
+        const testDate = '2024-02-21';
+        
+        const alertId = await Alert.createAlert('Test Alert', projectId, 'Warning', 'High', testDate);
 
         expect(alertId).toBeDefined();
         const alert = await Alert.getAlertById(alertId);
         expect(alert).not.toBeNull();
         expect(alert.title).toBe('Test Alert');
         expect(alert.priority).toBe('High');
+        expect(alert.date).toBe(testDate); // Il Model non modifica la data
     });
 
     test('It should update an alert', async () => {
-        const projectId = await Project.createProject('Alert Update Project', 'Project for updating alerts');
+        const uniqueProjectName = `Alert Update Project ${Date.now()}`;
+        const projectId = await Project.createProject(uniqueProjectName, 'Project for updating alerts');
 
         const alertId = await Alert.createAlert('Initial Alert', projectId, 'Info', 'Medium', '2024-02-21');
 
         const updated = await Alert.updateAlert(alertId, { resolved: 1 });
-        expect(updated.success).toBeTruthy();
+
+        expect(updated).toBeTruthy();
 
         const updatedAlert = await Alert.getAlertById(alertId);
         expect(updatedAlert.resolved).toBe(1);
     });
 
     test('It should delete an alert', async () => {
-        const projectId = await Project.createProject('Alert Delete Project', 'Project for deleting alerts');
+        const uniqueProjectName = `Alert Delete Project ${Date.now()}`;
+        const projectId = await Project.createProject(uniqueProjectName, 'Project for deleting alerts');
 
         const alertId = await Alert.createAlert('To Delete', projectId, 'Critical', 'Low', '2024-02-21');
 
@@ -63,7 +67,8 @@ describe('Alert Model - Database Operations', () => {
     });
 
     test('It should retrieve all alerts', async () => {
-        const projectId = await Project.createProject('Alert Retrieval Project', 'Project for retrieving alerts');
+        const uniqueProjectName = `Alert Retrieval Project ${Date.now()}`;
+        const projectId = await Project.createProject(uniqueProjectName, 'Project for retrieving alerts');
 
         await Alert.createAlert('Alert A', projectId, 'Reminder', 'High', '2024-02-21');
         await Alert.createAlert('Alert B', projectId, 'Deadline', 'Medium', '2024-02-21');

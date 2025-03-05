@@ -1,11 +1,13 @@
 const TimerController = require('./timerController');
 const ProjectsController = require('./projectsController');
 const TimeEntry = require('../models/timeEntry');
+const loggingUtils = require('../utils/loggingUtils');
 
 /**
  * Handles the initialization of the home screen by loading active timers and recent projects.
  */
 document.addEventListener('DOMContentLoaded', async () => {
+    loggingUtils.logMessage('info', 'Initializing Home Screen', 'CONTROLLERS');
     await loadActiveTimers();
     await loadRecentProjects();
     setupEventListeners();
@@ -23,6 +25,7 @@ async function loadActiveTimers() {
 
         if (timers.length === 0) {
             activeTimersContainer.innerHTML = '<p>No active timers.</p>';
+            loggingUtils.logMessage('info', 'No active timers found', 'CONTROLLERS');
             return;
         }
 
@@ -31,14 +34,15 @@ async function loadActiveTimers() {
             timerElement.classList.add('timer-item');
             timerElement.innerHTML = `
                 <span>${timer.task} - ${timer.status.toUpperCase()}</span>
-                <button class="stop-timer" data-id="${timer.id}">Stop</button>
+                <button class="timer-action" data-id="${timer.id}" data-action="stop">Stop</button>
             `;
             activeTimersContainer.appendChild(timerElement);
         });
 
-        setupStopTimerListeners();
+        setupTimerListeners();
+        loggingUtils.logMessage('info', `Loaded ${timers.length} active timers`, 'CONTROLLERS');
     } catch (error) {
-        console.error('Error loading active timers:', error);
+        loggingUtils.logMessage('error', `Error loading active timers: ${error.message}`, 'CONTROLLERS');
     }
 }
 
@@ -54,6 +58,7 @@ async function loadRecentProjects() {
 
         if (projects.length === 0) {
             recentProjectsContainer.innerHTML = '<p>No recent projects.</p>';
+            loggingUtils.logMessage('info', 'No recent projects found', 'CONTROLLERS');
             return;
         }
 
@@ -62,14 +67,15 @@ async function loadRecentProjects() {
             projectElement.classList.add('project-item');
             projectElement.innerHTML = `
                 <span>${project.name}</span>
-                <button class="start-timer" data-id="${project.id}">Start Timer</button>
+                <button class="timer-action" data-id="${project.id}" data-action="start">Start Timer</button>
             `;
             recentProjectsContainer.appendChild(projectElement);
         });
 
-        setupStartTimerListeners();
+        setupTimerListeners();
+        loggingUtils.logMessage('info', `Loaded ${projects.length} recent projects`, 'CONTROLLERS');
     } catch (error) {
-        console.error('Error loading recent projects:', error);
+        loggingUtils.logMessage('error', `Error loading recent projects: ${error.message}`, 'CONTROLLERS');
     }
 }
 
@@ -84,7 +90,6 @@ function setupEventListeners() {
  * Handles manual time entry addition.
  */
 async function handleManualEntry() {
-
     const task = document.getElementById('manual-task').value;
     const projectId = document.getElementById('manual-project').value;
     const startTime = document.getElementById('manual-start-time').value;
@@ -98,51 +103,42 @@ async function handleManualEntry() {
     try {
         await TimeEntry.createTimeEntry(projectId, task, startTime, endTime);
         alert('Time entry added successfully.');
+        loggingUtils.logMessage('info', `Manual entry added: Task ${task}, Project ID ${projectId}`, 'CONTROLLERS');
         loadActiveTimers(); // Refresh timers
     } catch (error) {
-        console.error('Error adding manual time entry:', error);
+        loggingUtils.logMessage('error', `Error adding manual time entry: ${error.message}`, 'CONTROLLERS');
         alert('Failed to add time entry.');
     }
 }
 
 /**
- * Sets up event listeners for starting a timer.
+ * Sets up event listeners for both starting and stopping timers.
  */
-function setupStartTimerListeners() {
-    document.querySelectorAll('.start-timer').forEach(button => {
+function setupTimerListeners() {
+    document.querySelectorAll('.timer-action').forEach(button => {
         button.addEventListener('click', async (event) => {
-            const projectId = event.target.dataset.id;
+            const id = event.target.dataset.id;
+            const action = event.target.dataset.action;
+
             try {
-                await TimerController.createTimer(projectId, 'New Task', new Date().toISOString(), 'running');
+                if (action === 'start') {
+                    await TimerController.createTimer(id, 'New Task', new Date().toISOString(), 'running');
+                    loggingUtils.logMessage('info', `Timer started for Project ID ${id}`, 'CONTROLLERS');
+                } else if (action === 'stop') {
+                    await TimerController.updateTimer(id, { status: 'stopped' });
+                    loggingUtils.logMessage('info', `Timer stopped for Timer ID ${id}`, 'CONTROLLERS');
+                }
                 loadActiveTimers();
             } catch (error) {
-                console.error('Error starting timer:', error);
+                loggingUtils.logMessage('error', `Error processing timer action: ${error.message}`, 'CONTROLLERS');
             }
         });
     });
 }
 
-/**
- * Sets up event listeners for stopping a timer.
- */
-function setupStopTimerListeners() {
-    document.querySelectorAll('.stop-timer').forEach(button => {
-        button.addEventListener('click', async (event) => {
-            const timerId = event.target.dataset.id;
-            try {
-                await TimerController.updateTimer(timerId, { status: 'stopped' });
-                loadActiveTimers();
-            } catch (error) {
-                console.error('Error stopping timer:', error);
-            }
-        });
-    });
-}
-
-module.exports = {      // Since we don't have a class, we need to export individual methods
+module.exports = {
     loadActiveTimers,
     loadRecentProjects,
     setupEventListeners,
-    setupStartTimerListeners,
-    setupStopTimerListeners
+    setupTimerListeners
 };

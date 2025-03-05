@@ -1,22 +1,7 @@
-const fs = require('fs');
-const path = require('path');
 const Activity = require('../models/activity');
+const loggingUtils = require('../utils/loggingUtils'); 
+const filterUtils = require('../utils/filterUtils');
 
-const LOG_FILE = path.resolve(__dirname, '../../logs/controllers.log');
-
-/**
- * Logs messages to a file instead of the terminal.
- * @param {string} message - The log message.
- */
-function logToFile(message) {
-    const timestamp = new Date().toISOString();
-    fs.appendFileSync(LOG_FILE, `[${timestamp}] ${message}\n`);
-}
-
-/**
- * Controller for managing activities.
- * Handles CRUD operations for activities linked to projects.
- */
 class ActivityController {
     /**
      * Creates a new activity.
@@ -27,9 +12,11 @@ class ActivityController {
      */
     static async createActivity(name, projectId, duration) {
         try {
-            return await Activity.createActivity(name, projectId, duration);
+            const activityId = await Activity.createActivity(name, projectId, duration);
+            loggingUtils.logMessage('info', `Activity created: ${name} (ID: ${activityId})`, 'CONTROLLERS');
+            return activityId;
         } catch (error) {
-            logToFile(`❌ Error creating activity: ${error.message}`);
+            loggingUtils.logMessage('error', `Error creating activity: ${error.message}`, 'CONTROLLERS');
             throw new Error('Failed to create activity');
         }
     }
@@ -41,9 +28,13 @@ class ActivityController {
      */
     static async getActivityById(activityId) {
         try {
-            return await Activity.getActivityById(activityId);
+            const activity = await Activity.getActivityById(activityId);
+            if (!activity) {
+                loggingUtils.logMessage('warn', `Activity not found: ID ${activityId}`, 'CONTROLLERS');
+            }
+            return activity;
         } catch (error) {
-            logToFile(`❌ Error retrieving activity: ${error.message}`);
+            loggingUtils.logMessage('error', `Error retrieving activity: ${error.message}`, 'CONTROLLERS');
             throw new Error('Failed to retrieve activity');
         }
     }
@@ -56,9 +47,11 @@ class ActivityController {
      */
     static async updateActivity(activityId, updates) {
         try {
-            return await Activity.updateActivity(activityId, updates);
+            const success = await Activity.updateActivity(activityId, updates);
+            loggingUtils.logMessage('info', `Activity updated: ID ${activityId}`, 'CONTROLLERS');
+            return success;
         } catch (error) {
-            logToFile(`❌ Error updating activity: ${error.message}`);
+            loggingUtils.logMessage('error', `Error updating activity: ${error.message}`, 'CONTROLLERS');
             throw new Error('Failed to update activity');
         }
     }
@@ -70,22 +63,32 @@ class ActivityController {
      */
     static async deleteActivity(activityId) {
         try {
-            return await Activity.deleteActivity(activityId);
+            const success = await Activity.deleteActivity(activityId);
+            loggingUtils.logMessage('info', `Activity deleted: ID ${activityId}`, 'CONTROLLERS');
+            return success;
         } catch (error) {
-            logToFile(`❌ Error deleting activity: ${error.message}`);
+            loggingUtils.logMessage('error', `Error deleting activity: ${error.message}`, 'CONTROLLERS');
             throw new Error('Failed to delete activity');
         }
     }
 
     /**
-     * Retrieves all activities.
+     * Retrieves all activities, optionally applying filters.
+     * @param {Object} filters - Optional filtering criteria.
      * @returns {Promise<Array>} An array of all activities.
      */
-    static async getAllActivities() {
+    static async getAllActivities(filters = {}) {
         try {
-            return await Activity.getAllActivities();
+            let activities = await Activity.getAllActivities();
+
+            if (Object.keys(filters).length > 0) {
+                activities = filterUtils.applyFilters(activities, filters);
+                loggingUtils.logMessage('info', `Filters applied to activities`, 'CONTROLLERS');
+            }
+
+            return activities;
         } catch (error) {
-            logToFile(`❌ Error retrieving activities: ${error.message}`);
+            loggingUtils.logMessage('error', `Error retrieving activities: ${error.message}`, 'CONTROLLERS');
             throw new Error('Failed to retrieve activities');
         }
     }

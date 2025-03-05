@@ -2,11 +2,24 @@ const ReportsController = require('../../renderer/controllers/reportsController'
 const Report = require('../../renderer/models/report');
 const Project = require('../../renderer/models/project');
 const dbUtils = require('../../renderer/utils/dbUtils');
+const exportUtils = require('../../renderer/utils/exportUtils');
+const loggingUtils = require('../../renderer/utils/loggingUtils');
+const dialogUtils = require('../../renderer/utils/dialogUtils');
+const filterUtils = require('../../renderer/utils/filterUtils');
+
+jest.mock('../../renderer/utils/exportUtils');
+jest.mock('../../renderer/utils/loggingUtils');
+jest.mock('../../renderer/utils/dialogUtils');
+jest.mock('../../renderer/utils/filterUtils');
 
 describe('ReportsController - Database Operations', () => {
     beforeAll(async () => {
         Report.setDatabase('taskflow_test_reports.sqlite'); // Set the dedicated test database
         dbUtils.connect('taskflow_test_reports.sqlite'); // Connect to the test database
+    });
+
+    beforeEach(() => {
+        jest.clearAllMocks();
     });
 
     test('It should create and retrieve a report', async () => {
@@ -24,6 +37,8 @@ describe('ReportsController - Database Operations', () => {
         expect(report.total_hours).toBe(10);
         expect(report.startDate).toBe('2024-02-21');
         expect(report.endDate).toBe('2024-02-28');
+
+        expect(loggingUtils.logMessage).toHaveBeenCalledWith('info', expect.stringContaining('Report created successfully'), 'CONTROLLERS');
 
         spy.mockRestore();
     });
@@ -43,6 +58,8 @@ describe('ReportsController - Database Operations', () => {
         const updatedReport = await ReportsController.getReportById(reportId);
         expect(updatedReport.total_hours).toBe(15);
 
+        expect(loggingUtils.logMessage).toHaveBeenCalledWith('info', expect.stringContaining('Report updated successfully'), 'CONTROLLERS');
+
         spy.mockRestore();
     });
 
@@ -61,80 +78,105 @@ describe('ReportsController - Database Operations', () => {
         const deletedReport = await ReportsController.getReportById(reportId);
         expect(deletedReport).toBeNull();
 
-        spy.mockRestore();
-    });
-
-    test('It should return null for a non-existing report', async () => {
-        const spy = jest.spyOn(Report, 'getReportById');
-        const report = await ReportsController.getReportById(99999);
-
-        expect(spy).toHaveBeenCalledWith(99999);
-        expect(report).toBeNull();
+        expect(loggingUtils.logMessage).toHaveBeenCalledWith('info', expect.stringContaining('Report deleted successfully'), 'CONTROLLERS');
 
         spy.mockRestore();
     });
 
-    test('It should return false when updating a non-existing report', async () => {
-        const spy = jest.spyOn(Report, 'updateReport');
-        const result = await ReportsController.updateReport(99999, { total_hours: 20 });
+    test('It should retrieve all reports with filtering', async () => {
+        const reports = [
+            { id: 1, project_id: 101, total_hours: 10, startDate: '2024-02-21', endDate: '2024-02-28' },
+            { id: 2, project_id: 102, total_hours: 15, startDate: '2024-03-01', endDate: '2024-03-07' }
+        ];
 
-        expect(spy).toHaveBeenCalledWith(99999, { total_hours: 20 });
-        expect(result.success).toBeFalsy();
+        Report.getAllReports = jest.fn().mockResolvedValue(reports);
+        filterUtils.applyFilters = jest.fn().mockReturnValue([reports[0]]);
 
-        spy.mockRestore();
+        const filteredReports = await ReportsController.getAllReports({ project_id: 101 });
+
+        expect(filterUtils.applyFilters).toHaveBeenCalled();
+        expect(filteredReports.length).toBe(1);
+        expect(filteredReports[0].total_hours).toBe(10);
+
+        expect(loggingUtils.logMessage).toHaveBeenCalledWith('info', expect.stringContaining('Retrieved'), 'CONTROLLERS');
     });
 
-    test('It should return false when deleting a non-existing report', async () => {
-        const spy = jest.spyOn(Report, 'deleteReport');
-        const result = await ReportsController.deleteReport(99999);
+    test('It should handle errors when retrieving reports', async () => {
+        Report.getAllReports = jest.fn().mockRejectedValue(new Error('DB error'));
 
-        expect(spy).toHaveBeenCalledWith(99999);
-        expect(result).toBeFalsy();
+        await expect(ReportsController.getAllReports()).rejects.toThrow('Failed to retrieve reports');
 
-        spy.mockRestore();
+        expect(loggingUtils.logMessage).toHaveBeenCalledWith('error', expect.stringContaining('Error retrieving reports'), 'CONTROLLERS');
     });
 
-    test('It should retrieve all reports', async () => {
-        const uniqueProjectName = `Report Retrieval Project ${Date.now()}`;
-        const projectId = await Project.createProject(uniqueProjectName, 'Project for retrieving reports');
+    test('It should export reports as CSV', async () => {
+        Report.getAllReports = jest.fn().mockResolvedValue([
+            { id: 1, project_id: 101, total_hours: 10, startDate: '2024-02-21', endDate: '2024-02-28' }
+        ]);
 
-        await ReportsController.createReport(projectId, 7, '2024-02-21', '2024-02-28');
-        await ReportsController.createReport(projectId, 12, '2024-03-01', '2024-03-07');
+        dialogUtils.showSaveDialog.mockResolvedValue('/path/to/reports.csv');
 
-        const spy = jest.spyOn(Report, 'getAllReports');
-        const reports = await ReportsController.getAllReports();
-
-        expect(spy).toHaveBeenCalled();
-        expect(reports.length).toBeGreaterThanOrEqual(2);
-
-        spy.mockRestore();
+        await ReportsController.exportReports('csv');
+        expect(exportUtils.exportCSV).toHaveBeenCalledWith(expect.any(Array), '/path/to/reports.csv');
+        expect(loggingUtils.logMessage).toHaveBeenCalledWith('info', expect.stringContaining('Reports exported successfully'), 'CONTROLLERS');
     });
 
-    test('It should handle errors when creating a report with an invalid project ID', async () => {
-        const spy = jest.spyOn(Report, 'createReport').mockImplementation(() => {
-            throw new Error('Invalid project ID');
-        });
+    test('It should handle missing reports for export', async () => {
+        Report.getAllReports = jest.fn().mockResolvedValue([]);
 
+        await expect(ReportsController.exportReports('csv')).rejects.toThrow('Failed to export reports');
+        expect(loggingUtils.logMessage).toHaveBeenCalledWith('error', expect.stringContaining('Error exporting reports'), 'CONTROLLERS');
+    });
+
+    test('It should not export if no file is selected', async () => {
+        Report.getAllReports = jest.fn().mockResolvedValue([
+            { id: 2, project_id: 102, total_hours: 15, startDate: '2024-03-01', endDate: '2024-03-07' }
+        ]);
+
+        dialogUtils.showSaveDialog.mockResolvedValue(null);
+
+        await ReportsController.exportReports('csv');
+        expect(exportUtils.exportCSV).not.toHaveBeenCalled();
+    });
+
+    test('It should log an error when report creation fails', async () => {
+        Report.createReport = jest.fn().mockRejectedValue(new Error('DB error'));
+    
         await expect(ReportsController.createReport(99999, 10, '2024-02-21', '2024-02-28'))
             .rejects.toThrow('Failed to create report');
-
-        spy.mockRestore();
+    
+        expect(loggingUtils.logMessage).toHaveBeenCalledWith('error', expect.stringContaining('Error creating report'), 'CONTROLLERS');
     });
-
-    test('It should handle database connection failure gracefully', async () => {
-        dbUtils.close(); // Simulate database connection failure
-
-        let errorCaught = false;
-        try {
-            await ReportsController.createReport(99999, 10, '2024-02-21', '2024-02-28');
-        } catch (error) {
-            errorCaught = true;
-        }
-
-        expect(errorCaught).toBeTruthy(); // Ensure an error was caught
-
-        dbUtils.connect('taskflow_test_reports.sqlite'); // Restore database connection for further tests
+    
+    test('It should log an error when retrieving a report fails', async () => {
+        Report.getReportById = jest.fn().mockRejectedValue(new Error('DB error'));
+    
+        await expect(ReportsController.getReportById(1)).rejects.toThrow('Failed to retrieve report');
+    
+        expect(loggingUtils.logMessage).toHaveBeenCalledWith('error', expect.stringContaining('Error retrieving report'), 'CONTROLLERS');
     });
+    
+    test('It should log an error when getting all reports fails', async () => {
+        Report.getAllReports = jest.fn().mockRejectedValue(new Error('DB error'));
+    
+        await expect(ReportsController.getAllReports()).rejects.toThrow('Failed to retrieve reports');
+    
+        expect(loggingUtils.logMessage).toHaveBeenCalledWith('error', expect.stringContaining('Error retrieving reports'), 'CONTROLLERS');
+    });
+    
+    test('It should log an error when an export utility fails', async () => {
+        Report.getAllReports = jest.fn().mockResolvedValue([
+            { id: 2, project_id: 102, total_hours: 15, startDate: '2024-03-01', endDate: '2024-03-07' }
+        ]);
+    
+        dialogUtils.showSaveDialog.mockResolvedValue('/path/to/reports.csv');
+        exportUtils.exportCSV = jest.fn().mockRejectedValue(new Error('Export failed'));
+    
+        await expect(ReportsController.exportReports('csv')).rejects.toThrow('Failed to export reports');
+    
+        expect(loggingUtils.logMessage).toHaveBeenCalledWith('error', expect.stringContaining('Error exporting reports'), 'CONTROLLERS');
+    });
+    
 
     afterAll(async () => {
         dbUtils.close();

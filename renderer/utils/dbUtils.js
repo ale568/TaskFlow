@@ -196,11 +196,20 @@ function reconnect(databaseName = 'taskflow_test_utils.sqlite') {
     connect(databaseName);
 }
 
+/**
+ * Checks if the database connection is active.
+ * @returns {boolean} True if connected, false otherwise.
+ */
+function isConnected() {
+    return db !== null;
+}
+
 module.exports = {
     connect,
     close,
     runQuery,
     resetDatabase,
     reconnect,
-    getCurrentDatabase
+    getCurrentDatabase,
+    isConnected
 };

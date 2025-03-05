@@ -1,6 +1,8 @@
 const TimeEntry = require('../models/timeEntry');
 const exportUtils = require('../utils/exportUtils');
-const { dialog } = require('electron');
+const filterUtils = require('../utils/filterUtils');
+const dialogUtils = require('../utils/dialogUtils');
+const loggingUtils = require('../utils/loggingUtils');
 
 class TimeSheetController {
     /**
@@ -10,21 +12,13 @@ class TimeSheetController {
      */
     static async getTimeEntries(filters = {}) {
         try {
-            let entries = await TimeEntry.getAllTimeEntries();
+            const entries = await TimeEntry.getAllTimeEntries();
+            const filteredEntries = filterUtils.filterTimesheets(entries, filters);
 
-            // Apply filters (project, date range)
-            if (filters.projectId) {
-                entries = entries.filter(entry => entry.project_id === filters.projectId);
-            }
-            if (filters.startDate && filters.endDate) {
-                entries = entries.filter(entry =>
-                    entry.startTime >= filters.startDate && entry.startTime <= filters.endDate
-                );
-            }
-
-            return entries;
+            loggingUtils.logMessage('info', `Retrieved ${filteredEntries.length} time entries.`, 'CONTROLLERS');
+            return filteredEntries;
         } catch (error) {
-            console.error('Error retrieving time entries:', error);
+            loggingUtils.logMessage('error', `Error retrieving time entries: ${error.message}`, 'CONTROLLERS');
             throw new Error('Failed to retrieve time entries');
         }
     }
@@ -44,7 +38,7 @@ class TimeSheetController {
             }
 
             // Ask the user where to save the file
-            const { filePath } = await dialog.showSaveDialog({
+            const filePath = await dialogUtils.showSaveDialog({
                 title: 'Save Time Entries',
                 defaultPath: `time_entries.${format}`,
                 filters: [{ name: format.toUpperCase(), extensions: [format] }]
@@ -73,9 +67,9 @@ class TimeSheetController {
                     throw new Error(`Unsupported export format: ${format}`);
             }
 
-            console.log(`Time entries exported successfully to ${filePath}`);
+            loggingUtils.logMessage('info', `Time entries exported successfully to ${filePath}`, 'CONTROLLERS');
         } catch (error) {
-            console.error('Error exporting time entries:', error);
+            loggingUtils.logMessage('error', `Error exporting time entries: ${error.message}`, 'CONTROLLERS');
             throw new Error('Failed to export time entries');
         }
     }

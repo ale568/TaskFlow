@@ -1,22 +1,6 @@
-const fs = require('fs');
-const path = require('path');
 const Tag = require('../models/tag');
+const loggingUtils = require('../utils/loggingUtils');
 
-const LOG_FILE = path.resolve(__dirname, '../../logs/controllers.log');
-
-/**
- * Logs messages to a file instead of the terminal.
- * @param {string} message - The log message.
- */
-function logToFile(message) {
-    const timestamp = new Date().toISOString();
-    fs.appendFileSync(LOG_FILE, `[${timestamp}] ${message}\n`);
-}
-
-/**
- * Controller for managing tags.
- * Handles CRUD operations for tags.
- */
 class TagsController {
     /**
      * Creates a new tag.
@@ -26,9 +10,11 @@ class TagsController {
      */
     static async createTag(name, color) {
         try {
-            return await Tag.createTag(name, color);
+            const tagId = await Tag.createTag(name, color);
+            loggingUtils.logMessage('info', `Tag created: ${name}`, 'CONTROLLERS');
+            return tagId;
         } catch (error) {
-            logToFile(`❌ Error creating tag: ${error.message}`);
+            loggingUtils.logMessage('error', `Error creating tag: ${error.message}`, 'CONTROLLERS');
             throw new Error('Failed to create tag');
         }
     }
@@ -40,9 +26,13 @@ class TagsController {
      */
     static async getTagById(tagId) {
         try {
-            return await Tag.getTagById(tagId);
+            const tag = await Tag.getTagById(tagId);
+            if (!tag) {
+                loggingUtils.logMessage('warn', `Tag not found: ID ${tagId}`, 'CONTROLLERS');
+            }
+            return tag;
         } catch (error) {
-            logToFile(`❌ Error retrieving tag: ${error.message}`);
+            loggingUtils.logMessage('error', `Error retrieving tag: ${error.message}`, 'CONTROLLERS');
             throw new Error('Failed to retrieve tag');
         }
     }
@@ -55,9 +45,11 @@ class TagsController {
      */
     static async updateTag(tagId, updates) {
         try {
-            return await Tag.updateTag(tagId, updates);
+            const success = await Tag.updateTag(tagId, updates);
+            loggingUtils.logMessage('info', `Tag updated: ID ${tagId}`, 'CONTROLLERS');
+            return success;
         } catch (error) {
-            logToFile(`❌ Error updating tag: ${error.message}`);
+            loggingUtils.logMessage('error', `Error updating tag: ${error.message}`, 'CONTROLLERS');
             throw new Error('Failed to update tag');
         }
     }
@@ -69,9 +61,11 @@ class TagsController {
      */
     static async deleteTag(tagId) {
         try {
-            return await Tag.deleteTag(tagId);
+            const success = await Tag.deleteTag(tagId);
+            loggingUtils.logMessage('info', `Tag deleted: ID ${tagId}`, 'CONTROLLERS');
+            return success;
         } catch (error) {
-            logToFile(`❌ Error deleting tag: ${error.message}`);
+            loggingUtils.logMessage('error', `Error deleting tag: ${error.message}`, 'CONTROLLERS');
             throw new Error('Failed to delete tag');
         }
     }
@@ -82,9 +76,11 @@ class TagsController {
      */
     static async getAllTags() {
         try {
-            return await Tag.getAllTags();
+            const tags = await Tag.getAllTags();
+            loggingUtils.logMessage('info', `Retrieved ${tags.length} tags`, 'CONTROLLERS');
+            return tags;
         } catch (error) {
-            logToFile(`❌ Error retrieving tags: ${error.message}`);
+            loggingUtils.logMessage('error', `Error retrieving tags: ${error.message}`, 'CONTROLLERS');
             throw new Error('Failed to retrieve tags');
         }
     }
