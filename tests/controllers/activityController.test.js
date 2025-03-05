@@ -16,7 +16,7 @@ describe('ActivityController - Database Operations', () => {
 
     beforeEach(() => {
         jest.clearAllMocks();
-    });
+    });  
 
     test('It should create and retrieve an activity with logging', async () => {
         const uniqueProjectName = `Activity Project ${Date.now()}`;

@@ -14,12 +14,7 @@ function readLogs() {
 }
 
 describe('BackupController - Database Backup and Restore', () => {
-    beforeEach(() => {
-        if (fs.existsSync(LOG_FILE_PATH)) {
-            fs.writeFileSync(LOG_FILE_PATH, ''); // Clear logs before each test
-        }
-    });
-
+    
     test('It should create a database backup and log the operation', async () => {
         jest.spyOn(BackupDBUtils.prototype, 'createBackup').mockResolvedValue('/fake/path/backup.sqlite3');
 

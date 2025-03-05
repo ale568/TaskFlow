@@ -20,12 +20,6 @@ describe('SettingsController - Database Operations', () => {
         dbUtils.connect('taskflow_test_settings.sqlite'); // Connect to the test database
     });
 
-    beforeEach(() => {
-        if (fs.existsSync(LOG_FILE_PATH)) {
-            fs.writeFileSync(LOG_FILE_PATH, ''); // Clear logs before each test
-        }
-    });
-
     test('It should create and retrieve a setting with logging', async () => {
         const uniqueKey = `TestSetting_${Date.now()}`;
         const value = 'TestValue';

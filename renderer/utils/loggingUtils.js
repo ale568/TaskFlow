@@ -66,8 +66,29 @@ function getRecentLogs(category, limit = 10) {
     }
 }
 
+/**
+ * Reads the content of a log file reliably.
+ * Waits briefly to ensure the log has been written (useful in parallel tests).
+ * @param {string} category - Log category (DB, CONTROLLERS, SYSTEM, ERRORS).
+ * @param {number} delay - Optional delay in milliseconds to wait before reading.
+ * @returns {string} The log file content.
+ */
+function readLogs(category, delay = 100) {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            const logFile = LOG_FILES[category.toUpperCase()] || LOG_FILES.SYSTEM;
+            try {
+                resolve(fs.existsSync(logFile) ? fs.readFileSync(logFile, 'utf8') : '');
+            } catch (error) {
+                resolve(`Failed to read log file: ${error.message}`);
+            }
+        }, delay);
+    });
+}
+
 module.exports = {
     logMessage,
     logError,
     getRecentLogs,
+    readLogs
 };
