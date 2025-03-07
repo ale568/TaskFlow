@@ -1,0 +1,136 @@
+.app-header {
+    height: 60px;
+    background: white;
+    color: black;
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+    width: 100vw;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+}
+
+/* Centralized transitions */
+.app-header,
+.menu-btn, 
+.header-collapsed,
+.header-collapsed .app-logo,
+.header-collapsed .menu-btn,
+.app-header::before {
+    transition: all 0.5s ease-in-out;
+}
+
+/* Background styling only on the left section */
+.app-header::before {
+    content: "";
+    background-color: #2c3e50; /* Sidebar color */
+    width: 220px;
+    height: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: -1;
+}
+
+/* Logo and title container */
+.header-left {
+    display: flex;
+    align-items: center;  /* Aligns vertically */
+    gap: 18px; /* Space between logo and title */
+    padding-left: 15px; /* Slightly shifts both to the right */
+    justify-content: center; /* Centers horizontally */
+    height: 100%; /* Occupies full header height */
+    padding-top: 5px; /* Adjusts spacing if necessary */
+}
+
+/* Software logo */
+.app-logo {
+    height: 18px;
+    width: 18px;
+}
+
+/* Software name */
+.app-title {
+    font-family: 'Inter', sans-serif;
+    font-size: 17px;
+    font-weight: 900;
+    color: white;
+    text-transform: lowercase;
+}
+
+/* Button for collapsing the sidebar */
+.menu-btn {
+    background: none;
+    border: none;
+    color: #555; /* Medium-dark gray */
+    font-size: 24px;
+    cursor: pointer;
+    position: absolute;
+    left: 220px;  /* Aligned with the sidebar's edge */
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+}
+
+/* Custom icon styling */
+.menu-icon {
+    width: 24px;
+    height: 24px;
+    transition: filter 0.4s ease;
+}
+
+/* Hover effect: changes icon color */
+.menu-btn:hover .menu-icon {
+    filter: brightness(0) saturate(100%) invert(49%) sepia(84%) saturate(342%) hue-rotate(140deg) brightness(96%) contrast(93%);
+}
+
+/* Small bar appearing between header and content */
+.menu-btn::after {
+    content: "";
+    display: block;
+    width: 40px; /* Prevents overlapping with the sidebar */
+    height: 3px;
+    background-color: transparent;
+    position: absolute;
+    bottom: -18px;
+    left: 55%;
+    transform: translateX(-45%);
+    transition: background-color 0.4s ease;
+}
+
+/* Changes the bar color on hover */
+.menu-btn:hover::after {
+    background-color: #14c6c6;
+}
+
+/* Header adapts when the sidebar is collapsed */
+.header-collapsed {
+    width: 100vw;
+}
+
+/* When the sidebar is collapsed, the header adjusts */
+.header-collapsed::before {
+    width: 90px; /* Same width as the collapsed sidebar */
+}
+
+/* Hides the software name when the sidebar is collapsed */
+.header-collapsed .app-title {
+    opacity: 0;
+    visibility: hidden;
+}
+
+/* Keeps only the software logo and enlarges it */
+.header-collapsed .app-logo {
+    width: 28px;
+    height: 28px;
+    margin-left: -6px;
+}
+
+/* Moves the collapse button */
+.header-collapsed .menu-btn {
+    left: 90px; /* Aligns with the collapsed sidebar */
+}
