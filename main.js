@@ -1,13 +1,22 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
+const path = require("path");
 
 let mainWindow;
 
 function createWindow() {
     mainWindow = new BrowserWindow({
-        width: 800,
-        height: 600,
+        width: 1920,
+        height: 1080,
+        minWidth: 1280,  
+        minHeight: 720,
         webPreferences: {
-            nodeIntegration: true
+            preload: path.join(__dirname, 'preload.js'),
+            sandbox: true,
+            contextIsolation: true, // Evita che il renderer acceda direttamente ai moduli di Node.js
+        enableRemoteModule: false, // Disabilita l'accesso al modulo "remote" (deprecated)
+        nodeIntegration: false, // Evita l'accesso diretto ai moduli Node.js dal renderer
+        webSecurity: true, // Protegge contro attacchi come XSS e CSP bypass
+        allowRunningInsecureContent: false, // Evita il caricamento di contenuti non sicuri
         }
     });
 

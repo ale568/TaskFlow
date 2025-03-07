@@ -2,7 +2,7 @@
  * @jest-environment jsdom
  */
 
-const { initApp, updateTimerDisplay } = require('../renderer/app');
+const { initApp, updateTimerDisplay } = require('../../../renderer/app');
 
 describe('App initialization', () => {
 

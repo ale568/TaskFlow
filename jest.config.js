@@ -15,18 +15,31 @@ module.exports = {
                 "<rootDir>/tests/controllers/**/*.test.js",
                 "<rootDir>/tests/models/**/*.test.js",
                 "<rootDir>/tests/utils/**/*.test.js",
-                "<rootDir>/tests/main.test.js"
+                "<rootDir>/tests/main.test.js",
+                "<rootDir>/tests/preload.test.js"
             ]
-    },
-    {
+        },
+        {
 
-        displayName: "ui-tests",
-        testEnvironment: "jsdom",
-        testMatch: [
-            "<rootDir>/tests/ui/**/*.test.js",
-            "<rootDir>/tests/app.test.js",
-            "<rootDir>/tests/preload.test.js"
-        ]
-    }
-  ]
+            displayName: "ui-unit-tests",
+            testEnvironment: "jsdom",
+            setupFilesAfterEnv: ["<rootDir>/tests/setupJest.js"],
+            testMatch: [
+                "<rootDir>/tests/ui/unit/**/*.test.js"
+            ]
+        },
+        {
+            displayName: "ui-integration-tests",
+            testEnvironment: "jsdom",
+            setupFilesAfterEnv: ["<rootDir>/tests/setupJest.js"],
+            testMatch: [
+                "<rootDir>/tests/ui/integration/**/*.test.js"
+            ]
+        }
+    ],
+
+    // We exclude E2E tests from Jest (they will be run with WebdriverIO)
+    testPathIgnorePatterns: [
+        "<rootDir>/tests/ui/e2e/"
+    ]
 };
