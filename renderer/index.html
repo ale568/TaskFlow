@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>TaskFlow</title>
+    
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/sidebar.css">
+    <link rel="stylesheet" href="styles/header.css">
+    <link rel="stylesheet" href="styles/button.css">
+    <link rel="stylesheet" href="styles/toast.css">
+    <link rel="stylesheet" href="../node_modules/air-datepicker/air-datepicker.css">
+    <link rel="stylesheet" href="../node_modules/@simonwep/pickr/dist/themes/monolith.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+    <script src="../node_modules/air-datepicker/air-datepicker.js"></script>
+    <script src="../node_modules/chart.js/dist/chart.umd.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+    <script src="../node_modules/@simonwep/pickr/dist/pickr.min.js"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    
+</head>
+<body>
+
+    <header class="app-header">
+        <div class="header-left">
+            <img src="../assets/icons/logo.png" alt="TaskFlow Logo" class="app-logo">
+            <h1 class="app-title">TaskFlow</h1>
+        </div>
+        <button id="toggleSidebar" class="menu-btn">
+            <img id="toggleIcon" src="../assets/icons/collapse_sidebar1.png" alt="Menu Icon" class="menu-icon">
+        </button>        
+    </header>       
+
+    <div class="main-container">
+        <!-- Sidebar -->
+        <div class="sidebar" role="navigation">
+            <ul>
+                <li><a href="#" data-page="home"><img src="../assets/icons/timer.png" class="sidebar-icon" alt="Timer Icon"><span class="sidebar-text">Timer</span></a></li>
+                <li><a href="#" data-page="activity"><img src="../assets/icons/activity.png" class="sidebar-icon" alt="Activity Icon"><span class="sidebar-text">Activity</span></a></li>
+                <li><a href="#" data-page="timeSheet"><img src="../assets/icons/timesheet.png" class="sidebar-icon" alt="Timesheet Icon"><span class="sidebar-text">Timesheet</span></a></li>
+                <li><a href="#" data-page="reports"><img src="../assets/icons/reports.png" class="sidebar-icon" alt="Reports Icon"><span class="sidebar-text">Reports</span></a></li>
+                <li><a href="#" data-page="projects"><img src="../assets/icons/projects.png" class="sidebar-icon" alt="Projects Icon"><span class="sidebar-text">Projects</span></a></li>
+                <li><a href="#" data-page="tags"><img src="../assets/icons/tags.png" class="sidebar-icon" alt="Tags Icon"><span class="sidebar-text">Tags</span></a></li>
+                <li><a href="#" data-page="alerts"><img src="../assets/icons/alerts.png" class="sidebar-icon" alt="Alerts Icon"><span class="sidebar-text">Alerts</span></a></li>
+            </ul>
+        </div>
+        <!-- Content Area -->
+        <div class="content" id="content">
+            <script src="../renderer/ui/uiLoader.js" defer></script>
+        </div>
+    </div>
+
+    <div class="sidebar-bg"></div>
+
+    <script src="../renderer/ui/uiHeader.js" defer></script>
+    <script src="../renderer/ui/uiNavigation.js" defer></script>
+    <script src="../renderer/ui/uiUtils.js" defer></script>
+
+</body>
+</html>
