@@ -1,7 +1,9 @@
 const storageUtils = require('../utils/storageUtils');
+const dbUtils = require('../utils/dbUtils');
 
 class Tag {
-    static dbName = 'taskflow_test_tags.sqlite'; // Default test database
+    // static dbName = 'taskflow_test_tags.sqlite'; // Default test database
+    static dbName = 'taskflow.sqlite';
 
     /**
      * Sets the database to use (for test or production environments).
@@ -56,6 +58,21 @@ class Tag {
     static async getAllTags() {
         return await storageUtils.getAllRecords('tags', this.dbName);
     }
+
+    static async isTagInUse(tagId) {
+        const query = `SELECT COUNT(*) as count FROM time_entries WHERE tag_id = ?`;
+    
+        try {
+            const result = await dbUtils.runQuery(query, [tagId]);
+    
+            // Poiché runQuery per SELECT ritorna un array
+            const count = result?.[0]?.count || 0;
+            return count > 0;
+        } catch (error) {
+            console.error("Errore nella verifica uso tag:", error);
+            throw new Error("Errore durante la verifica dell'utilizzo del tag");
+        }
+    }    
 }
 
 module.exports = Tag;

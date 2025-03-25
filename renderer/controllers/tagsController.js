@@ -84,6 +84,18 @@ class TagsController {
             throw new Error('Failed to retrieve tags');
         }
     }
+
+    static async isTagInUse(tagId) {
+        try {
+            const inUse = await Tag.isTagInUse(tagId);
+            loggingUtils.logMessage('info', `Verifica utilizzo tag ID ${tagId}: ${inUse}`, 'CONTROLLERS');
+            return inUse;
+        } catch (error) {
+            loggingUtils.logMessage('error', `Errore nella verifica utilizzo tag: ${error.message}`, 'CONTROLLERS');
+            throw new Error('Errore durante la verifica utilizzo tag');
+        }
+    }
+    
 }
 
 module.exports = TagsController;

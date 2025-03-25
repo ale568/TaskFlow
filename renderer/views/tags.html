@@ -1,0 +1,57 @@
+<div class="tags-view">
+    <!-- Header -->
+    <div class="tags-header">
+        <h2>Tags</h2>
+        <button id="addTagBtn" class="add-tag-btn">Add tag</button>
+    </div>
+
+    <!-- Tabella dei tags -->
+    <div class="tags-table-wrapper">
+        <table class="tags-table">
+            <thead>
+                <tr>
+                    <th>NAME</th>
+                    <th>COLOR</th>
+                    <th></th> <!-- colonna per icona opzioni -->
+                </tr>
+            </thead>
+            <tbody id="tagsTableBody">
+                <!-- Le righe tag saranno aggiunte dinamicamente qui -->
+            </tbody>
+        </table>
+
+        <!-- Stato vuoto -->
+        <div id="noTagsMessage" class="no-tags-message">
+            <p>No Data</p>
+        </div>
+    </div>
+
+    <!-- MODAL PER AGGIUNGERE UN TAG -->
+    <div id="tagModal" class="modal hide">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="tagModalTitle">Add tag</h3>
+                <span id="closeModal" class="close-button">&times;</span>
+            </div>
+
+            <div class="separator"></div>
+
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="tagColor">Color</label>
+                    <div id="colorPicker"></div>
+                    <input type="hidden" id="tagColor" />
+                </div>
+                <div class="form-group">
+                    <label for="tagName">Name</label>
+                    <input type="text" id="tagName" placeholder="Enter tag name" />
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button id="createTagBtn" class="create-btn">Create</button>
+            </div>
+        </div>
+    </div>
+
+</div>
