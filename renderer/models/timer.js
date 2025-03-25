@@ -1,7 +1,8 @@
 const storageUtils = require('../utils/storageUtils');
 
 class Timer {
-    static dbName = 'taskflow_test_timer.sqlite'; // Default test database
+    // static dbName = 'taskflow_test_timer.sqlite';  Default test database
+    static dbName = 'taskflow.sqlite';
 
     /**
      * Sets the database to use (for test or production environments).
