@@ -1,0 +1,38 @@
+.content {
+    margin-left: 220px;  /* Deve lasciare spazio alla sidebar */
+    padding: 20px;
+    background: #f5f5f5;
+    height: calc(100vh - 60px);
+    overflow-x: hidden; /* Nasconde l'overflow orizzontale */
+    transition: margin-left 0.5s ease-in-out;
+    box-sizing: border-box; /* Garantisce che il padding non aumenti la dimensione effettiva */
+    border: 2px dashed blue;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+}
+
+.sidebar.collapsed ~ .content {
+    margin-left: 60px;  /* Quando la sidebar è ridotta, il contenuto si espande */
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        width: 60px; /* Si riduce su schermi piccoli */
+    }
+
+    .sidebar ul li a {
+        text-align: center; /* Testo centrato */
+        font-size: 14px;
+    }
+
+    .content {
+        margin-left: 60px;
+        width: calc(100% - 60px); /* Permette al contenuto di adattarsi immediatamente */
+    }
+
+    .menu-btn {
+        left: 60px;
+    }
+}

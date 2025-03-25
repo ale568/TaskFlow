@@ -1,0 +1,133 @@
+/* Stile principale della vista activity */
+.activity-view {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 1500px;
+    min-width: 700px;
+    position: relative;
+    transition: width 0.3s ease-in-out;
+    box-sizing: border-box;
+    margin: 70px auto 0 auto;
+}
+
+.activity-header {
+    text-align: left;
+    color: #333;
+}
+
+.activity-breakdown {
+    background: #fff;
+    padding: 5px;
+    border-radius: 8px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    box-sizing: border-box; /* Evita problemi di overflow dovuti al padding */
+    max-height: fit-content;
+}
+
+.activity-breakdown h3 {
+    text-align: left;
+    font-size: 18px;
+    color: #444;
+}
+
+#activityChart {
+    max-height: 120px; /* Impedisce l'espansione infinita */
+}
+    
+.activity-header h4 {
+    font-size: 20px;
+    font-weight: 600;
+    margin-top: 70px;
+}
+
+.activity-earlier {
+    display: grid;
+    grid-template-rows: auto auto 1fr;
+    grid-template-columns: 1fr;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 15px;
+}
+
+/* Intestazioni */
+.activity-earlier-header {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    padding-bottom: 10px;
+    text-align: center;
+}
+
+.activity-earlier-header h5 {
+    font-size: 14px;
+    font-weight: 700;
+    color: #444;
+}
+
+/* Separatore tra titoli e contenuto */
+.separator {
+    width: 100%;
+    height: 1px;
+    background-color: #ccc;
+    margin-bottom: 10px;
+}
+
+/* Stili per le righe della lista */
+#activityList li {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Due colonne uguali */
+    align-items: center; /* Centra verticalmente il contenuto */
+    padding: 10px 0;
+}
+
+/* Colonna attività */
+.task-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Allinea verticalmente i testi */
+    align-items: center;
+    margin-right: 60px;
+}
+
+
+/* Nome dell'attività */
+.task-name {
+    font-weight: bold;
+    font-size: 18px;
+}
+
+/* Nome del progetto */
+.project-name {
+    color: #777;
+    font-size: 16px;
+}
+
+/* Colonna tempo */
+.time-container {
+    display: flex;
+    align-items: center;
+    justify-content: center; /* Centra il testo */
+    align-items: flex-end; /* Allinea a destra */
+    gap: 15px;
+}
+
+/* Tempo trascorso */
+.time-spent {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+/* Orario di inizio e fine */
+.time-range {
+    color: #777;
+    font-size: 16px;
+}
+
+/* Placeholder per quando non ci sono dati */
+.empty-message {
+    text-align: center;
+    color: #aaa;
+    font-style: italic;
+    padding: 10px;
+}

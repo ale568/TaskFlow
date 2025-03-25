@@ -1,7 +1,9 @@
 const storageUtils = require('../utils/storageUtils');
 
 class Activity {
-    static dbName = 'taskflow_test_activity.sqlite'; // Default test database
+    // static dbName = 'taskflow_test_activity.sqlite'; // Default test database
+    static dbName = 'taskflow.sqlite'; // Default test database
+
 
     /**
      * Sets the database to use (for test or production environments).

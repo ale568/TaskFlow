@@ -1,0 +1,149 @@
+/* Stile input Flatpickr */
+#date-picker {
+    width: 120px;
+}
+
+/*Stile generale del popup */
+.air-datepicker {
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    max-width: 300px;
+    padding: 5px;
+}
+
+/*Intestazione del calendario (mese e anno) */
+.air-datepicker-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+/*Stile mese e anno */
+.air-datepicker-nav--title {
+    font-weight: bold;
+    font-size: 14px;
+    transition: color 0.2s ease-in-out;
+    cursor: pointer;
+}
+
+.air-datepicker-nav--title:hover {
+    color: #14c6c6;
+}
+
+/*Stile delle frecce di navigazione */
+.air-datepicker-nav--action {
+    color: #bbb;
+    font-size: 16px;
+    transition: color 0.2s ease-in-out;
+}
+
+.air-datepicker-nav--action:hover {
+    color: #14c6c6;
+}
+
+/*Stile giorni del calendario */
+.air-datepicker-cell {
+    width: 30px;
+    height: 30px;
+    line-height: 30px;
+    font-size: 13px;
+    border-radius: 5px;
+    transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+}
+
+/* Stile giorno odierno SOLO se non è selezionato */
+.air-datepicker-cell.-current- {
+    background-color: transparent !important;
+    color: #14c6c6 !important;
+    font-weight: bold;
+}
+
+/* Giorno odierno quando è anche selezionato */
+.air-datepicker-cell.-current-.-selected- {
+    background-color: #14c6c6 !important;
+    color: white !important;
+}
+
+/* Stile normale per il giorno selezionato */
+.air-datepicker-cell.-selected- {
+    background-color: #14c6c6 !important;
+    color: white !important;
+    font-weight: bold;
+}
+
+/*Giorni della settimana (domenica-sabato) */
+.air-datepicker-body--day-name {
+    color: black !important;
+    font-weight: bold;
+}
+
+/*Hover sui giorni */
+.air-datepicker-cell:hover {
+    background-color: #e0f7f7;
+    color: black;
+}
+
+/*Disposizione a griglia per la selezione dei mesi */
+.air-datepicker-body--months, 
+.air-datepicker-body--years {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    padding: 10px;
+}
+
+/*Stile mesi e anni nella griglia */
+.air-datepicker-cell.-month-, 
+.air-datepicker-cell.-year- {
+    padding: 5px;
+    border-radius: 5px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    text-align: center;
+    transition: background-color 0.2s ease-in-out;
+}
+
+/*Hover su mesi e anni */
+.air-datepicker-cell.-month-:hover, 
+.air-datepicker-cell.-year-:hover {
+    background-color: #e0f7f7;
+    color: black;
+}
+
+/*Stile mese e anno selezionati */
+.air-datepicker-cell.-selected-.-month-, 
+.air-datepicker-cell.-selected-.-year- {
+    background-color: #14c6c6;
+    color: white;
+}
+
+/*Stile pulsante "Today" */
+.air-datepicker--buttons {
+    padding: 5px;
+    text-align: center;
+}
+
+.air-datepicker--buttons button {
+    
+    font-size: 14px;
+    font-weight: bold;
+    color: #14c6c6;
+    cursor: pointer;
+}
+
+.air-datepicker--buttons button:hover {
+    color:#14c6c6;
+}
+
+/*Aggiunge l'icona del calendario */
+.air-datepicker-input {
+    background-image: url('../../assets/icons/popUp_calendar.png');
+    background-position: right 10px center;
+    background-repeat: no-repeat;
+    background-size: 20px 20px;
+}
