@@ -1,0 +1,101 @@
+<div class="home-view">
+    
+    <div class="date-switch-container">
+        <div class="date-picker-container">
+            <input type="text" id="date-picker" class="input-button air-datepicker-input">
+        </div>
+
+        <div class="date-label-container">
+            <span id="formatted-date"></span>
+        </div>
+
+        <button id="toggle-timer-mode" class="action-button">Switch to adding time entries manually</button>
+    </div>       
+
+    <section class="timer-section">
+        <div class="timer-container">
+            <!-- Selettore progetto -->
+            <div class="custom-dropdown">
+                <button id="project-button" class="action-button">Click to select the project</button>
+                <ul id="project-list" class="dropdown-menu hidden"></ul>
+            </div>            
+
+            <!-- Contenitore per il progetto selezionato -->
+            <div id="selected-project-container" class="hidden">
+                <span id="selected-project" class="selection-badge"></span>
+                <button id="remove-project" class="remove-btn">x</button>
+            </div>
+
+            <!-- Selettore attività (inizialmente nascosto) -->
+            <div class="custom-dropdown hidden" id="activity-selection">
+                <button id="activity-button" class="action-button">Click to select the activity</button>
+                <ul id="activity-list" class="dropdown-menu hidden"></ul>
+            </div>
+    
+            <!-- Contenitore per l’attività selezionata -->
+            <div id="selected-activity-container" class="hidden">
+                <span id="selected-activity" class="selection-badge"></span>
+                <button id="remove-activity" class="remove-btn">x</button>
+            </div>
+
+            <!-- Descrizione progetto -->
+            <div id="project-description" class="hidden">No description</div>
+
+            <!-- Timer Content: unica riga per tutti gli elementi -->
+            <div class="timer-content">
+                <!-- Contenitore per entrambe le modalità -->
+                <div class="timer-item">
+                    <span id="timer-display"><strong>00:00:00</strong></span>
+                    <input type="text" id="manual-duration" class="input-button hidden" placeholder="0h 0m">
+                </div>
+            
+                <div class="separator"></div>
+            
+                <div class="timer-item">
+                    <span id="start-time-static">--:--</span>
+                    <input type="text" id="manual-start-time" class="input-button hidden" placeholder="8:00">
+                    <span>-</span>  <!-- Riutilizzato tra entrambe le modalità -->
+                    <span id="end-time-static">--:--</span>
+                    <input type="text" id="manual-end-time" class="input-button hidden" placeholder="9:00">
+                </div>
+            
+                <div class="separator"></div>
+            
+                <div class="timer-item">
+                    <button id="start-timer" class="action-button">Start Timer</button>
+                </div>
+            </div>                        
+        </div>
+    </section>        
+
+    <!-- Blocco principale delle attività -->
+    <section class="activity-list">
+        <div class="activity-header">
+            <input type="checkbox" id="select-all-main" class="custom-checkbox">
+            <h2>Recent Activities</h2>
+            <button id="delete-selected-btn-main" class="hidden">Delete All</button>
+            <span id="total-time-main" class="total-time"></span>
+        </div>        
+    
+        <!-- Contenitore attività -->
+        <div id="activity-container-main">
+            <!-- Le entry verranno generate dinamicamente qui -->
+        </div>
+    
+        <!-- Messaggio di "nessuna attività" -->
+        <div id="no-activities-message-main" class="hidden">
+            <p>No time entries on that day.</p>
+        </div>
+    </section>
+    
+    <hr class="separator-line">
+
+    <section class="previous-days-section">
+    <div id="previous-days-entries"></div> <!-- Contenitore per le entry -->
+        <div class="previous-days-container">
+            <button id="show-previous-days" class="action-button">
+                Display Previous Days
+            </button>
+        </div>
+    </section>
+</div>

@@ -1,0 +1,653 @@
+/* Stile principale della vista home */
+.home-view {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 100%;
+    max-width: 1500px;  /* Uniforma la larghezza */
+    min-width: 700px;
+    position: relative;
+    transition: width 0.3s ease-in-out;
+    box-sizing: border-box; /* Previene problemi di dimensionamento */
+    margin: 80px auto 0 auto; /* 50px di margine sopra */
+}
+
+/* SEZIONE 1 */
+
+.date-switch-container {
+    display: flex; 
+    align-items: center;  /* Allinea verticalmente */
+    width: 100%;
+}
+
+/* Contenitore della scritta "Today, data odierna" */
+.date-label-container {
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: #333;
+    margin-left: 10px; /* Distanza tra il date picker e la scritta */
+    white-space: nowrap; /* Evita che il testo vada a capo */
+}
+
+/* Pulsante di switch */
+#toggle-timer-mode {
+    position: absolute;  /* Lo posizioniamo in modo assoluto rispetto al contenitore */
+    right: 0;            /* Lo ancoriamo alla destra del contenitore */
+    white-space: nowrap; /* Evita che il testo vada a capo */
+    padding-left: 20px;  /* Dà spazio extra a sinistra */
+    padding-right: 20px; /* Mantiene spazio uniforme */
+}
+
+/* Effetto contorno lampeggiante */
+#toggle-timer-mode.active-mode {
+    box-shadow: 0px 0px 5px 2px #14c6c6; /* Ombra colorata */
+    animation: disappear-shadow 0.9s ease-out forwards; /* Animazione di dissolvenza */
+}
+
+/* Animazione per far sparire l'ombreggiatura */
+@keyframes disappear-shadow {
+    0% { box-shadow: 0px 0px 5px 2px #56c4c4; }
+    100% { box-shadow: 0px 0px 0px 0px transparent; }
+}
+
+/* SEZIONE 2 */
+
+/* Contenitore principale */
+.timer-container {
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    box-sizing: border-box; /* Evita problemi di overflow dovuti al padding */
+    transition: width 0.3s ease-in-out;
+    align-items: flex-start; /* Evita allineamenti errati */
+}
+
+/* Badge del progetto e dell’attività */
+.selection-badge {
+    background-color: #14c6c6;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    display: inline-flex; /* Ora sono visibili e si adattano */
+}
+
+.custom-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: white;
+    border: 1px solid #ccc;
+    width: 100%;
+    max-height: 200px;
+    overflow-y: auto;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    border-radius: 8px;
+    z-index: 1000;
+}
+
+.dropdown-menu li {
+    padding: 8px;
+    cursor: pointer;
+}
+
+.dropdown-menu li:hover {
+    background: #d9f7f6;
+}
+
+/* Pulsante per rimuovere la selezione */
+.remove-btn {
+    background: none;
+    border: none;
+    color: red;
+    margin-left: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+/* Nasconde il pulsante di selezione dopo che un progetto è stato selezionato */
+.project-selected #project-button {
+    display: none;
+}
+
+/* Se il progetto è stato selezionato, nasconde il dropdown */
+.project-selected #project-list {
+    display: none;
+}
+
+#selected-project-container {
+    width: fit-content !important;
+    max-width: fit-content !important;
+    
+}
+
+/* Il pulsante di selezione attività è inizialmente nascosto */
+#activity-selection {
+    display: none;
+}
+
+/* Mostra il selettore delle attività solo dopo la selezione del progetto */
+.project-selected #activity-selection {
+    display: inline-block; 
+}
+
+/* Nasconde il pulsante delle attività quando è già stata selezionata un’attività */
+.activity-selected #activity-button {
+    display: none;
+}
+
+/* Se l’attività è stata selezionata, nasconde il dropdown */
+.activity-selected #activity-list {
+    display: none;
+}
+
+#activity-button {
+    margin-top: 5px !important;
+}
+
+/* Nasconde il contenitore dell’attività fino a quando non viene selezionata */
+#selected-activity-container {
+    display: none;
+}
+
+/* Contenitore per attività selezionata, affiancata al progetto */
+#selected-activity-container {
+    display: flex;
+    margin-top: 5px !important;
+}
+
+/* Nasconde la descrizione finché l'attività non è stata selezionata */
+.hidden {
+    display: none !important;
+}
+
+/* Mostra la descrizione del progetto dopo la selezione */
+#project-description {
+    display: inline-block;
+    font-size: 1rem;
+    color: #666;
+    margin-top: 15px;
+}
+
+/* TIMER*/
+
+/* Riga unica per tutti gli elementi */
+.timer-content {
+    display: flex;
+    align-items: center;
+    justify-content: center; /* Distribuisce bene gli elementi */
+    width: 100%;
+    margin-top: 15px;
+}
+
+/* Assicura che Timer e Manual Entry abbiano la stessa dimensione */
+.timer-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 220px; /* Imposta una larghezza minima coerente */
+    position: relative; /* Assicura che gli elementi si sovrappongano se necessario */
+    height: 40px; /* Stessa altezza per tutte le modalità */
+}
+
+/* Separatore verticale */
+.separator {
+    width: 1px;
+    height: 30px;
+    background-color: #ccc;
+    margin: 0 120px; /* Aggiunge spazio attorno */
+}
+
+/* Stile comune per input e display */
+#timer-display,
+#start-time-static,
+#end-time-static {
+    font-size: 1rem;
+    font-weight: bold;
+    text-align: center;
+    min-width: 60px;
+    color: #555;
+}
+
+/* Input per la modalità manuale */
+#manual-duration,
+#manual-start-time,
+#manual-end-time { 
+    text-align: center;
+}
+
+/* Mantiene lo stesso layout della modalità timer */
+.manual-entry-mode #timer-display,
+.manual-entry-mode #start-time-static,
+.manual-entry-mode #end-time-static {
+    display: none;
+}
+
+.manual-entry-mode #manual-duration,
+.manual-entry-mode #manual-start-time,
+.manual-entry-mode #manual-end-time {
+    display: inline-block;
+    width: 60px;
+}
+
+#start-timer {
+    background-color: #14c6c6;
+    color: whitesmoke;
+    min-width: 200px; /* Imposta una larghezza minima più grande */
+    width: 100%; /* Forza la larghezza fissa */
+    
+}
+
+#start-timer:hover {
+    background-color: #15d8d8;
+}
+
+#start-timer.stop {
+    background-color: #d9534f !important;
+    color: white !important;
+}
+
+#start-timer.stop:hover {
+    background-color: #c9302c !important;
+}
+
+#manual-duration {
+    cursor: not-allowed;
+}
+
+/* Nasconde le 'x' di riomozione quando parte il timer*/
+.hidden-remove-btn {
+    display: none !important;
+}
+
+/* SEZIONE 3 */
+
+/* Lista attività */
+.activity-list {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 100%; /* Mantiene tutto dentro il bordo rosso */
+    box-sizing: border-box; /* Evita problemi di overflow dovuti al padding */
+    transition: width 0.3s ease-in-out;
+    margin-top: 30px;
+}
+
+/* Contenitore per titolo e totale */
+.activity-header {
+    display: grid;
+    grid-template-columns: 40px 170px auto 110px;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    position: relative;
+}
+
+/* Bordo laterale */
+.activity-header::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 7px; /* Stessa larghezza del bordo delle attività */
+    height: 100%;
+    background-color: #c0bbbb;
+    border-top-left-radius: 6px; /* Smussa angoli in alto */
+}
+
+/* Allinea la checkbox dell’header con le altre */
+.activity-header .custom-checkbox {
+    margin-right: 15px; /* Regola spazio tra checkbox e testo */
+}
+
+/* Titolo */
+.activity-header h2 {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #333;
+    grid-column: 2;
+}
+
+/* Pulsante Delete Selected */
+#delete-selected-btn-main {
+    background-color: #ff6b6b;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    font-size: 14px;
+    font-weight: bold;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+    grid-column: 3;
+    max-width: fit-content;
+}
+
+#delete-selected-btn-main:hover {
+    background-color: #ff4c4c;
+}
+
+.delete-selected-btn-global {
+    background-color: #ff6b6b;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    font-size: 14px;
+    font-weight: bold;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+    max-width: fit-content;
+}
+
+.delete-selected-btn-global:hover {
+    background-color: #ff4c4c;
+}
+
+/* Testo "Total: */
+.total-time {
+    font-weight: bold;
+    color: #333;
+    grid-column: 4;
+}
+
+/* Stile degli elementi della lista attività */
+.activity-item {
+    display: grid;
+    grid-template-columns: 40px 150px 1fr 80px 180px 90px 40px;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    position: relative;
+}
+
+/* Bordo laterale colorato per ogni attività */
+.activity-item::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 7px;
+    height: 100%;
+    background-color: var(--tag-color, #e4e3e3); /* Fallback a #ccc se NULL */
+}
+
+.custom-checkbox {
+    grid-column: 1; /* Checkbox */
+}
+
+.task-project {
+    grid-column: 2; /* Task + Progetto */
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+}
+
+.description-name {
+    grid-column: 3; /* Descrizione */
+    padding-left: 10px;
+}
+
+.task-duration {
+    grid-column: 4; /* Durata */
+}
+
+.task-time {
+    grid-column: 5; /* Orario */
+}
+
+.task-date {
+    grid-column: 6; /* Data */
+}
+
+.start-timer-btn {
+    grid-column: 7; /* Pulsante Start Timer */
+}
+
+/* Stile pulsante Start Timer */
+.start-timer-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    transition: transform 0.2s ease-in-out;
+}
+
+.start-timer-btn-main {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    transition: transform 0.2s ease-in-out;
+}
+
+/* Effetto Hover */
+.start-timer-btn:hover {
+    transform: scale(1.1);
+}
+
+.start-timer-btn-main:hover {
+    transform: scale(1.1);
+}
+
+/* Icona del pulsante */
+.start-timer-btn img {
+    width: 30px;
+    height: 30px;
+    opacity: 0.8;
+    transition: opacity 0.2s ease-in-out;
+}
+
+/* Cambia opacità quando il mouse passa sopra */
+.start-timer-btn:hover img {
+    opacity: 1;
+}
+
+/* Stile del Progetto */
+.project-name {
+    font-size: 0.9rem;
+    color: #666;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* Durata del task */
+.task-duration {
+    font-size: 1rem;
+    font-weight: bold;
+}
+
+/* Orario */
+.task-time {
+    font-size: 1rem;
+    color: #333;
+}
+
+/* Data */
+.task-date {
+    font-size: 0.9rem;
+    color: #777;
+}
+
+.no-activities-message {
+    height: 100px; /* Imposta un'altezza fissa, puoi modificarla a piacere */
+    display: flex; /* Permette di centrare il testo verticalmente */
+    justify-content: center; /* Centra orizzontalmente */
+    align-items: center; /* Centra verticalmente */
+    text-align: center; /* Assicura che il testo sia centrato */
+    border-radius: 8px; /* Bordo arrotondato */
+    margin-top: 10px; /* Aggiunge un po' di spazio sopra */
+}
+
+
+.no-entries {
+    height: 100px; /* Imposta un'altezza fissa, puoi modificarla a piacere */
+    display: flex; /* Permette di centrare il testo verticalmente */
+    justify-content: center; /* Centra orizzontalmente */
+    align-items: center; /* Centra verticalmente */
+    text-align: center; /* Assicura che il testo sia centrato */
+    border-radius: 8px; /* Bordo arrotondato */
+    margin-top: 10px; /* Aggiunge un po' di spazio sopra */
+}
+
+
+/* Contenitore del Checkbox */
+.custom-checkbox {
+    appearance: none; /* Nasconde il checkbox di default */
+    width: 18px; /* Dimensione */
+    height: 18px;
+    border: 2px solid #ccc; /* Bordo iniziale */
+    border-radius: 4px; /* Angoli arrotondati */
+    cursor: pointer; /* Cambia il cursore quando si passa sopra */
+    display: inline-block;
+    position: relative;
+    transition: all 0.2s ease-in-out;
+}
+
+/* Effetto Hover */
+.custom-checkbox:hover {
+    border-color: #14c6c6; /* Cambia colore bordo quando si passa sopra */
+}
+
+/* Checkbox Selezionato */
+.custom-checkbox:checked {
+    background-color: #14c6c6; /* Colore sfondo quando è selezionato */
+    border-color: #14c6c6;
+}
+
+/* Icona di spunta */
+.custom-checkbox:checked::after {
+    content: "✔"; /* Simbolo di spunta */
+    font-size: 12px;
+    color: white;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    font-weight: bold;
+}
+
+/* Aggiusta il focus quando si naviga con la tastiera */
+.custom-checkbox:focus {
+    outline: none;
+    box-shadow: 0 0 5px rgba(20, 198, 198, 0.5);
+}
+
+.previous-days-container {
+    text-align: center;
+}
+
+/* Sezione dedicata al pulsante */
+.previous-days-section {
+    justify-content: center; /* Centra il contenuto orizzontalmente */
+    align-items: center;
+    width: 100%; /* Assicura che il div occupi tutta la larghezza disponibile */
+}
+
+
+/* Titolo della data per ogni giorno */
+.previous-day-header-global {
+    text-align: left;
+    font-weight: bold;
+    font-size: 1.1rem;
+    padding-left: 10px;
+    margin-bottom: -20px;
+}
+
+/* Struttura del blocco delle attività dei giorni precedenti */
+.previous-day-block {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    transition: width 0.3s ease-in-out;
+    margin-top: 20px;
+}
+
+/* Header del blocco dei giorni precedenti */
+.activity-header-previous {
+    display: grid;
+    grid-template-columns: 40px 170px auto 110px;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    position: relative;
+}
+
+/* Stile degli elementi della lista attività dei giorni precedenti */
+.activity-item-previous {
+    display: grid;
+    grid-template-columns: 40px 150px 1fr 80px 180px 90px 40px;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    position: relative;
+}
+
+/* Bordo laterale colorato per ogni attività dei giorni precedenti */
+.activity-item-previous::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 7px;
+    height: 100%;
+    background-color: var(--tag-color, #e4e3e3);
+}
+
+/* Allineamento degli elementi nei blocchi precedenti */
+.custom-checkbox-previous {
+    grid-column: 1;
+}
+
+.task-project-previous {
+    grid-column: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+}
+
+.description-name-previous {
+    grid-column: 3;
+    padding-left: 10px;
+}
+
+.task-duration-previous {
+    grid-column: 4;
+}
+
+.task-time-previous {
+    grid-column: 5;
+}
+
+.task-date-previous {
+    grid-column: 6;
+}
+
+.start-timer-btn-previous {
+    grid-column: 7;
+}
+
+.separator-line {
+    width: 100%; /* Lunghezza della linea */
+    height: 1px; /* Spessore */
+    background-color: #ddd; /* Colore grigio chiaro */
+    border: none; /* Rimuove il bordo predefinito */
+    margin: 30px 0; /* Aggiunge 20px di spazio sopra e sotto il separatore */
+}
+
