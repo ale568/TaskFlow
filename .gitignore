@@ -31,6 +31,11 @@ temp/
 *.db-wal
 *.db-shm
 
+# Ignorare i file temporanei di SQLite
+*.sqlite-shm
+*.sqlite-wal
+
+
 # SQLite Cache Directory
 sqlite/
 

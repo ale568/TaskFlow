@@ -37,10 +37,16 @@
     "wdio-electron-service": "^7.3.1"
   },
   "dependencies": {
+    "@simonwep/pickr": "^1.9.1",
+    "air-datepicker": "^3.5.3",
     "better-sqlite3": "^11.8.1",
     "chart.js": "^4.4.7",
+    "chartjs-plugin-datalabels": "^2.2.0",
     "exceljs": "^4.4.0",
     "moment-timezone": "^0.5.47",
-    "pdfkit": "^0.16.0"
+    "pdfkit": "^0.12.3",
+    "pdfkit-table": "^0.1.68",
+    "pdfmake": "^0.2.18",
+    "voilab-pdf-table": "^0.5.1"
   }
 }
