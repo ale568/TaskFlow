@@ -1,0 +1,85 @@
+<section class="projects-section">
+    <div class="header">
+        <h2>Projects</h2>
+        <button id="addProjectBtn">Add Project</button>
+    </div>
+
+    <!-- Contenitore tabella progetti -->
+    <div class="projects-table-container">
+        <table class="projects-table">
+            <thead>
+                <tr>
+                    <th><input type="checkbox" id="selectAllProjects" class="custom-checkbox" /></th>
+                    <th>PROJECT</th>
+                    <th>DESCRIPTION</th>
+                    <th>TRACKED</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody id="projectsTableBody">
+                <!-- Popolamento dinamico -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Messaggio se non ci sono progetti -->
+    <div id="noProjectsMessage" class="no-data-message hidden">
+        No projects found.
+    </div>
+</section>
+
+<!-- Modale per creazione/modifica progetto -->
+<div id="projectModal" class="modal hide">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="projectModalTitle">Add Project</h3>
+            <span id="closeProjectModal" class="close-button">&times;</span>
+        </div>
+
+        <div class="separator"></div>
+
+        <div class="modal-body">
+            <div class="form-group">
+                <label for="projectName">Name</label>
+                <input type="text" id="projectName" placeholder="Enter project name" />
+            </div>
+            <div class="form-group">
+                <label for="projectDescription">Description</label>
+                <input type="text" id="projectDescription" placeholder="Enter project description" />
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <button id="saveProjectBtn" class="create-btn">Create</button>
+        </div>
+    </div>
+</div>
+
+<!-- Activity Modal -->
+<div id="activityModal" class="modal hide">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="activityModalTitle">Activities</h3>
+        <span id="closeActivityModal" class="close-button">&times;</span>
+      </div>
+  
+      <div class="modal-body">
+        <ul id="activityList" class="activity-list"></ul>
+        <div id="noActivityMessage" class="no-data-message hidden">No activities for this project.</div>
+  
+        <div class="form-group">
+          <label for="activityNameInput">Activity Name</label>
+          <input type="text" id="activityNameInput" placeholder="Enter activity name" />
+        </div>
+  
+        <div class="form-group">
+          <label for="activityDurationInput">Planned Duration</label>
+          <input type="text" id="activityDurationInput" placeholder="Ex: 1h 30m" />
+        </div>
+      </div>
+  
+      <div class="modal-footer">
+        <button id="addActivityBtn" class="create-btn">Add Activity</button>
+      </div>
+    </div>
+  </div>

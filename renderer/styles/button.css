@@ -1,0 +1,35 @@
+/* Stile pulsanti interattivi (tipo input) */
+.input-button {
+    padding: 8px 12px;
+    font-size: 0.9rem;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    background-color: #f8f9fa;
+    cursor: text; /* Cursore I-beam per input */
+    color: #333;
+    transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+/* Effetto hover e focus per input interattivi */
+.input-button:hover,
+.input-button:focus {
+    border-color: #14c6c6;
+    outline: none;
+}
+
+/* Stile pulsanti di azione */
+.action-button {
+    padding: 8px 12px;
+    font-size: 1rem;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    background-color: #f8f9fa;
+    color: #333;
+    cursor: pointer;
+    transition: background-color 0.4s ease-out, transform 0.4s ease-out;
+}
+
+/* Hover per pulsanti di azione */
+.action-button:hover {
+    background-color: #eaeaea; /* Grigio chiaro */
+}

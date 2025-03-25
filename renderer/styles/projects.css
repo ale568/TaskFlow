@@ -1,0 +1,376 @@
+/* Sezione progetti */
+.projects-section {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 100%;
+    max-width: 1500px;
+    min-width: 700px;
+    position: relative;
+    transition: width 0.3s ease-in-out;
+    box-sizing: border-box;
+    margin: 70px auto 0 auto
+}
+
+/* Header con bottone "Add Project" */
+.projects-section .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Contenitore tabella con overflow scroll */
+.projects-table-container {
+    overflow-x: auto;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    background: #fff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+/* Tabella Progetti */
+.projects-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 700px;
+}
+
+.projects-table thead {
+    background-color: #f8f9fa;
+    text-align: left;
+    color: #1c2b36;
+}
+
+.projects-table tr {
+    border-bottom: 2px solid #ccc; /* più spesso e visibile */
+}
+
+.projects-table th,
+.projects-table td {
+    padding: 20px 16px;
+    border-bottom: 1px solid #eee;
+    vertical-align: middle;
+    
+}
+
+.projects-table th:first-child,
+.projects-table td:first-child {
+    width: 40px;
+    text-align: center;
+}
+
+/* Colonna colore + nome progetto */
+.projects-table td:nth-child(2) {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.projects-table td:nth-child(2):hover {
+    background-color: #eee;
+}
+
+/* Barretta colorata */
+.color-bar {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    display: inline-block;
+    border: 1px solid #aaa;
+}
+
+/* Colonna "azioni" */
+.projects-table td:last-child {
+    text-align: right;
+    white-space: nowrap;
+}
+
+/* Messaggio "no projects" */
+.no-data-message {
+    text-align: center;
+    color: #888;
+    margin-top: 2rem;
+    font-size: 1rem;
+}
+
+.no-data-message.hidden {
+    display: none;
+}
+
+/* Modale Progetti */
+#projectModal.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+}
+
+.modal-content {
+    background: white;
+    padding: 2rem;
+    width: 400px;
+    border-radius: 10px;
+    box-shadow: 0 5px 25px rgba(0,0,0,0.2);
+    animation: fadeIn 0.3s ease;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.close-button {
+    cursor: pointer;
+    font-size: 1.4rem;
+}
+
+.separator {
+    height: 1px;
+    background-color: #eee;
+    margin-bottom: 30px;
+}
+
+.modal-body .form-group {
+    margin-bottom: 1.2rem;
+}
+
+.modal-body label {
+    display: block;
+    margin-bottom: 0.4rem;
+    font-weight: 500;
+}
+
+.modal-body input {
+    width: 95%;
+    padding: 8px 12px;
+    font-size: 0.9rem;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    background-color: #f8f9fa;
+    cursor: text; /* Cursore I-beam per input */
+    color: #333;
+    transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+/* Per l'input quando è in hover */
+#projectModal input:hover {
+    border-color: #14c6c6;
+}
+
+/* Per l'input quando è in focus (attivo per la digitazione) */
+#projectModal input:focus {
+    border-color: #14c6c6;
+    outline: none; /* Rimuove il bordo blu di default */
+    box-shadow: 0 0 0 2px rgba(20, 198, 198, 0.2); /* Effetto glow delicato */
+}
+
+
+.modal.show {
+    display: flex;
+}
+
+.modal.hide {
+    display: none !important;
+}
+
+/* Modal animazioni */
+.hide {
+    display: none;
+}
+
+.show {
+    display: flex;
+}
+
+/* Pulsanti */
+.create-btn {
+    padding: 10px 18px;
+    font-size: 15px;
+    font-weight: 500;
+    background-color: #14c6c6;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.create-btn:hover {
+    background-color: #15d8d8;
+}
+
+#addProjectBtn {
+    padding: 10px 18px;
+    font-size: 15px;
+    font-weight: 500;
+    background-color: #14c6c6;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+#addProjectBtn:hover {
+    background-color: #15d8d8;
+}
+
+.action-icons button {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 1.1rem;
+}
+
+.action-icons button:hover {
+    transform: scale(1.1);
+}
+
+.action-icons button.delete-project-btn {
+    color: #d32f2f;
+}
+
+.action-icons button.edit-project-btn {
+    color: #2c82e0;
+}
+
+.activity-actions button.delete-activity-btn {
+    color: #d32f2f;
+}
+
+.activity-actions button.edit-activity-btn {
+    color: #2c82e0;
+}
+
+/* Checkbox personalizzata */
+.custom-checkbox {
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border: 2px solid #ccc;
+    border-radius: 4px;
+    cursor: pointer;
+    display: inline-block;
+    position: relative;
+    transition: all 0.2s ease-in-out;
+    background-color: white;
+    vertical-align: middle;
+    margin: 0;
+}
+
+/* Hover */
+.custom-checkbox:hover {
+    border-color: #14c6c6;
+}
+
+/* Stato selezionato */
+.custom-checkbox:checked {
+    background-color: #14c6c6;
+    border-color: #14c6c6;
+}
+
+/* Spunta visiva */
+.custom-checkbox:checked::after {
+    content: "✔";
+    font-size: 12px;
+    color: white;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    font-weight: bold;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+/* Activity Modal*/
+
+#activityModal.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.4);
+    display: flex;
+    align-items: center;       /* centro verticale */
+    justify-content: center;   /* centro orizzontale */
+    z-index: 999;
+}
+
+#activityModal .modal-content {
+    background: white;
+    padding: 2rem;
+    width: 400px;
+    max-width: 90vw;
+    border-radius: 10px;
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2);
+    animation: fadeIn 0.3s ease;
+}
+
+#activityModal .modal-body input {
+    width: 95%;
+    padding: 8px 12px;
+    font-size: 0.9rem;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    background-color: #f8f9fa;
+    cursor: text; /* Cursore I-beam per input */
+    color: #333;
+    transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+/* Per l'input quando è in hover */
+#activityModal input:hover {
+    border-color: #14c6c6;
+}
+
+/* Per l'input quando è in focus (attivo per la digitazione) */
+#activityModal input:focus {
+    border-color: #14c6c6;
+    outline: none; /* Rimuove il bordo blu di default */
+    box-shadow: 0 0 0 2px rgba(20, 198, 198, 0.2); /* Effetto glow delicato */
+}
+
+#activityList {
+    list-style: none;
+    padding: 0;
+}
+
+.activity-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #eee;
+}
+.activity-item .duration {
+    font-size: 0.9rem;
+    color: #888;
+}
+
+.activity-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 4px;
+  }
+  
+  .activity-actions button {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 1.1rem;
+  }
+  
+  .activity-actions button:hover {
+    transform: scale(1.1);
+  }  
