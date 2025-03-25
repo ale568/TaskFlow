@@ -1,0 +1,63 @@
+<section class="reports-section">
+    <!-- Intestazione vista -->
+    <div class="reports-header">
+      <h2>Reports</h2>
+    </div>
+  
+    <!-- Filtri + Export -->
+    <div class="reports-filters">
+      
+      <!-- 🔽 Multi-selettore Progetti -->
+      <div class="dropdown-multi-container">
+        <div class="dropdown-button-wrapper">
+          <button id="projectSelectBtn-reports" class="action-button">
+            Select Project(s)
+          </button>
+          <span id="projectSelectedCount-reports" class="selected-count-badge hidden">0</span>
+        </div>
+  
+        <div id="projectDropdown-reports" class="dropdown-multi hidden">
+          <input type="text" id="projectSearchInput-reports" class="dropdown-search input-button" placeholder="Search project...">
+          <ul id="projectOptionsList-reports" class="dropdown-options">
+            <!-- Progetti verranno inseriti dinamicamente -->
+          </ul>
+        </div>
+      </div>
+  
+      <!-- 🔄 Tipo Periodo -->
+      <div class="dropdown-container" id="periodSelectorContainer-reports">
+        <button id="periodTypeBtn-reports" class="action-button">
+          Select period type
+        </button>
+        <ul id="periodTypeMenu-reports" class="dropdown-menu hidden">
+          <li data-type="day">Day</li>
+          <li data-type="week">Week</li>
+          <li data-type="month">Month</li>
+          <li data-type="year">Year</li>
+        </ul>
+      </div>
+  
+      <!-- 🗓️ Date Picker -->
+      <div class="date-picker-container">
+        <input
+          type="text"
+          id="date-picker-reports"
+          class="input-button air-datepicker-input"
+          placeholder="Select date"
+          readonly
+        />
+      </div>
+  
+      <!-- 📁 Export Button -->
+      <div>
+        <button id="exportReportsBtn" class="action-button">Export</button>
+      </div>
+  
+    </div>
+  
+    <!-- 📊 Contenitore del grafico -->
+    <div class="reports-chart-container">
+      <canvas id="reportsChart"></canvas>
+    </div>
+  </section>
+  
