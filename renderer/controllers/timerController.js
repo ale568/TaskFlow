@@ -2,6 +2,8 @@ const Timer = require('../models/timer');
 const loggingUtils = require('../utils/loggingUtils');
 const timerUtils = require('../utils/timerUtils'); 
 const dateTimeFormatUtils = require('../utils/dateTimeFormatUtils');
+const TimeEntry = require('../models/timeEntry');
+const dbUtils = require('../utils/dbUtils');
 
 class TimerController {
     /**
@@ -11,17 +13,46 @@ class TimerController {
      * @param {string} status - The initial status of the timer (`running`, `paused`, `stopped`).
      * @returns {Promise<number>} The ID of the newly created timer.
      */
-    static async createTimer(projectId, task, status) {
+    static async createTimer(projectId, task, startTime, status) {
         try {
-            const startTime = timerUtils.startTimer();
+            // 🛠️ Normalizza status per evitare errori dovuti a maiuscole o spazi
+            status = typeof status === 'string' ? status.trim().toLowerCase() : null;
+    
+            // 🔍 Controllo di validità
+            if (!['running', 'paused', 'stopped'].includes(status)) {
+                throw new Error(`❌ Errore: Status non valido (${status})`);
+            }
+    
+            if (!Number.isInteger(projectId) || projectId <= 0) {
+                throw new Error(`❌ Errore: projectId non valido (${projectId})`);
+            }
+    
+            if (!task || typeof task !== 'string' || task.trim() === '') {
+                throw new Error(`❌ Errore: Task non valida (${task})`);
+            }
+    
+            if (!startTime || isNaN(Date.parse(startTime))) {
+                throw new Error(`❌ Errore: startTime non valido (${startTime})`);
+            }
+    
+            console.log(`🔍 Creazione timer con -> ProjectID: ${projectId}, Task: ${task}, StartTime: ${startTime}, Status: ${status}`);
+    
+            // Crea il timer nel database
             const timerId = await Timer.createTimer(projectId, task, startTime, status);
-            loggingUtils.logMessage('info', `Timer created: Task ${task}, Project ID ${projectId}`, 'CONTROLLERS');
+    
+            if (!timerId) {
+                throw new Error("❌ Errore: Timer ID non ricevuto.");
+            }
+    
+            loggingUtils.logMessage('info', `Timer creato con ID ${timerId}: Task ${task}, Progetto ${projectId}`, 'CONTROLLERS');
             return timerId;
+            
         } catch (error) {
-            loggingUtils.logMessage('error', `Error creating timer: ${error.message}`, 'CONTROLLERS');
+            loggingUtils.logMessage('error', `❌ Errore nella creazione del timer: ${error.message}`, 'CONTROLLERS');
+            console.error(`❌ Errore nella creazione del timer: ${error.message}`);
             throw new Error('Failed to create timer');
         }
-    }
+    }    
 
     /**
      * Retrieves a timer by ID.
@@ -82,20 +113,27 @@ class TimerController {
      */
     static async deleteTimer(timerId) {
         try {
-            const success = await Timer.deleteTimer(timerId);
-
-            if (!success) {
-                loggingUtils.logMessage('error', `Error deleting timer: Timer ID ${timerId} not found`, 'CONTROLLERS');
+            const numericId = Number(timerId); // Convertiamo in numero
+    
+            if (isNaN(numericId) || numericId <= 0) {
+                console.error(`❌ Errore: Timer ID non valido (${timerId})`);
                 return false;
             }
-
-            loggingUtils.logMessage('info', `Timer deleted: ID ${timerId}`, 'CONTROLLERS');
+    
+            const success = await Timer.deleteTimer(numericId);
+    
+            if (!success) {
+                loggingUtils.logMessage('error', `Error deleting timer: Timer ID ${numericId} not found`, 'CONTROLLERS');
+                return false;
+            }
+    
+            loggingUtils.logMessage('info', `Timer deleted: ID ${numericId}`, 'CONTROLLERS');
             return true;
         } catch (error) {
             loggingUtils.logMessage('error', `Error deleting timer: ${error.message}`, 'CONTROLLERS');
             throw new Error('Failed to delete timer');
         }
-    }
+    }    
 
     /**
      * Retrieves all timers.
@@ -117,21 +155,62 @@ class TimerController {
      * @param {number} timerId - The ID of the timer.
      * @returns {Promise<string>} Total elapsed time in HH:mm:ss format.
      */
-    static async stopTimer(timerId) {
+    static async stopTimer(timerId, manualEndTime = null) {
         try {
+            // Recuperiamo il timer esistente
             const timer = await Timer.getTimerById(timerId);
             if (!timer) {
-                throw new Error(`Timer not found: ID ${timerId}`);
+                throw new Error(`Timer non trovato: ID ${timerId}`);
             }
-
-            const elapsedTime = timerUtils.stopTimer(timer.startTime);
-            await Timer.updateTimer(timerId, { status: 'stopped', elapsedTime });
-
-            loggingUtils.logMessage('info', `Timer stopped: ID ${timerId}, Elapsed: ${elapsedTime}`, 'CONTROLLERS');
+    
+            let endTime;
+    
+            if (manualEndTime) {
+                // ✅ Caso 1: entry manuale → usiamo endTime passato da `logManualEntry()`
+                endTime = manualEndTime;
+                console.log(`🟡 DEBUG -> Entry manuale, uso endTime passato: ${endTime}`);
+            } else {
+                // ✅ Caso 2: entry normale (timer) → usiamo il momento attuale
+                endTime = new Date().toISOString();
+                console.log(`🟡 DEBUG -> Entry timer, uso ora attuale come endTime: ${endTime}`);
+            }
+    
+            const elapsedTime = timerUtils.getElapsedTime(timer.startTime, endTime);
+    
+            console.log(`🟡 DEBUG -> endTime PRIMA di salvare nel DB: ${endTime}`);
+    
+            //  Aggiorniamo il timer esistente, cambiando stato e aggiungendo endTime
+            await Timer.updateTimer(timerId, { endTime, status: 'stopped' });
+    
+            // Creiamo un nuovo record nella tabella time_entries
+            await TimeEntry.createTimeEntry(timer.project_id, timer.task, timer.startTime, endTime);
+    
+            loggingUtils.logMessage('info', `Timer fermato: ID ${timerId}, Durata: ${elapsedTime}`, 'CONTROLLERS');
             return elapsedTime;
         } catch (error) {
-            loggingUtils.logMessage('error', `Error stopping timer: ${error.message}`, 'CONTROLLERS');
-            throw new Error('Failed to stop timer');
+            loggingUtils.logMessage('error', `Errore nel fermare il timer: ${error.message}`, 'CONTROLLERS');
+            throw new Error('Impossibile fermare il timer');
+        }
+    }
+    
+    /**
+     * Retrieves the currently active timer (status = 'running').
+     * @returns {Promise<Object|null>} The active timer object or null if no active timer exists.
+     */
+    static async getActiveTimer() {
+        try {
+            const query = `SELECT * FROM timers WHERE status = 'running' LIMIT 1`;
+            const result = await dbUtils.runQuery(query);
+            console.log("🔍 DEBUG: Risultato query getActiveTimer:", result);
+
+            if (result.length === 0) {
+                return null; // Nessun timer attivo
+            }
+
+            return result[0]; // Restituiamo il primo timer attivo trovato
+        } catch (error) {
+            loggingUtils.logMessage('error', `Errore nel recupero del timer attivo: ${error.message}`, 'CONTROLLERS');
+            throw new Error('Failed to retrieve active timer');
         }
     }
 }

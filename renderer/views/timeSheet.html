@@ -1,0 +1,54 @@
+<!-- Container principale -->
+<section class="timeSheet-section">
+    <h2>Time Logs Report</h2>
+  
+    <!-- Header con filtri e pulsante export -->
+    <div class="timeSheet-header">
+      <div class="filters-container">
+        
+        <!-- Calendario -->
+        <div class="date-picker-container">
+          <input
+            type="text"
+            id="date-picker-timesheet"
+            class="input-button air-datepicker-input"
+            placeholder="Select month"
+          />
+        </div>
+  
+        <!-- Selettore / Pill per Progetto -->
+        <div class="dropdown-container" id="projectSelectorContainer-timesheet">
+          <button id="projectSelectBtn-timesheet" class="action-button">
+            Click to select the project
+          </button>
+          <div id="selectedProjectBadge-timesheet" class="selection-badge hidden">
+            <span id="selectedProjectName-timesheet">Project Name</span>
+            <button id="removeProjectBtn-timesheet" class="remove-btn" title="Remove">x</button>
+          </div>
+        </div>
+  
+        <!-- Selettore / Pill per Attività -->
+        <div class="dropdown-container" id="taskSelectorContainer-timesheet">
+          <button id="taskSelectBtn-timesheet" class="action-button">
+            Click to select the task
+          </button>
+          <div id="selectedTaskBadge-timesheet" class="selection-badge hidden">
+            <span id="selectedTaskName-timesheet">Task Name</span>
+            <button id="removeTaskBtn-timesheet" class="remove-btn" title="Remove">x</button>
+          </div>
+        </div>
+  
+        <!-- Pulsante Export -->
+        <div class="dropdown-container export-align-right">
+          <button id="exportTimeSheetBtn-timesheet" class="action-button">Export</button>
+        </div>
+  
+      </div>
+    </div>
+  
+    <!-- Griglia dinamica con riepilogo ore -->
+    <div class="daily-hours-table">
+      <!-- Questa sezione verrà popolata dinamicamente con celle e ore -->
+    </div>
+  </section>
+  
