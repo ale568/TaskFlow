@@ -12,10 +12,10 @@ document.addEventListener("DOMContentLoaded", () => {
         link.parentElement.classList.add("active");
     }
 
-    // Controlla se esiste già un elemento attivo, altrimenti imposta "Timer" come attivo
+    // Controlla se esiste già un elemento attivo, altrimenti imposta "Home" come attivo
     const activeElement = document.querySelector(".sidebar ul li.active");
     if (!activeElement) {
-        const defaultPage = document.querySelector("[data-page='timer']");
+        const defaultPage = document.querySelector("[data-page='home']");
         if (defaultPage) {
             setActiveSection(defaultPage);
         }

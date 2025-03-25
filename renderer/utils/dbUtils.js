@@ -16,8 +16,7 @@ function connect(databaseName) {
             close();
         }
 
-        const isTestEnv = process.env.NODE_ENV === 'test';
-        currentDatabase = databaseName || (isTestEnv ? 'taskflow_test_utils.sqlite' : 'taskflow.sqlite');
+        currentDatabase = databaseName || 'taskflow.sqlite'; // DB di default
 
         const dbPath = path.resolve(__dirname, '../../data', currentDatabase);
         db = new Database(dbPath, { verbose: null });
@@ -112,7 +111,9 @@ function initializeTables() {
             task TEXT NOT NULL,
             startTime TEXT NOT NULL,
             endTime TEXT NULL,
-            duration INTEGER GENERATED ALWAYS AS (strftime('%s', endTime) - strftime('%s', startTime)) VIRTUAL,
+            duration REAL GENERATED ALWAYS AS (
+                MAX(1, ROUND((strftime('%s', endTime) - strftime('%s', startTime)) / 60.0))
+            ) VIRTUAL,
             updated_at TEXT NOT NULL DEFAULT (datetime('now')),
             tag_id INTEGER NULL,
             FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE,
