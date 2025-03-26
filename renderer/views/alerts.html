@@ -1,0 +1,81 @@
+<section class="content-wrapper">
+    <div id="alertsContainer">
+      <div class="alerts-header">
+        <h2>Alerts</h2>
+        <button id="addAlertBtn" class="action-button">Add Alert</button>
+      </div>
+  
+      <div id="empty-alerts" class="empty-message hidden">No alerts found.</div>
+  
+      <table class="alerts-table">
+        <thead>
+          <tr>
+            <th></th>
+            <th></th>
+            <th>Title</th>
+            <th>In</th>
+            <th>Type</th>
+            <th>Priority</th>
+            <th>Period</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="alertsTableBody"></tbody>
+      </table>
+    </div>
+
+    <!-- Modal per la creazione di un Alert -->
+    <div id="alertModal" class="modal hidden">
+        <div class="modal-content">
+            <h3 id="alertModalTitle">Create new Alert</h3>
+    
+            <!-- Titolo -->
+            <label for="alertTitleInput">Title</label>
+            <input type="text" id="alertTitleInput" />
+        
+            <!-- Project (Dropdown Custom) -->
+            <label>Project</label>
+            <div class="dropdown">
+                <button id="alertProjectBtn" class="dropdown-btn">Select project</button>
+                <ul id="alertProjectMenu" class="dropdown-menu hidden"></ul>
+            </div>
+        
+            <!-- Type (Dropdown Custom) -->
+            <label>Type</label>
+            <div class="dropdown">
+                <button id="alertTypeBtn" class="dropdown-btn">Select type</button>
+                <ul id="alertTypeMenu" class="dropdown-menu hidden">
+                <li data-value="Expiration date">Expiration date</li>
+                <li data-value="Deadline">Deadline</li>
+                <li data-value="Meeting">Meeting</li>
+                <li data-value="Follow-up">Follow-up</li>
+                <li data-value="Status Check">Status Check</li>
+                <li data-value="Milestone">Milestone</li>
+                <li data-value="Custom">Custom</li>
+                </ul>
+            </div>
+        
+            <!-- Priority (Dropdown Custom) -->
+            <label>Priority</label>
+            <div class="dropdown">
+                <button id="alertPriorityBtn" class="dropdown-btn">Select priority</button>
+                <ul id="alertPriorityMenu" class="dropdown-menu hidden">
+                <li data-value="High">High</li>
+                <li data-value="Medium">Medium</li>
+                <li data-value="Low">Low</li>
+                </ul>
+            </div>
+        
+            <!-- Data -->
+            <label for="alertDateInput">Date & Time</label>
+            <input type="text" id="alertDateInput" class="input-button" readonly />
+
+        
+            <!-- Azioni -->
+            <div class="modal-actions">
+                <button id="saveAlertBtn" class="btn-primary">Save</button>
+                <button id="cancelAlertBtn" class="btn-secondary">Cancel</button>
+            </div>
+        </div>
+    </div>
+</section>  
