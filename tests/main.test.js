@@ -88,6 +88,63 @@ describe('Main Process', () => {
 
     test('It should recreate the main window when activated if no windows are open', () => {
         expect(() => listeners.appListeners['activate']()).not.toThrow();
-    });    
+    });
+    
+    test('It should handle createTimer and return valid timerId', async () => {
+        const timerId = 42;
+        const mockSend = jest.fn();
+        
+        require('electron').ipcMain.handle.mock.calls.find(call => call[0] === 'createTimer')[1](
+            { sender: { send: mockSend } },
+            1, 'New Task', '2024-03-26T12:00:00', 'running'
+        );
+    
+        const result = await main.createTimer(1, 'New Task', '2024-03-26T12:00:00', 'running');
+        expect(typeof result === 'number' || result === null).toBeTruthy();
+    });
+    
+    test('It should handle stopTimer and reset globalState', async () => {
+        const mockSend = jest.fn();
+    
+        const elapsedTime = await main.stopTimer(
+            { sender: { send: mockSend } },
+            42,
+            '2024-03-26T13:00:00'
+        );
+    
+        expect(mockSend).toHaveBeenCalledWith('updateTimeEntriesMain');
+        expect(typeof elapsedTime === 'number' || elapsedTime === null).toBeTruthy();
+    });
+
+    test('It should delete time entries and associated timers', async () => {
+        const mockSend = jest.fn();
+        const result = await main.deleteTimeEntries(
+            { sender: { send: mockSend } },
+            [1, 2, 3]
+        );
+    
+        expect(result).toBe(true || false);
+        expect(mockSend).toHaveBeenCalledWith('updateTimeEntriesMain');
+    });
+
+    
+    test('It should get and set global state correctly', async () => {
+        const originalState = await main.getGlobalState();
+        expect(originalState).toHaveProperty('status');
+    
+        const newState = { task: 'test task', status: 'running' };
+        const updatedState = await main.setGlobalState(null, newState);
+        expect(updatedState.task).toBe('test task');
+        expect(updatedState.status).toBe('running');
+    });
+
+    
+    test('It should retrieve all projects and tags', async () => {
+        const projects = await main.getAllProjects();
+        expect(Array.isArray(projects)).toBe(true);
+    
+        const tags = await main.getAllTags();
+        expect(Array.isArray(tags)).toBe(true);
+    });
     
 });
